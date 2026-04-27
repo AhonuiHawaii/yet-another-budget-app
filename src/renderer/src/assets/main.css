@@ -1,313 +1,1098 @@
 @import './base.css';
 
 /* ============================================================
-   Vuetify component overrides — dark mode only
-   NO CUSTOM CLASSES!!! 
+   Vuetify component overrides — MD3 dark theme
+   NO CUSTOM CLASSES — Vuetify selectors only
    ============================================================ */
 
-/* --- v-app --- */
-.v-app {
-  background-color: var(--color-background);
-  color: var(--color-text-primary);
+/* ── v-application ───────────────────────────────────────── */
+.v-application {
+  background-color: var(--color-background) !important;
+  color: var(--color-on-background) !important;
+  font-family: var(--font-family) !important;
+  font-size: var(--font-size-base) !important;
+  line-height: var(--line-height-normal) !important;
 }
 
-/* --- v-main --- */
+/* ── v-main ──────────────────────────────────────────────── */
 .v-main {
-  background-color: var(--color-background);
+  background-color: var(--color-background) !important;
+  color: var(--color-on-background) !important;
 }
 
-/* --- v-navigation-drawer --- */
+/* ── v-navigation-drawer ─────────────────────────────────── */
 .v-navigation-drawer {
   background-color: var(--color-surface) !important;
-  border-right: 1px solid var(--color-border);
+  color: var(--color-on-surface) !important;
+  border-top: none !important;
+  border-bottom: none !important;
+  border-left: none !important;
+  border-right: 1px solid var(--color-border) !important;
 }
 
-/* --- v-list --- */
+.v-navigation-drawer__content {
+  background-color: var(--color-surface) !important;
+}
+
+/* ── v-app-bar ───────────────────────────────────────────── */
+.v-app-bar {
+  background-color: var(--color-surface) !important;
+  color: var(--color-on-surface) !important;
+  border-bottom: 1px solid var(--color-border) !important;
+  box-shadow: none !important;
+}
+
+.v-app-bar-title {
+  color: var(--color-on-surface) !important;
+  font-size: var(--font-size-lg) !important;
+  font-weight: 600 !important;
+}
+
+/* ── v-toolbar ───────────────────────────────────────────── */
+.v-toolbar {
+  background-color: var(--color-surface) !important;
+  color: var(--color-on-surface) !important;
+  border-bottom: 1px solid var(--color-border) !important;
+  box-shadow: none !important;
+}
+
+.v-toolbar__title {
+  color: var(--color-on-surface) !important;
+  font-size: var(--font-size-lg) !important;
+  font-weight: 600 !important;
+}
+
+.v-toolbar__prepend,
+.v-toolbar__append {
+  color: var(--color-on-surface-variant) !important;
+}
+
+/* ── v-list ──────────────────────────────────────────────── */
 .v-list {
-  background: transparent;
-  padding: var(--space-2) 0;
+  background-color: transparent !important;
+  color: var(--color-on-surface) !important;
+  padding: var(--space-2) 0 !important;
 }
 
 .v-list-item {
-  border-radius: var(--radius-md);
-  margin: 0 var(--space-2);
-  color: var(--color-text-secondary);
+  background-color: transparent !important;
+  color: var(--color-on-surface-variant) !important;
+  border-radius: var(--radius-menu) !important;
+  margin: 0 var(--space-2) !important;
+  min-height: 44px !important;
   transition:
     background-color var(--transition-fast),
-    color var(--transition-fast);
+    color var(--transition-fast) !important;
 }
 
 .v-list-item:hover {
-  background-color: var(--color-overlay-hover);
-  color: var(--color-text-primary);
+  background-color: var(--color-overlay-hover) !important;
+  color: var(--color-on-surface) !important;
 }
 
 .v-list-item--active {
-  background-color: var(--color-overlay-focus);
-  color: var(--color-primary);
+  background-color: var(--color-overlay-focus) !important;
+  color: var(--color-primary) !important;
 }
 
-/* --- v-card --- */
+.v-list-item--active .v-list-item__prepend,
+.v-list-item--active .v-icon {
+  color: var(--color-primary) !important;
+}
+
+.v-list-item__prepend {
+  color: var(--color-on-surface-variant) !important;
+}
+
+.v-list-item__append {
+  color: var(--color-on-surface-variant) !important;
+}
+
+.v-list-item-title {
+  color: inherit !important;
+  font-size: var(--font-size-sm) !important;
+  font-weight: 500 !important;
+  line-height: var(--line-height-tight) !important;
+}
+
+.v-list-item-subtitle {
+  color: var(--color-on-surface-variant) !important;
+  font-size: var(--font-size-xs) !important;
+}
+
+.v-list-subheader {
+  color: var(--color-on-surface-variant) !important;
+  font-size: var(--font-size-xs) !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+}
+
+/* ── v-card (MD3: filled uses surface-variant, elevated uses surface) ── */
 .v-card {
   background-color: var(--color-surface) !important;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg) !important;
-  box-shadow: var(--shadow-md) !important;
-  color: var(--color-text-primary);
+  color: var(--color-on-surface) !important;
+  border: 1px solid var(--color-border) !important;
+  border-radius: var(--radius-card) !important;
+}
+
+.v-card--variant-elevated {
+  background-color: var(--color-surface-light) !important;
+  box-shadow: var(--shadow-sm) !important;
+  border: none !important;
+}
+
+.v-card--variant-outlined {
+  background-color: transparent !important;
+  border: 1px solid var(--color-border-strong) !important;
+  box-shadow: none !important;
+}
+
+.v-card--variant-flat {
+  box-shadow: none !important;
+  border: none !important;
+}
+
+.v-card--variant-tonal {
+  background-color: var(--color-surface-variant) !important;
+  border: none !important;
+  box-shadow: none !important;
 }
 
 .v-card-title {
-  font-size: var(--font-size-lg);
-  font-weight: 600;
-  color: var(--color-text-primary);
-  letter-spacing: 0.0125em;
+  color: var(--color-on-surface) !important;
+  font-size: var(--font-size-lg) !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.0125em !important;
+  line-height: var(--line-height-tight) !important;
+  padding: var(--space-4) var(--space-4) var(--space-2) !important;
 }
 
 .v-card-subtitle {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
+  color: var(--color-on-surface-variant) !important;
+  font-size: var(--font-size-sm) !important;
+  padding: 0 var(--space-4) var(--space-2) !important;
 }
 
 .v-card-text {
-  color: var(--color-text-secondary);
+  color: var(--color-on-surface-variant) !important;
+  font-size: var(--font-size-sm) !important;
+  padding: var(--space-2) var(--space-4) var(--space-4) !important;
 }
 
-/* --- v-btn --- */
+.v-card-actions {
+  padding: var(--space-2) var(--space-4) var(--space-4) !important;
+  gap: var(--space-2) !important;
+}
+
+/* ── v-btn (MD3: filled=primary, tonal=surface-variant, outlined, text) ── */
 .v-btn {
-  border-radius: var(--radius-md) !important;
-  font-weight: 500;
-  letter-spacing: 0.0625em;
-  text-transform: none;
+  border-radius: var(--radius-btn) !important;
+  font-family: var(--font-family) !important;
+  font-size: var(--font-size-sm) !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.04em !important;
+  text-transform: none !important;
   transition:
     background-color var(--transition-fast),
-    box-shadow var(--transition-fast),
-    opacity var(--transition-fast);
+    color var(--transition-fast),
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast) !important;
+}
+
+.v-btn--icon {
+  border-radius: var(--radius-btn-icon) !important;
+}
+
+.v-btn--fab {
+  border-radius: var(--radius-btn-fab) !important;
+}
+
+.v-btn--tile {
+  border-radius: 0 !important;
 }
 
 .v-btn--variant-elevated,
 .v-btn--variant-flat {
   box-shadow: var(--shadow-sm) !important;
+  border: none !important;
+}
+
+.v-btn--variant-elevated:hover,
+.v-btn--variant-flat:hover {
+  box-shadow: var(--shadow-md) !important;
+}
+
+.v-btn--variant-tonal {
+  background-color: var(--color-surface-variant) !important;
+  color: var(--color-on-surface-variant) !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.v-btn--variant-tonal:hover {
+  background-color: var(--color-surface-bright) !important;
 }
 
 .v-btn--variant-outlined {
-  border-color: var(--color-border-strong);
+  background-color: transparent !important;
+  color: var(--color-primary) !important;
+  border: 1px solid var(--color-border-strong) !important;
+  box-shadow: none !important;
 }
 
-.v-btn--variant-text,
+.v-btn--variant-outlined:hover {
+  background-color: var(--color-overlay-hover) !important;
+}
+
+.v-btn--variant-text {
+  background-color: transparent !important;
+  color: var(--color-primary) !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.v-btn--variant-text:hover {
+  background-color: var(--color-overlay-hover) !important;
+}
+
 .v-btn--variant-plain {
-  color: var(--color-text-secondary);
+  background-color: transparent !important;
+  color: var(--color-on-surface-variant) !important;
+  border: none !important;
+  box-shadow: none !important;
+  opacity: 1 !important;
 }
 
-.v-btn--variant-text:hover,
 .v-btn--variant-plain:hover {
-  background-color: var(--color-overlay-hover);
-  color: var(--color-text-primary);
+  color: var(--color-on-surface) !important;
 }
 
-/* --- v-text-field / v-textarea / v-select / v-autocomplete --- */
+.v-btn--disabled {
+  color: var(--color-text-disabled) !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  opacity: 0.38 !important;
+}
+
+.v-btn__prepend,
+.v-btn__append {
+  color: inherit !important;
+}
+
+/* ── v-icon ──────────────────────────────────────────────── */
+.v-icon {
+  color: inherit !important;
+}
+
+/* ── v-field (text-field, textarea, select, autocomplete) ── */
 .v-field {
-  border-radius: var(--radius-md) !important;
+  color: var(--color-on-surface) !important;
+  border-radius: var(--radius-input) var(--radius-input) 0 0 !important;
+}
+
+.v-field--variant-outlined {
+  background-color: transparent !important;
+  border-radius: var(--radius-input) !important;
+}
+
+.v-field--variant-filled,
+.v-field--variant-solo,
+.v-field--variant-solo-filled {
+  background-color: var(--color-surface-variant) !important;
+  box-shadow: none !important;
+}
+
+.v-field--variant-underlined,
+.v-field--variant-plain {
+  background-color: transparent !important;
 }
 
 .v-field__input {
-  color: var(--color-text-primary);
-  font-size: var(--font-size-base);
+  color: var(--color-on-surface) !important;
+  font-family: var(--font-family) !important;
+  font-size: var(--font-size-base) !important;
+  caret-color: var(--color-primary) !important;
 }
 
-.v-field--variant-outlined .v-field__outline__start,
-.v-field--variant-outlined .v-field__outline__notch,
-.v-field--variant-outlined .v-field__outline__end {
-  border-color: var(--color-border-strong);
-  transition: border-color var(--transition-fast);
+.v-field__outline__start,
+.v-field__outline__notch,
+.v-field__outline__end {
+  border-color: var(--color-border-strong) !important;
+  transition: border-color var(--transition-fast) !important;
 }
 
 .v-field--focused .v-field__outline__start,
 .v-field--focused .v-field__outline__notch,
 .v-field--focused .v-field__outline__end {
-  border-color: var(--color-primary);
+  border-color: var(--color-primary) !important;
+  border-width: 2px !important;
+}
+
+.v-field--error .v-field__outline__start,
+.v-field--error .v-field__outline__notch,
+.v-field--error .v-field__outline__end {
+  border-color: var(--color-error) !important;
+}
+
+.v-field__prepend-inner,
+.v-field__append-inner {
+  color: var(--color-on-surface-variant) !important;
+}
+
+.v-field--focused .v-field__prepend-inner,
+.v-field--focused .v-field__append-inner {
+  color: var(--color-primary) !important;
 }
 
 .v-label {
-  color: var(--color-text-secondary);
-  font-size: var(--font-size-sm);
+  color: var(--color-on-surface-variant) !important;
+  font-size: var(--font-size-sm) !important;
+  font-family: var(--font-family) !important;
 }
 
-.v-field--variant-filled,
-.v-field--variant-solo {
-  background-color: var(--color-surface-variant) !important;
+.v-label--floating {
+  font-size: var(--font-size-xs) !important;
 }
 
-/* --- v-divider --- */
+.v-field--focused .v-label {
+  color: var(--color-primary) !important;
+}
+
+.v-field--error .v-label {
+  color: var(--color-error) !important;
+}
+
+.v-messages {
+  color: var(--color-on-surface-variant) !important;
+  font-size: var(--font-size-xs) !important;
+  min-height: 18px !important;
+}
+
+.v-input--error .v-messages {
+  color: var(--color-error) !important;
+}
+
+/* ── v-select / v-autocomplete / v-combobox ──────────────── */
+.v-select__selection-text {
+  color: var(--color-on-surface) !important;
+  font-size: var(--font-size-base) !important;
+}
+
+.v-select__content {
+  background-color: var(--color-surface-bright) !important;
+  border: 1px solid var(--color-border) !important;
+  border-radius: var(--radius-menu) !important;
+  box-shadow: var(--shadow-md) !important;
+}
+
+/* ── v-divider ───────────────────────────────────────────── */
 .v-divider {
   border-color: var(--color-border) !important;
+  opacity: 1 !important;
 }
 
-/* --- v-chip --- */
+/* ── v-chip (MD3: assist/filter/input/suggestion) ────────── */
 .v-chip {
-  border-radius: var(--radius-full) !important;
-  font-size: var(--font-size-sm);
-  font-weight: 500;
+  background-color: var(--color-surface-variant) !important;
+  color: var(--color-on-surface-variant) !important;
+  border-radius: var(--radius-chip) !important;
+  font-size: var(--font-size-xs) !important;
+  font-weight: 500 !important;
+  border: 1px solid transparent !important;
 }
 
 .v-chip--variant-outlined {
-  border-color: var(--color-border-strong);
-  color: var(--color-text-secondary);
+  background-color: transparent !important;
+  color: var(--color-on-surface-variant) !important;
+  border-color: var(--color-border-strong) !important;
 }
 
-/* --- v-tooltip --- */
+.v-chip--variant-text {
+  background-color: transparent !important;
+  color: var(--color-on-surface-variant) !important;
+  border-color: transparent !important;
+}
+
+.v-chip--variant-elevated {
+  box-shadow: var(--shadow-sm) !important;
+}
+
+.v-chip--variant-tonal {
+  background-color: var(--color-overlay-focus) !important;
+  color: var(--color-on-surface) !important;
+}
+
+.v-chip__close {
+  color: var(--color-on-surface-variant) !important;
+}
+
+.v-chip__close:hover {
+  color: var(--color-on-surface) !important;
+}
+
+/* ── v-tooltip (MD3: inverse-surface) ────────────────────── */
 .v-tooltip > .v-overlay__content {
-  background-color: var(--color-surface-elevated);
-  color: var(--color-text-primary);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  font-size: var(--font-size-sm);
-  box-shadow: var(--shadow-lg);
+  background-color: var(--color-on-surface) !important;
+  color: var(--color-surface) !important;
+  border: none !important;
+  border-radius: var(--radius-tooltip) !important;
+  font-size: var(--font-size-xs) !important;
+  font-weight: 500 !important;
+  box-shadow: none !important;
+  padding: var(--space-1) var(--space-2) !important;
 }
 
-/* --- v-dialog --- */
+/* ── v-dialog (MD3: surface-variant container) ───────────── */
 .v-dialog > .v-overlay__content {
-  border-radius: var(--radius-xl) !important;
+  border-radius: var(--radius-dialog) !important;
+  box-shadow: var(--shadow-lg) !important;
 }
 
 .v-dialog > .v-overlay__content > .v-card {
   background-color: var(--color-surface-variant) !important;
+  color: var(--color-on-surface) !important;
+  border: none !important;
+  border-radius: var(--radius-dialog) !important;
 }
 
-/* --- v-menu --- */
+/* ── v-bottom-sheet ──────────────────────────────────────── */
+.v-bottom-sheet > .v-overlay__content {
+  background-color: var(--color-surface-variant) !important;
+  border-top: 1px solid var(--color-border) !important;
+  border-radius: var(--radius-dialog) var(--radius-dialog) 0 0 !important;
+}
+
+/* ── v-menu (MD3: surface-container) ─────────────────────── */
 .v-menu > .v-overlay__content {
-  border-radius: var(--radius-lg) !important;
+  border-radius: var(--radius-menu) !important;
+  box-shadow: var(--shadow-md) !important;
 }
 
 .v-menu > .v-overlay__content > .v-list {
-  background-color: var(--color-surface-elevated) !important;
-  border: 1px solid var(--color-border);
-  box-shadow: var(--shadow-lg);
+  background-color: var(--color-surface-bright) !important;
+  border: 1px solid var(--color-border) !important;
+  border-radius: var(--radius-menu) !important;
+  box-shadow: none !important;
+  padding: var(--space-2) 0 !important;
 }
 
-/* --- v-table --- */
+/* ── v-overlay ───────────────────────────────────────────── */
+.v-overlay__scrim {
+  background-color: rgba(0, 0, 0, 0.72) !important;
+}
+
+/* ── v-table ─────────────────────────────────────────────── */
 .v-table {
   background-color: var(--color-surface) !important;
-  color: var(--color-text-primary);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
+  color: var(--color-on-surface) !important;
+  border-radius: var(--radius-card) !important;
+  border: 1px solid var(--color-border) !important;
+  overflow: hidden !important;
 }
 
-.v-table th {
-  color: var(--color-text-secondary) !important;
-  font-size: var(--font-size-sm);
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+.v-table > .v-table__wrapper > table > thead > tr > th {
+  background-color: var(--color-surface-variant) !important;
+  color: var(--color-on-surface-variant) !important;
+  font-size: var(--font-size-xs) !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+  border-bottom: 1px solid var(--color-border) !important;
+  padding: var(--space-3) var(--space-4) !important;
+}
+
+.v-table > .v-table__wrapper > table > tbody > tr > td {
+  background-color: transparent !important;
+  color: var(--color-on-surface) !important;
+  font-size: var(--font-size-sm) !important;
+  border-bottom: 1px solid var(--color-border) !important;
+  padding: var(--space-3) var(--space-4) !important;
+}
+
+.v-table > .v-table__wrapper > table > tbody > tr:last-child > td {
+  border-bottom: none !important;
+}
+
+.v-table > .v-table__wrapper > table > tbody > tr:hover > td {
+  background-color: var(--color-overlay-hover) !important;
+}
+
+.v-table > .v-table__wrapper > table > tfoot > tr > td {
+  color: var(--color-on-surface-variant) !important;
+  font-size: var(--font-size-xs) !important;
+  border-top: 1px solid var(--color-border) !important;
+  padding: var(--space-3) var(--space-4) !important;
+}
+
+/* ── v-tabs (MD3: primary indicator, on-surface-variant inactive) ── */
+.v-tabs {
+  background-color: transparent !important;
   border-bottom: 1px solid var(--color-border) !important;
 }
 
-.v-table td {
-  color: var(--color-text-primary);
-  border-bottom: 1px solid var(--color-border) !important;
-  font-size: var(--font-size-sm);
-}
-
-.v-table tr:hover > td {
-  background-color: var(--color-overlay-hover);
-}
-
-/* --- v-toolbar / v-app-bar --- */
-.v-toolbar,
-.v-app-bar {
-  background-color: var(--color-surface) !important;
-  border-bottom: 1px solid var(--color-border);
-  box-shadow: none !important;
-}
-
-/* --- v-tabs --- */
 .v-tab {
-  color: var(--color-text-secondary);
-  text-transform: none;
-  font-weight: 500;
-  letter-spacing: 0.02em;
-  transition: color var(--transition-fast);
+  color: var(--color-on-surface-variant) !important;
+  font-size: var(--font-size-sm) !important;
+  font-weight: 500 !important;
+  font-family: var(--font-family) !important;
+  letter-spacing: 0.02em !important;
+  text-transform: none !important;
+  min-width: 80px !important;
+  transition: color var(--transition-fast) !important;
+}
+
+.v-tab:hover {
+  color: var(--color-on-surface) !important;
+  background-color: var(--color-overlay-hover) !important;
 }
 
 .v-tab--selected {
-  color: var(--color-primary);
+  color: var(--color-primary) !important;
 }
 
 .v-tabs__slider {
-  background-color: var(--color-primary);
+  background-color: var(--color-primary) !important;
+  height: 3px !important;
+  border-radius: var(--radius-full) var(--radius-full) 0 0 !important;
 }
 
-/* --- v-progress-linear --- */
-.v-progress-linear__background {
-  background-color: var(--color-border) !important;
+/* ── v-window ────────────────────────────────────────────── */
+.v-window {
+  background-color: transparent !important;
 }
 
-/* --- v-progress-circular --- */
-.v-progress-circular__underlay {
-  stroke: var(--color-border) !important;
+.v-window-item {
+  background-color: transparent !important;
+  color: var(--color-on-surface) !important;
 }
 
-/* --- v-badge --- */
+/* ── v-badge (MD3: error container default) ──────────────── */
 .v-badge__badge {
-  font-size: var(--font-size-xs);
-  font-weight: 600;
+  background-color: var(--color-error) !important;
+  color: var(--color-on-error) !important;
+  font-size: var(--font-size-xs) !important;
+  font-weight: 600 !important;
+  min-width: 18px !important;
+  height: 18px !important;
+  padding: 0 var(--space-1) !important;
+  border-radius: var(--radius-full) !important;
+  border: 2px solid var(--color-background) !important;
 }
 
-/* --- v-alert --- */
+/* ── v-alert (MD3: tonal surface with semantic color) ────── */
 .v-alert {
+  background-color: var(--color-surface-variant) !important;
+  color: var(--color-on-surface) !important;
   border-radius: var(--radius-lg) !important;
-  font-size: var(--font-size-sm);
+  border: none !important;
+  font-size: var(--font-size-sm) !important;
+  padding: var(--space-4) !important;
 }
 
-/* --- v-snackbar --- */
+.v-alert--variant-outlined {
+  background-color: transparent !important;
+  border: 1px solid var(--color-border-strong) !important;
+}
+
+.v-alert--variant-tonal {
+  border: none !important;
+}
+
+.v-alert__prepend {
+  color: inherit !important;
+}
+
+.v-alert-title {
+  color: var(--color-on-surface) !important;
+  font-size: var(--font-size-base) !important;
+  font-weight: 600 !important;
+}
+
+.v-alert__content {
+  color: var(--color-on-surface-variant) !important;
+}
+
+.v-alert__close {
+  color: var(--color-on-surface-variant) !important;
+}
+
+/* ── v-snackbar (MD3: inverse-surface) ───────────────────── */
+.v-snackbar__wrapper {
+  background-color: var(--color-on-surface) !important;
+  color: var(--color-surface) !important;
+  border: none !important;
+  border-radius: var(--radius-sm) !important;
+  box-shadow: var(--shadow-lg) !important;
+  min-width: 280px !important;
+}
+
 .v-snackbar__content {
-  font-size: var(--font-size-sm);
+  color: inherit !important;
+  font-size: var(--font-size-sm) !important;
+  padding: var(--space-3) var(--space-4) !important;
 }
 
-/* --- v-expansion-panel --- */
+.v-snackbar__actions {
+  padding: 0 var(--space-2) 0 0 !important;
+}
+
+/* ── v-progress-linear ───────────────────────────────────── */
+.v-progress-linear {
+  border-radius: var(--radius-full) !important;
+  overflow: hidden !important;
+}
+
+.v-progress-linear__background {
+  background-color: var(--color-surface-variant) !important;
+  opacity: 1 !important;
+}
+
+.v-progress-linear__determinate,
+.v-progress-linear__indeterminate {
+  background-color: var(--color-primary) !important;
+}
+
+/* ── v-progress-circular ─────────────────────────────────── */
+.v-progress-circular__underlay {
+  stroke: var(--color-surface-variant) !important;
+}
+
+.v-progress-circular__overlay {
+  stroke: var(--color-primary) !important;
+}
+
+/* ── v-skeleton-loader ───────────────────────────────────── */
+.v-skeleton-loader {
+  background-color: transparent !important;
+}
+
+.v-skeleton-loader__bone {
+  background-color: var(--color-surface-variant) !important;
+  border-radius: var(--radius-sm) !important;
+}
+
+/* ── v-expansion-panel (MD3: surface-container) ──────────── */
+.v-expansion-panels {
+  gap: var(--space-2) !important;
+}
+
 .v-expansion-panel {
   background-color: var(--color-surface) !important;
-  border: 1px solid var(--color-border);
+  color: var(--color-on-surface) !important;
+  border: 1px solid var(--color-border) !important;
   border-radius: var(--radius-lg) !important;
-  margin-bottom: var(--space-2);
+  box-shadow: none !important;
+  overflow: hidden !important;
+}
+
+.v-expansion-panel--active {
+  border-color: var(--color-border-strong) !important;
 }
 
 .v-expansion-panel-title {
-  color: var(--color-text-primary);
-  font-weight: 500;
+  background-color: transparent !important;
+  color: var(--color-on-surface) !important;
+  font-size: var(--font-size-base) !important;
+  font-weight: 500 !important;
+  min-height: 48px !important;
+  padding: var(--space-4) !important;
+}
+
+.v-expansion-panel-title:hover {
+  background-color: var(--color-overlay-hover) !important;
+}
+
+.v-expansion-panel-title__icon {
+  color: var(--color-on-surface-variant) !important;
 }
 
 .v-expansion-panel-text {
-  color: var(--color-text-secondary);
+  background-color: transparent !important;
+  color: var(--color-on-surface-variant) !important;
+  font-size: var(--font-size-sm) !important;
+  padding: 0 var(--space-4) var(--space-4) !important;
 }
 
-/* --- v-breadcrumbs --- */
+.v-expansion-panel-text__wrapper {
+  padding: 0 !important;
+}
+
+/* ── v-breadcrumbs ───────────────────────────────────────── */
 .v-breadcrumbs {
-  font-size: var(--font-size-sm);
+  padding: var(--space-2) 0 !important;
 }
 
 .v-breadcrumbs-item {
-  color: var(--color-text-secondary);
+  color: var(--color-on-surface-variant) !important;
+  font-size: var(--font-size-sm) !important;
+  text-decoration: none !important;
 }
 
-.v-breadcrumbs-item--active {
-  color: var(--color-text-primary);
+.v-breadcrumbs-item:hover {
+  color: var(--color-on-surface) !important;
 }
 
-/* --- Scrollbar (WebKit — Electron) --- */
+.v-breadcrumbs-item--disabled {
+  color: var(--color-on-surface) !important;
+  opacity: 1 !important;
+}
+
+.v-breadcrumbs-divider {
+  color: var(--color-on-surface-variant) !important;
+  font-size: var(--font-size-sm) !important;
+}
+
+/* ── v-pagination ────────────────────────────────────────── */
+.v-pagination__item .v-btn {
+  background-color: transparent !important;
+  color: var(--color-on-surface-variant) !important;
+  border: 1px solid transparent !important;
+}
+
+.v-pagination__item .v-btn:hover {
+  background-color: var(--color-overlay-hover) !important;
+  color: var(--color-on-surface) !important;
+}
+
+.v-pagination__item--is-active .v-btn {
+  background-color: var(--color-primary) !important;
+  color: var(--color-on-primary) !important;
+  border-color: transparent !important;
+}
+
+/* ── v-stepper (MD3: surface container) ──────────────────── */
+.v-stepper {
+  background-color: var(--color-surface) !important;
+  border: 1px solid var(--color-border) !important;
+  border-radius: var(--radius-lg) !important;
+  box-shadow: none !important;
+}
+
+.v-stepper-header {
+  background-color: var(--color-surface-variant) !important;
+  border-bottom: 1px solid var(--color-border) !important;
+  box-shadow: none !important;
+}
+
+.v-stepper-item {
+  color: var(--color-on-surface-variant) !important;
+}
+
+.v-stepper-item--selected {
+  color: var(--color-primary) !important;
+}
+
+.v-stepper-item__avatar {
+  background-color: var(--color-surface-bright) !important;
+  color: var(--color-on-surface-variant) !important;
+  border: 2px solid var(--color-border-strong) !important;
+}
+
+.v-stepper-item--selected .v-stepper-item__avatar {
+  background-color: var(--color-primary) !important;
+  color: var(--color-on-primary) !important;
+  border-color: var(--color-primary) !important;
+}
+
+.v-stepper-item--complete .v-stepper-item__avatar {
+  background-color: var(--color-success) !important;
+  color: var(--color-on-success) !important;
+  border-color: var(--color-success) !important;
+}
+
+.v-stepper-window {
+  background-color: transparent !important;
+}
+
+.v-stepper-window-item {
+  color: var(--color-on-surface) !important;
+  padding: var(--space-6) !important;
+}
+
+.v-stepper-actions {
+  padding: 0 var(--space-6) var(--space-6) !important;
+  gap: var(--space-2) !important;
+}
+
+/* ── v-switch (MD3: on-surface track, primary selected) ─── */
+.v-switch .v-selection-control__wrapper {
+  color: var(--color-on-surface) !important;
+}
+
+.v-switch .v-switch__track {
+  background-color: var(--color-surface-variant) !important;
+  border: 2px solid var(--color-border-strong) !important;
+  opacity: 1 !important;
+}
+
+.v-switch .v-switch__thumb {
+  background-color: var(--color-on-surface-variant) !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+
+.v-input--error .v-switch__track {
+  background-color: var(--color-error) !important;
+}
+
+/* ── v-checkbox (MD3: on-surface-variant unchecked) ──────── */
+.v-checkbox .v-selection-control {
+  color: var(--color-on-surface) !important;
+  min-height: 32px !important;
+}
+
+.v-checkbox .v-icon {
+  color: var(--color-on-surface-variant) !important;
+}
+
+.v-checkbox--error .v-icon {
+  color: var(--color-error) !important;
+}
+
+/* ── v-radio ─────────────────────────────────────────────── */
+.v-radio .v-selection-control {
+  color: var(--color-on-surface) !important;
+}
+
+.v-radio .v-icon {
+  color: var(--color-on-surface-variant) !important;
+}
+
+/* ── v-slider (MD3: primary track fill) ──────────────────── */
+.v-slider-track__background {
+  background-color: var(--color-surface-variant) !important;
+  opacity: 1 !important;
+}
+
+.v-slider-track__fill {
+  background-color: var(--color-primary) !important;
+}
+
+.v-slider-thumb__surface {
+  background-color: var(--color-primary) !important;
+  border: 2px solid var(--color-background) !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+
+.v-slider-thumb__label {
+  background-color: var(--color-primary) !important;
+  color: var(--color-on-primary) !important;
+  border: none !important;
+  border-radius: var(--radius-full) !important;
+  font-size: var(--font-size-xs) !important;
+}
+
+/* ── v-rating ────────────────────────────────────────────── */
+.v-rating .v-icon {
+  color: var(--color-on-surface-variant) !important;
+}
+
+.v-rating__item--focused .v-icon,
+.v-rating__item--full .v-icon {
+  color: var(--color-warning) !important;
+}
+
+/* ── v-avatar ────────────────────────────────────────────── */
+.v-avatar {
+  background-color: var(--color-surface-variant) !important;
+  color: var(--color-on-surface-variant) !important;
+  border-radius: var(--radius-full) !important;
+}
+
+/* ── v-banner ────────────────────────────────────────────── */
+.v-banner {
+  background-color: var(--color-surface-variant) !important;
+  color: var(--color-on-surface) !important;
+  border-bottom: 1px solid var(--color-border) !important;
+}
+
+.v-banner-text {
+  color: var(--color-on-surface-variant) !important;
+  font-size: var(--font-size-sm) !important;
+}
+
+/* ── v-bottom-navigation (MD3: surface) ──────────────────── */
+.v-bottom-navigation {
+  background-color: var(--color-surface) !important;
+  border-top: 1px solid var(--color-border) !important;
+  box-shadow: none !important;
+}
+
+.v-btn--stacked {
+  color: var(--color-on-surface-variant) !important;
+}
+
+.v-btn--stacked.v-btn--active {
+  color: var(--color-primary) !important;
+}
+
+/* ── v-date-picker (MD3: surface-container-high) ─────────── */
+.v-date-picker {
+  background-color: var(--color-surface-variant) !important;
+  border: none !important;
+  border-radius: 28px !important;
+  box-shadow: var(--shadow-lg) !important;
+  color: var(--color-on-surface) !important;
+}
+
+.v-date-picker-header {
+  background-color: transparent !important;
+  color: var(--color-on-surface-variant) !important;
+  border-bottom: none !important;
+}
+
+.v-date-picker-month__day .v-btn {
+  background-color: transparent !important;
+  color: var(--color-on-surface) !important;
+  border: none !important;
+}
+
+.v-date-picker-month__day .v-btn:hover {
+  background-color: var(--color-overlay-hover) !important;
+}
+
+.v-date-picker-month__day--selected .v-btn {
+  background-color: var(--color-primary) !important;
+  color: var(--color-on-primary) !important;
+}
+
+.v-date-picker-month__day--today .v-btn {
+  border: 1px solid var(--color-primary) !important;
+  color: var(--color-primary) !important;
+}
+
+/* ── v-color-picker ──────────────────────────────────────── */
+.v-color-picker {
+  background-color: var(--color-surface-variant) !important;
+  border: none !important;
+  border-radius: var(--radius-lg) !important;
+  box-shadow: var(--shadow-lg) !important;
+}
+
+/* ── v-data-table ────────────────────────────────────────── */
+.v-data-table {
+  background-color: var(--color-surface) !important;
+  color: var(--color-on-surface) !important;
+  border: 1px solid var(--color-border) !important;
+  border-radius: var(--radius-lg) !important;
+  overflow: hidden !important;
+}
+
+.v-data-table-header__content {
+  color: var(--color-on-surface-variant) !important;
+  font-size: var(--font-size-xs) !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+}
+
+.v-data-table__th {
+  background-color: var(--color-surface-variant) !important;
+  border-bottom: 1px solid var(--color-border) !important;
+  padding: var(--space-3) var(--space-4) !important;
+}
+
+.v-data-table__td {
+  border-bottom: 1px solid var(--color-border) !important;
+  padding: var(--space-3) var(--space-4) !important;
+  font-size: var(--font-size-sm) !important;
+}
+
+.v-data-table__tr:hover .v-data-table__td {
+  background-color: var(--color-overlay-hover) !important;
+}
+
+.v-data-table-footer {
+  background-color: var(--color-surface-variant) !important;
+  border-top: 1px solid var(--color-border) !important;
+  color: var(--color-on-surface-variant) !important;
+  font-size: var(--font-size-xs) !important;
+  padding: var(--space-2) var(--space-4) !important;
+}
+
+/* ── v-infinite-scroll ───────────────────────────────────── */
+.v-infinite-scroll__side {
+  color: var(--color-on-surface-variant) !important;
+  font-size: var(--font-size-sm) !important;
+}
+
+/* ── v-timeline ──────────────────────────────────────────── */
+.v-timeline-divider__dot {
+  background-color: var(--color-surface-bright) !important;
+  border: 2px solid var(--color-border-strong) !important;
+}
+
+.v-timeline-divider__inner-dot {
+  background-color: var(--color-primary) !important;
+}
+
+.v-timeline-divider__line {
+  background-color: var(--color-border) !important;
+}
+
+.v-timeline-item__body {
+  color: var(--color-on-surface) !important;
+}
+
+.v-timeline-item__opposite {
+  color: var(--color-on-surface-variant) !important;
+  font-size: var(--font-size-sm) !important;
+}
+
+/* ── v-otp-input ─────────────────────────────────────────── */
+.v-otp-input .v-field {
+  background-color: var(--color-surface-variant) !important;
+}
+
+.v-otp-input .v-field__input {
+  color: var(--color-on-surface) !important;
+  font-size: var(--font-size-xl) !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.1em !important;
+  text-align: center !important;
+}
+
+/* ── v-file-input ────────────────────────────────────────── */
+.v-file-input .v-field__input {
+  color: var(--color-on-surface) !important;
+}
+
+.v-file-input .v-file-input__text {
+  color: var(--color-on-surface-variant) !important;
+  font-size: var(--font-size-sm) !important;
+}
+
+/* ── v-sheet ─────────────────────────────────────────────── */
+.v-sheet {
+  background-color: var(--color-surface) !important;
+  color: var(--color-on-surface) !important;
+  border-radius: var(--radius-lg) !important;
+}
+
+/* ── v-container ─────────────────────────────────────────── */
+.v-container {
+  color: var(--color-on-surface) !important;
+}
+
+/* ── Scrollbar (WebKit — Electron) ───────────────────────── */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 6px !important;
+  height: 6px !important;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--color-surface);
+  background-color: var(--color-surface) !important;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--color-border-strong);
-  border-radius: var(--radius-full);
+  background-color: var(--color-border-strong) !important;
+  border-radius: var(--radius-full) !important;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-text-disabled);
+  background-color: var(--color-on-surface-variant) !important;
+}
+
+::-webkit-scrollbar-corner {
+  background-color: var(--color-surface) !important;
 }

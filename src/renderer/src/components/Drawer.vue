@@ -1,4 +1,9 @@
 <script setup>
+
+const navItems = [
+  { title: 'Dashboard', component: Dashboard },
+  { title: 'Settings', component: Settings }
+]
 const emit = defineEmits(['change-view'])
 </script>
 
@@ -9,8 +14,12 @@ const emit = defineEmits(['change-view'])
     <v-list-item link title="Dashboard" @click="emit('change-view', 'Dashboard')"></v-list-item>
 
     <template v-slot:append>
-      <v-list-item link title="Settings" @click="emit('change-view', 'Settings')"></v-list-item>
-      <div class="pa-2"><v-btn block> Logout </v-btn></div>
+      <div class="pa-2">
+        <v-btn block class="mb-2" variant="tonal" @click="emit('change-view', 'Settings')">
+          Settings
+        </v-btn>
+        <v-btn block variant="outlined"> Logout </v-btn>
+      </div>
     </template>
   </v-navigation-drawer>
 </template>
