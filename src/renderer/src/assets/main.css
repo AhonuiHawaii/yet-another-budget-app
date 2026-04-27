@@ -1,1 +1,313 @@
 @import './base.css';
+
+/* ============================================================
+   Vuetify component overrides — dark mode only
+   NO CUSTOM CLASSES!!! 
+   ============================================================ */
+
+/* --- v-app --- */
+.v-app {
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+}
+
+/* --- v-main --- */
+.v-main {
+  background-color: var(--color-background);
+}
+
+/* --- v-navigation-drawer --- */
+.v-navigation-drawer {
+  background-color: var(--color-surface) !important;
+  border-right: 1px solid var(--color-border);
+}
+
+/* --- v-list --- */
+.v-list {
+  background: transparent;
+  padding: var(--space-2) 0;
+}
+
+.v-list-item {
+  border-radius: var(--radius-md);
+  margin: 0 var(--space-2);
+  color: var(--color-text-secondary);
+  transition:
+    background-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.v-list-item:hover {
+  background-color: var(--color-overlay-hover);
+  color: var(--color-text-primary);
+}
+
+.v-list-item--active {
+  background-color: var(--color-overlay-focus);
+  color: var(--color-primary);
+}
+
+/* --- v-card --- */
+.v-card {
+  background-color: var(--color-surface) !important;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg) !important;
+  box-shadow: var(--shadow-md) !important;
+  color: var(--color-text-primary);
+}
+
+.v-card-title {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  letter-spacing: 0.0125em;
+}
+
+.v-card-subtitle {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.v-card-text {
+  color: var(--color-text-secondary);
+}
+
+/* --- v-btn --- */
+.v-btn {
+  border-radius: var(--radius-md) !important;
+  font-weight: 500;
+  letter-spacing: 0.0625em;
+  text-transform: none;
+  transition:
+    background-color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    opacity var(--transition-fast);
+}
+
+.v-btn--variant-elevated,
+.v-btn--variant-flat {
+  box-shadow: var(--shadow-sm) !important;
+}
+
+.v-btn--variant-outlined {
+  border-color: var(--color-border-strong);
+}
+
+.v-btn--variant-text,
+.v-btn--variant-plain {
+  color: var(--color-text-secondary);
+}
+
+.v-btn--variant-text:hover,
+.v-btn--variant-plain:hover {
+  background-color: var(--color-overlay-hover);
+  color: var(--color-text-primary);
+}
+
+/* --- v-text-field / v-textarea / v-select / v-autocomplete --- */
+.v-field {
+  border-radius: var(--radius-md) !important;
+}
+
+.v-field__input {
+  color: var(--color-text-primary);
+  font-size: var(--font-size-base);
+}
+
+.v-field--variant-outlined .v-field__outline__start,
+.v-field--variant-outlined .v-field__outline__notch,
+.v-field--variant-outlined .v-field__outline__end {
+  border-color: var(--color-border-strong);
+  transition: border-color var(--transition-fast);
+}
+
+.v-field--focused .v-field__outline__start,
+.v-field--focused .v-field__outline__notch,
+.v-field--focused .v-field__outline__end {
+  border-color: var(--color-primary);
+}
+
+.v-label {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.v-field--variant-filled,
+.v-field--variant-solo {
+  background-color: var(--color-surface-variant) !important;
+}
+
+/* --- v-divider --- */
+.v-divider {
+  border-color: var(--color-border) !important;
+}
+
+/* --- v-chip --- */
+.v-chip {
+  border-radius: var(--radius-full) !important;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+}
+
+.v-chip--variant-outlined {
+  border-color: var(--color-border-strong);
+  color: var(--color-text-secondary);
+}
+
+/* --- v-tooltip --- */
+.v-tooltip > .v-overlay__content {
+  background-color: var(--color-surface-elevated);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  box-shadow: var(--shadow-lg);
+}
+
+/* --- v-dialog --- */
+.v-dialog > .v-overlay__content {
+  border-radius: var(--radius-xl) !important;
+}
+
+.v-dialog > .v-overlay__content > .v-card {
+  background-color: var(--color-surface-variant) !important;
+}
+
+/* --- v-menu --- */
+.v-menu > .v-overlay__content {
+  border-radius: var(--radius-lg) !important;
+}
+
+.v-menu > .v-overlay__content > .v-list {
+  background-color: var(--color-surface-elevated) !important;
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-lg);
+}
+
+/* --- v-table --- */
+.v-table {
+  background-color: var(--color-surface) !important;
+  color: var(--color-text-primary);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.v-table th {
+  color: var(--color-text-secondary) !important;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--color-border) !important;
+}
+
+.v-table td {
+  color: var(--color-text-primary);
+  border-bottom: 1px solid var(--color-border) !important;
+  font-size: var(--font-size-sm);
+}
+
+.v-table tr:hover > td {
+  background-color: var(--color-overlay-hover);
+}
+
+/* --- v-toolbar / v-app-bar --- */
+.v-toolbar,
+.v-app-bar {
+  background-color: var(--color-surface) !important;
+  border-bottom: 1px solid var(--color-border);
+  box-shadow: none !important;
+}
+
+/* --- v-tabs --- */
+.v-tab {
+  color: var(--color-text-secondary);
+  text-transform: none;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  transition: color var(--transition-fast);
+}
+
+.v-tab--selected {
+  color: var(--color-primary);
+}
+
+.v-tabs__slider {
+  background-color: var(--color-primary);
+}
+
+/* --- v-progress-linear --- */
+.v-progress-linear__background {
+  background-color: var(--color-border) !important;
+}
+
+/* --- v-progress-circular --- */
+.v-progress-circular__underlay {
+  stroke: var(--color-border) !important;
+}
+
+/* --- v-badge --- */
+.v-badge__badge {
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+}
+
+/* --- v-alert --- */
+.v-alert {
+  border-radius: var(--radius-lg) !important;
+  font-size: var(--font-size-sm);
+}
+
+/* --- v-snackbar --- */
+.v-snackbar__content {
+  font-size: var(--font-size-sm);
+}
+
+/* --- v-expansion-panel --- */
+.v-expansion-panel {
+  background-color: var(--color-surface) !important;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg) !important;
+  margin-bottom: var(--space-2);
+}
+
+.v-expansion-panel-title {
+  color: var(--color-text-primary);
+  font-weight: 500;
+}
+
+.v-expansion-panel-text {
+  color: var(--color-text-secondary);
+}
+
+/* --- v-breadcrumbs --- */
+.v-breadcrumbs {
+  font-size: var(--font-size-sm);
+}
+
+.v-breadcrumbs-item {
+  color: var(--color-text-secondary);
+}
+
+.v-breadcrumbs-item--active {
+  color: var(--color-text-primary);
+}
+
+/* --- Scrollbar (WebKit — Electron) --- */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-surface);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-strong);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-disabled);
+}
