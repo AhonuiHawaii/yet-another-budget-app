@@ -1,6 +1,7 @@
 import { resolve } from 'path'
 import { defineConfig } from 'electron-vite'
 import vue from '@vitejs/plugin-vue'
+import vuetify from 'vite-plugin-vuetify'
 
 export default defineConfig({
   main: {},
@@ -15,6 +16,6 @@ export default defineConfig({
         '@components': resolve('src/renderer/src/components')
       }
     },
-    plugins: [vue()]
+    plugins: [vue(), vuetify({ autoImport: true })]
   }
 })
