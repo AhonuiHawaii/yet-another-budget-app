@@ -3,10 +3,12 @@ import { shallowRef } from 'vue'
 import Drawer from './components/Drawer.vue'
 import Dashboard from './views/Dashboard.vue'
 import Settings from './views/Settings.vue'
+import Accounts from './views/Accounts.vue'
 
 const views = {
   Dashboard,
-  Settings
+  Settings,
+  Accounts
 }
 
 const currentComponent = shallowRef(views.Dashboard)

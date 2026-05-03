@@ -1,15 +1,15 @@
 <script setup>
 const navItems = [
-  { title: 'Dashboard', value: 'Dashboard' },
-  { title: 'Accounts', value: 'Accounts' },
-  { title: 'Transactions', value: 'Transactions' },
-  { title: 'Budgets', value: 'Budgets' },
-  { title: 'Goals', value: 'Goals' },
-  { title: 'Debts', value: 'Debts' },
-  { title: 'Income', value: 'Income' },
-  { title: 'Expenses', value: 'Expenses' },
-  { title: 'Bills', value: 'Bills' },
-  { title: 'Reports', value: 'Reports' }
+  { title: 'Dashboard', value: 'Dashboard', icon: 'mdi-view-dashboard' },
+  { title: 'Accounts', value: 'Accounts', icon: 'mdi-wallet' },
+  { title: 'Transactions', value: 'Transactions', icon: 'mdi-format-list-bulleted' },
+  { title: 'Income', value: 'Income', icon: 'mdi-cash-plus' },
+  { title: 'Expenses', value: 'Expenses', icon: 'mdi-cash-minus' },
+  { title: 'Bills', value: 'Bills', icon: 'mdi-receipt' },
+  { title: 'Budgets', value: 'Budgets', icon: 'mdi-chart-pie' },
+  { title: 'Debts', value: 'Debts', icon: 'mdi-credit-card-outline' },
+  { title: 'Goals', value: 'Goals', icon: 'mdi-target' },
+  { title: 'Reports', value: 'Reports', icon: 'mdi-chart-bar' }
 ]
 const emit = defineEmits(['change-view'])
 </script>
@@ -25,6 +25,7 @@ const emit = defineEmits(['change-view'])
         :key="item.value"
         link
         :title="item.title"
+        :prepend-icon="item.icon"
         @click="emit('change-view', item.value)"
       ></v-list-item>
     </v-list>
