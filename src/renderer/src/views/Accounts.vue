@@ -336,7 +336,7 @@ function openEditName(account) {
 
 function saveEditName() {
   if (editNameTarget.value) {
-    store.updateAccount(editNameTarget.value.ACCTID, editNameTarget.value.ORG, {
+    store.updateAccount(editNameTarget.value.ACCTID, {
       displayName: editNameValue.value.trim() || editNameTarget.value.ACCTTYPE
     })
   }
@@ -371,7 +371,7 @@ function confirmRemove(account) {
 
 function doRemove() {
   if (pendingRemove.value) {
-    store.removeAccount(pendingRemove.value.ACCTID, pendingRemove.value.ORG)
+    store.removeAccount(pendingRemove.value.ACCTID)
   }
   removeDialog.value = false
   pendingRemove.value = null

@@ -85,6 +85,28 @@ export const useUserAccountsStore = defineStore('userAccounts', () => {
   }
 
   /**
+   * Rename the ORG field on every account that currently belongs to a bank.
+   * @param {string} oldName - Current ORG value
+   * @param {string} newName - Replacement ORG value
+   */
+  async function updateBankName(oldName, newName) {
+    loading.value = true
+    error.value = null
+    try {
+      const affected = accounts.value.filter((a) => a.ORG === oldName)
+      for (const acct of affected) {
+        const result = await ipc.invoke('accounts:edit', acct.ACCTID, { ORG: newName })
+        if (!result.success) throw new Error(result.error)
+      }
+      await fetchAccounts()
+    } catch (err) {
+      setError(err)
+    } finally {
+      loading.value = false
+    }
+  }
+
+  /**
    * Delete an account and all of its transactions from the DB.
    * @param {string} acctid
    */
@@ -110,6 +132,7 @@ export const useUserAccountsStore = defineStore('userAccounts', () => {
     fetchAccounts,
     importAccountFromOfx,
     updateAccount,
+    updateBankName,
     removeAccount,
     clearError
   }
