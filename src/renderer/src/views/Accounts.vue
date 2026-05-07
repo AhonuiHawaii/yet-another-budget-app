@@ -283,10 +283,12 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useUserAccountsStore } from '../stores/userAcounts'
 
 const store = useUserAccountsStore()
+
+onMounted(() => store.fetchAccounts())
 
 // Group accounts by institution name (ORG), falling back to 'Unknown Institution'
 const groupedAccounts = computed(() => {

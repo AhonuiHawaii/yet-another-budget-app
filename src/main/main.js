@@ -31,6 +31,7 @@ export const importAccount = async (ofxData) => {
   try {
     const data = await extractAccountData(ofxData)
     if (!data) return fail(new Error('No account data found in the file.'))
+    upsertAccount(data)
     return ok(data)
   } catch (e) {
     return fail(e)
