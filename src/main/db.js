@@ -33,19 +33,16 @@ db.pragma(`key='${encryptionKey}'`)
 db.pragma('journal_mode = WAL')
 
 /*
-  QFX/OFX real transaction field names:
-    fitid          = FITID
-    type           = TRNTYPE
-    postedDate     = DTPOSTED
-    userDate       = DTUSER
-    amount         = TRNAMT
-    name           = NAME
-    memo           = MEMO
-    checkNumber    = CHECKNUM
-    refNumber      = REFNUM
-    rawTransaction = full STMTTRN object
+  Column names match ofx.js extractTransactionData output directly.
 
-  App transaction fields:
+  Account fields (from OFX signon/account headers):
+    ACCTID, ACCTTYPE, ORG, INTU_BID
+
+  Transaction fields (from OFX STMTTRN):
+    FITID, TRNTYPE, DTPOSTED, DTUSER, TRNAMT, NAME, MEMO,
+    CHECKNUM, REFNUM, DTAVAIL, SRVRTID, PAYEEID, EXTDNAME, SIC
+
+  App fields (set by user in the app):
     transactionType = income, expense, bills, variable (expenses)
     category        = main app category
     splitCategory1  = first split category
@@ -56,15 +53,24 @@ db.pragma('journal_mode = WAL')
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS Transactions (
-    fitid TEXT PRIMARY KEY,
-    type TEXT,
-    postedDate TEXT,
-    userDate TEXT,
-    amount REAL NOT NULL,
-    name TEXT,
-    memo TEXT,
-    checkNumber TEXT,
-    refNumber TEXT,
+    FITID TEXT PRIMARY KEY,
+    ACCTID TEXT,
+    ACCTTYPE TEXT,
+    ORG TEXT,
+    INTU_BID TEXT,
+    TRNTYPE TEXT,
+    DTPOSTED TEXT,
+    DTUSER TEXT,
+    TRNAMT TEXT,
+    NAME TEXT,
+    MEMO TEXT,
+    CHECKNUM TEXT,
+    REFNUM TEXT,
+    DTAVAIL TEXT,
+    SRVRTID TEXT,
+    PAYEEID TEXT,
+    EXTDNAME TEXT,
+    SIC TEXT,
     rawTransaction TEXT NOT NULL,
     createdAt TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     transactionType TEXT,
@@ -78,15 +84,37 @@ db.exec(`
 
 // Valid columns for filtering — prevents SQL injection on dynamic column names
 const VALID_COLUMNS = new Set([
-  'fitid', 'type', 'postedDate', 'userDate', 'amount', 'name', 'memo',
-  'checkNumber', 'refNumber', 'rawTransaction', 'createdAt',
-  'transactionType', 'category', 'splitCategory1', 'splitAmount1',
-  'splitCategory2', 'splitAmount2'
+  'FITID',
+  'ACCTID',
+  'ACCTTYPE',
+  'ORG',
+  'INTU_BID',
+  'TRNTYPE',
+  'DTPOSTED',
+  'DTUSER',
+  'TRNAMT',
+  'NAME',
+  'MEMO',
+  'CHECKNUM',
+  'REFNUM',
+  'DTAVAIL',
+  'SRVRTID',
+  'PAYEEID',
+  'EXTDNAME',
+  'SIC',
+  'rawTransaction',
+  'createdAt',
+  'transactionType',
+  'category',
+  'splitCategory1',
+  'splitAmount1',
+  'splitCategory2',
+  'splitAmount2'
 ])
 
 // OFX date columns — use LIKE prefix matching so partial dates work
 // e.g. '202605' → month, '20260506' → day, full timestamp → exact
-const DATE_COLUMNS = new Set(['postedDate', 'userDate'])
+const DATE_COLUMNS = new Set(['DTPOSTED', 'DTUSER', 'DTAVAIL'])
 
 // Get transactions by any field — defaults to current month by postedDate
 const getTransactions = (filters = {}) => {
@@ -95,42 +123,53 @@ const getTransactions = (filters = {}) => {
   if (entries.length === 0) {
     const now = new Date()
     const yyyymm = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}`
-    return db.prepare('SELECT * FROM Transactions WHERE postedDate LIKE ?').all(`${yyyymm}%`)
+    return db.prepare('SELECT * FROM Transactions WHERE DTPOSTED LIKE ?').all(`${yyyymm}%`)
   }
 
-  const clauses = entries.map(([col]) => DATE_COLUMNS.has(col) ? `${col} LIKE ?` : `${col} = ?`)
-  const values = entries.map(([col, val]) => DATE_COLUMNS.has(col) ? `${val}%` : val)
+  const clauses = entries.map(([col]) => (DATE_COLUMNS.has(col) ? `${col} LIKE ?` : `${col} = ?`))
+  const values = entries.map(([col, val]) => (DATE_COLUMNS.has(col) ? `${val}%` : val))
 
   return db.prepare(`SELECT * FROM Transactions WHERE ${clauses.join(' AND ')}`).all(...values)
 }
 
-// Update a transaction by fitid — only whitelisted columns are accepted
+// Update a transaction by FITID — only whitelisted columns are accepted
 const updateTransaction = (fitid, updates = {}) => {
-  const entries = Object.entries(updates).filter(([col]) => VALID_COLUMNS.has(col) && col !== 'fitid')
+  const entries = Object.entries(updates).filter(
+    ([col]) => VALID_COLUMNS.has(col) && col !== 'FITID'
+  )
 
   if (entries.length === 0) return 0
 
   const setClause = entries.map(([col]) => `${col} = ?`).join(', ')
   const values = entries.map(([, val]) => val)
 
-  return db.prepare(`UPDATE Transactions SET ${setClause} WHERE fitid = ?`).run(...values, fitid).changes
+  return db.prepare(`UPDATE Transactions SET ${setClause} WHERE FITID = ?`).run(...values, fitid)
+    .changes
 }
 
-// Insert a transaction — ignores duplicates on fitid (safe for OFX re-imports)
+// Insert a transaction — ignores duplicates on FITID (safe for OFX re-imports)
+// Accepts the object shape returned by ofx.js extractTransactionData directly
 const createTransaction = (txn) =>
-  db.prepare(`
+  db
+    .prepare(
+      `
     INSERT OR IGNORE INTO Transactions
-      (fitid, type, postedDate, userDate, amount, name, memo, checkNumber, refNumber, rawTransaction)
+      (FITID, ACCTID, ACCTTYPE, ORG, INTU_BID,
+       TRNTYPE, DTPOSTED, DTUSER, TRNAMT, NAME, MEMO,
+       CHECKNUM, REFNUM, DTAVAIL, SRVRTID, PAYEEID, EXTDNAME, SIC,
+       rawTransaction)
     VALUES
-      (@fitid, @type, @postedDate, @userDate, @amount, @name, @memo, @checkNumber, @refNumber, @rawTransaction)
-  `).run(txn).changes
+      (@FITID, @ACCTID, @ACCTTYPE, @ORG, @INTU_BID,
+       @TRNTYPE, @DTPOSTED, @DTUSER, @TRNAMT, @NAME, @MEMO,
+       @CHECKNUM, @REFNUM, @DTAVAIL, @SRVRTID, @PAYEEID, @EXTDNAME, @SIC,
+       @rawTransaction)
+  `
+    )
+    .run({ ...txn, rawTransaction: JSON.stringify(txn) }).changes
 
-// Delete a transaction by fitid
+// Delete a transaction by FITID
 const deleteTransaction = (fitid) =>
-  db.prepare('DELETE FROM Transactions WHERE fitid = ?').run(fitid).changes
+  db.prepare('DELETE FROM Transactions WHERE FITID = ?').run(fitid).changes
 
 export default db
 export { getTransactions, createTransaction, updateTransaction, deleteTransaction }
-
-
-
