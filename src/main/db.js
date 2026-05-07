@@ -1,5 +1,5 @@
 import Database from 'better-sqlite3-multiple-ciphers'
-import dpapi from 'win-dpapi'
+import dpapi from 'node-dpapi-prebuilt'
 import { app } from 'electron'
 import { join } from 'path'
 import { mkdirSync, readFileSync, writeFileSync, existsSync } from 'fs'

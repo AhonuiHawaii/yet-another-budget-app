@@ -21,13 +21,14 @@
     "@electron-toolkit/preload": "^3.0.2",
     "@electron-toolkit/utils": "^4.0.0",
     "@mdi/font": "^7.4.47",
+    "@primno/dpapi": "^2.0.1",
     "better-sqlite3": "^12.9.0",
     "better-sqlite3-multiple-ciphers": "^12.9.0",
     "dexie": "^4.4.2",
     "electron-updater": "^6.3.9",
+    "node-dpapi-prebuilt": "^1.0.4",
     "ofx-js": "^0.2.0",
-    "pinia": "^3.0.4",
-    "win-dpapi": "^1.1.0"
+    "pinia": "^3.0.4"
   },
   "devDependencies": {
     "@electron-toolkit/eslint-config": "^2.1.0",
