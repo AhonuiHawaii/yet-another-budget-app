@@ -40,8 +40,8 @@ export const useUserAccountsStore = defineStore('userAccounts', () => {
         throw new Error('No account data found in the selected file.')
       }
 
-      // Avoid duplicates by ACCTID
-      const exists = accounts.value.some((a) => a.ACCTID === result.ACCTID)
+      // Avoid duplicates: same institution + same last-4 digits
+      const exists = accounts.value.some((a) => a.ACCTID === result.ACCTID && a.ORG === result.ORG)
       if (!exists) {
         accounts.value.push(result)
         saveToStorage(accounts.value)
@@ -56,8 +56,23 @@ export const useUserAccountsStore = defineStore('userAccounts', () => {
     }
   }
 
-  function removeAccount(acctId) {
-    accounts.value = accounts.value.filter((a) => a.ACCTID !== acctId)
+  function removeAccount(acctId, org) {
+    accounts.value = accounts.value.filter((a) => !(a.ACCTID === acctId && a.ORG === org))
+    saveToStorage(accounts.value)
+  }
+
+  function updateBankName(oldOrg, newOrg) {
+    accounts.value = accounts.value.map((a) => {
+      const currentOrg = a.ORG || 'Unknown Institution'
+      return currentOrg === oldOrg ? { ...a, ORG: newOrg } : a
+    })
+    saveToStorage(accounts.value)
+  }
+
+  function updateAccount(acctId, org, updates) {
+    accounts.value = accounts.value.map((a) =>
+      a.ACCTID === acctId && a.ORG === org ? { ...a, ...updates } : a
+    )
     saveToStorage(accounts.value)
   }
 
@@ -72,6 +87,8 @@ export const useUserAccountsStore = defineStore('userAccounts', () => {
     accountCount,
     importAccountFromOfx,
     removeAccount,
+    updateBankName,
+    updateAccount,
     clearError
   }
 })

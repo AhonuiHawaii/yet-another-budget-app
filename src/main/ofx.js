@@ -12,12 +12,10 @@ async function readOfxData(ofxData) {
 
 /**
  * @example {
- *   BANKID: "123456789",
- *   BRANCHID: "123456789",
- *   ACCTID: "987654321",
- *   ACCTTYPE: "Checking", // [Checking, Savings, Money Market, Credit Line]
- *   INTU_BID: "10898",   // Quicken specific Bank ID (null for standard OFX)
- *   ORG: "Chase"         // Institution Name (null for standard OFX)
+ *   ACCTID: "4321",          // Last 4 digits of account number
+ *   ACCTTYPE: "Checking",    // [Checking, Savings, Money Market, Credit Line]
+ *   INTU_BID: "10898",       // Quicken specific Bank ID (null for standard OFX)
+ *   ORG: "Chase"             // Institution Name (null for standard OFX)
  * }
  */
 async function extractAccountData(ofxData) {
@@ -38,11 +36,11 @@ async function extractAccountData(ofxData) {
   const fi = sonrs.FI || {}
 
   return {
-    BANKID: bankAccount && bankAccount.BANKID,
-    BRANCHID: bankAccount && bankAccount.BRANCHID,
-    ACCTID:
+    ACCTID: (
       (bankAccount && bankAccount.ACCTID) ||
-      (bankCreditCardAccount && bankCreditCardAccount.ACCTID),
+      (bankCreditCardAccount && bankCreditCardAccount.ACCTID) ||
+      ''
+    ).slice(-4),
     ACCTTYPE:
       {
         CHECKING: 'Checking',
@@ -58,13 +56,11 @@ async function extractAccountData(ofxData) {
 /**
  * @example [
  *   {
- *     BANKID: "123456789",
- *     BRANCHID: "123456789",
- *     ACCTID: "987654321",
- *     ACCTTYPE: "Checking", // [Checking, Savings, Money Market, Credit Line]
- *     INTU_BID: "10898",   // Quicken specific Bank ID (null for standard OFX)
- *     ORG: "Chase",        // Institution Name (null for standard OFX)
- *     TRNTYPE: "DEBIT",    // e.g. DEBIT, CREDIT, XFER, FEE, etc.
+ *     ACCTID: "4321",          // Last 4 digits of account number
+ *     ACCTTYPE: "Checking",    // [Checking, Savings, Money Market, Credit Line]
+ *     INTU_BID: "10898",       // Quicken specific Bank ID (null for standard OFX)
+ *     ORG: "Chase",            // Institution Name (null for standard OFX)
+ *     TRNTYPE: "DEBIT",        // e.g. DEBIT, CREDIT, XFER, FEE, etc.
  *     DTPOSTED: "20231015120000.000[-5:EST]",
  *     TRNAMT: "-50.00",
  *     FITID: "1234567890",
@@ -103,11 +99,11 @@ async function extractTransactionData(ofxData) {
   const fi = sonrs.FI || {}
 
   const accountData = {
-    BANKID: bankAccount && bankAccount.BANKID,
-    BRANCHID: bankAccount && bankAccount.BRANCHID,
-    ACCTID:
+    ACCTID: (
       (bankAccount && bankAccount.ACCTID) ||
-      (bankCreditCardAccount && bankCreditCardAccount.ACCTID),
+      (bankCreditCardAccount && bankCreditCardAccount.ACCTID) ||
+      ''
+    ).slice(-4),
     ACCTTYPE:
       {
         CHECKING: 'Checking',
