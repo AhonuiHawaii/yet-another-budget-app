@@ -1,5 +1,20 @@
 import { extractAccountData, extractTransactionData } from './ofx.js'
-import { createTransaction, getTransactions, updateTransaction, deleteTransaction } from './db.js'
+import {
+  createTransactions,
+  getTransactions,
+  updateTransaction,
+  deleteTransaction,
+  upsertAccount,
+  getAccounts,
+  getAccount,
+  updateAccount,
+  deleteAccount,
+  getMonthlySummary,
+  getCategoryTotals,
+  getUncategorized,
+  getAccountSummary,
+  getMonthsWithData
+} from './db.js'
 
 /*
   main.js — Service layer between ofx.js (parsing) and db.js (persistence).
@@ -26,9 +41,18 @@ export const importTransactions = async (ofxData) => {
   try {
     const transactions = await extractTransactionData(ofxData)
     if (!transactions.length) return fail(new Error('No transactions found in the file.'))
-    const results = transactions.map((txn) => createTransaction(txn))
-    const inserted = results.reduce((sum, n) => sum + n, 0)
-    return ok({ total: transactions.length, inserted, skipped: transactions.length - inserted })
+
+    const [firstTransaction] = transactions
+    if (firstTransaction?.ACCTID) {
+      upsertAccount({
+        ACCTID: firstTransaction.ACCTID,
+        ACCTTYPE: firstTransaction.ACCTTYPE,
+        ORG: firstTransaction.ORG,
+        INTU_BID: firstTransaction.INTU_BID
+      })
+    }
+
+    return ok(createTransactions(transactions))
   } catch (e) {
     return fail(e)
   }
@@ -59,6 +83,88 @@ export const removeTransaction = (fitid) => {
     const changes = deleteTransaction(fitid)
     if (!changes) return fail(new Error(`No transaction found with FITID: ${fitid}`))
     return ok({ fitid, changes })
+  } catch (e) {
+    return fail(e)
+  }
+}
+
+// Accounts
+
+export const fetchAccounts = () => {
+  try {
+    return ok(getAccounts())
+  } catch (e) {
+    return fail(e)
+  }
+}
+
+export const fetchAccount = (acctid) => {
+  try {
+    const account = getAccount(acctid)
+    if (!account) return fail(new Error(`No account found with ACCTID: ${acctid}`))
+    return ok(account)
+  } catch (e) {
+    return fail(e)
+  }
+}
+
+export const editAccount = (acctid, updates) => {
+  try {
+    const changes = updateAccount(acctid, updates)
+    if (!changes) return fail(new Error(`No account found with ACCTID: ${acctid}`))
+    return ok({ acctid, changes })
+  } catch (e) {
+    return fail(e)
+  }
+}
+
+export const removeAccount = (acctid) => {
+  try {
+    const changes = deleteAccount(acctid)
+    if (!changes) return fail(new Error(`No account found with ACCTID: ${acctid}`))
+    return ok({ acctid, changes })
+  } catch (e) {
+    return fail(e)
+  }
+}
+
+// Reporting
+
+export const fetchMonthlySummary = (yyyymm) => {
+  try {
+    return ok(getMonthlySummary(yyyymm))
+  } catch (e) {
+    return fail(e)
+  }
+}
+
+export const fetchCategoryTotals = (yyyymm) => {
+  try {
+    return ok(getCategoryTotals(yyyymm))
+  } catch (e) {
+    return fail(e)
+  }
+}
+
+export const fetchUncategorized = (yyyymm) => {
+  try {
+    return ok(getUncategorized(yyyymm))
+  } catch (e) {
+    return fail(e)
+  }
+}
+
+export const fetchAccountSummary = () => {
+  try {
+    return ok(getAccountSummary())
+  } catch (e) {
+    return fail(e)
+  }
+}
+
+export const fetchMonthsWithData = () => {
+  try {
+    return ok(getMonthsWithData())
   } catch (e) {
     return fail(e)
   }
