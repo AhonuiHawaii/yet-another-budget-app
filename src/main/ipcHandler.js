@@ -5,6 +5,7 @@ import {
   fetchTransactions,
   editTransaction,
   removeTransaction,
+  removeAccountTransactions,
   fetchAccounts,
   fetchAccount,
   editAccount,
@@ -23,6 +24,7 @@ export const setupIpcHandlers = () => {
   ipcMain.handle('transactions:fetch', (_, filters) => fetchTransactions(filters))
   ipcMain.handle('transactions:edit', (_, fitid, updates) => editTransaction(fitid, updates))
   ipcMain.handle('transactions:remove', (_, fitid) => removeTransaction(fitid))
+  ipcMain.handle('transactions:removeByAccount', (_, acctid) => removeAccountTransactions(acctid))
 
   ipcMain.handle('accounts:fetchAll', () => fetchAccounts())
   ipcMain.handle('accounts:fetchOne', (_, acctid) => fetchAccount(acctid))
