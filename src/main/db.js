@@ -147,12 +147,24 @@ const updateTransaction = (fitid, updates = {}) => {
     .changes
 }
 
-// Insert a transaction — ignores duplicates on FITID (safe for OFX re-imports)
-// Accepts the object shape returned by ofx.js extractTransactionData directly
-const createTransaction = (txn) =>
-  db
-    .prepare(
-      `
+/**
+ * Inserts a new transaction into the database.
+ * Ignores duplicates based on the FITID (safe for OFX re-imports).
+ * Accepts the object shape returned directly by ofx.js extractTransactionData.
+ *
+ * @param {Object} txn - The transaction data object to insert.
+ * @returns {number} The number of rows inserted (0 if ignored as duplicate, 1 if inserted).
+ */
+function createTransaction(txn) {
+  if (!txn) {
+    throw new Error('Transaction data is required to create a transaction.')
+  }
+
+  if (!txn.FITID) {
+    throw new Error('A valid FITID is required to create a transaction.')
+  }
+
+  const query = `
     INSERT OR IGNORE INTO Transactions
       (FITID, ACCTID, ACCTTYPE, ORG, INTU_BID,
        TRNTYPE, DTPOSTED, DTUSER, TRNAMT, NAME, MEMO,
@@ -164,12 +176,48 @@ const createTransaction = (txn) =>
        @CHECKNUM, @REFNUM, @DTAVAIL, @SRVRTID, @PAYEEID, @EXTDNAME, @SIC,
        @rawTransaction)
   `
-    )
-    .run({ ...txn, rawTransaction: JSON.stringify(txn) }).changes
 
-// Delete a transaction by FITID
-const deleteTransaction = (fitid) =>
-  db.prepare('DELETE FROM Transactions WHERE FITID = ?').run(fitid).changes
+  const statement = db.prepare(query)
+
+  // Attach the original transaction as a raw JSON string for safekeeping
+  const payload = {
+    ...txn,
+    rawTransaction: JSON.stringify(txn)
+  }
+
+  const result = statement.run(payload)
+  return result.changes
+}
+
+/**
+ * Deletes transactions based on either a specific transaction ID (FITID)
+ * or all transactions belonging to a specific account (ACCTID).
+ *
+ * @param {string} id - The identifier to match for deletion (e.g., the FITID or ACCTID)
+ * @param {string} [type='FITID'] - The type of ID provided. Must be 'FITID' or 'ACCTID'.
+ * @returns {number} The number of rows deleted.
+ */
+function deleteTransaction(id, type = 'FITID') {
+  if (!id) {
+    throw new Error('An ID is required to perform a deletion.')
+  }
+
+  const searchType = type ? type.toUpperCase() : 'FITID'
+
+  if (searchType === 'ACCTID') {
+    const statement = db.prepare('DELETE FROM Transactions WHERE ACCTID = ?')
+    const result = statement.run(id)
+    return result.changes
+  }
+
+  if (searchType === 'FITID') {
+    const statement = db.prepare('DELETE FROM Transactions WHERE FITID = ?')
+    const result = statement.run(id)
+    return result.changes
+  }
+
+  throw new Error(`Unsupported deletion type provided: ${type}`)
+}
 
 export default db
 export { getTransactions, createTransaction, updateTransaction, deleteTransaction }
