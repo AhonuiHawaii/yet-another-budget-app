@@ -88,6 +88,15 @@ export const removeTransaction = (fitid) => {
   }
 }
 
+export const removeAccountTransactions = (acctid) => {
+  try {
+    const changes = deleteTransaction(acctid, 'ACCTID')
+    return ok({ acctid, changes })
+  } catch (e) {
+    return fail(e)
+  }
+}
+
 // Accounts
 
 export const fetchAccounts = () => {
