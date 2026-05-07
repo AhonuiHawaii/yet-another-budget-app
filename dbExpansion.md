@@ -22,6 +22,7 @@ Transactions (single table)
 ```
 
 **Known gaps:**
+
 - Account metadata is repeated on every transaction row — no independent account identity.
 - `createTransaction()` inserts one row per call with no wrapping SQLite transaction — a mid-import crash leaves partial data with no way to roll back.
 - All aggregation (monthly totals, category sums, uncategorized counts) happens in the renderer or service layer rather than in SQL.
@@ -36,14 +37,17 @@ Transactions (single table)
 Wrap the per-row `createTransaction()` calls inside a single SQLite transaction block using `db.transaction()`. This guarantees that a batch of OFX rows either all land in the database or none do.
 
 **Changes:**
+
 - Add `createTransactions(txns)` (plural) to `db.js` — a batch function that runs all inserts inside `db.transaction()`.
 - `createTransaction()` (singular) remains unchanged for single-row use.
 
 **What this fixes:**
+
 - Partial import state on crash or error.
 - Performance — fewer SQLite write transactions for large OFX files.
 
 **New export:**
+
 ```js
 createTransactions(txns[]) → { total, inserted, skipped }
 ```
@@ -71,20 +75,22 @@ CREATE TABLE IF NOT EXISTS Accounts (
 ```
 
 **Transactions table changes:**
+
 - Remove `ACCTTYPE`, `ORG`, `INTU_BID` columns.
 - `ACCTID` remains as FK reference to `Accounts`.
 
 **New `db.js` exports:**
 
-| Function | Behavior |
-|---|---|
-| `upsertAccount(acct)` | Insert or update account row on import |
-| `getAccounts()` | Return all known accounts |
-| `getAccount(acctid)` | Return one account with metadata |
-| `updateAccount(acctid, updates)` | Update `displayName` or metadata |
-| `deleteAccount(acctid)` | Delete account row (cascade deletes transactions) |
+| Function                         | Behavior                                          |
+| -------------------------------- | ------------------------------------------------- |
+| `upsertAccount(acct)`            | Insert or update account row on import            |
+| `getAccounts()`                  | Return all known accounts                         |
+| `getAccount(acctid)`             | Return one account with metadata                  |
+| `updateAccount(acctid, updates)` | Update `displayName` or metadata                  |
+| `deleteAccount(acctid)`          | Delete account row (cascade deletes transactions) |
 
 **Import flow update:**
+
 1. `upsertAccount()` first — ensure account row exists.
 2. `createTransactions()` — bulk insert rows scoped to that account.
 3. `lastImport` timestamp updated on account row.
@@ -101,15 +107,16 @@ All summary functions take a `yyyymm` string (e.g., `'202605'`) and use `DTPOSTE
 
 **New `db.js` exports:**
 
-| Function | SQL pattern | Returns |
-|---|---|---|
+| Function                    | SQL pattern                                          | Returns                        |
+| --------------------------- | ---------------------------------------------------- | ------------------------------ |
 | `getMonthlySummary(yyyymm)` | `SUM(CAST(TRNAMT AS REAL)) GROUP BY transactionType` | `[{ transactionType, total }]` |
-| `getCategoryTotals(yyyymm)` | `SUM(CAST(TRNAMT AS REAL)) GROUP BY category` | `[{ category, total }]` |
-| `getUncategorized(yyyymm)` | `WHERE category IS NULL AND DTPOSTED LIKE ?` | `Transaction[]` |
-| `getAccountSummary()` | `SUM/COUNT GROUP BY ACCTID` | `[{ ACCTID, count, total }]` |
-| `getMonthsWithData()` | `SELECT DISTINCT SUBSTR(DTPOSTED,1,6)` | `string[]` — for month picker |
+| `getCategoryTotals(yyyymm)` | `SUM(CAST(TRNAMT AS REAL)) GROUP BY category`        | `[{ category, total }]`        |
+| `getUncategorized(yyyymm)`  | `WHERE category IS NULL AND DTPOSTED LIKE ?`         | `Transaction[]`                |
+| `getAccountSummary()`       | `SUM/COUNT GROUP BY ACCTID`                          | `[{ ACCTID, count, total }]`   |
+| `getMonthsWithData()`       | `SELECT DISTINCT SUBSTR(DTPOSTED,1,6)`               | `string[]` — for month picker  |
 
 **Notes:**
+
 - `TRNAMT` is stored as `TEXT` (OFX format) — cast to `REAL` in SQL for aggregation.
 - These are read-only functions. They expose prepared statements, not raw SQL.
 
@@ -127,13 +134,14 @@ Use SQLite's built-in `PRAGMA user_version` to track schema version. On startup,
 const SCHEMA_VERSION = 2
 
 function runMigrations(currentVersion) {
-  if (currentVersion < 1) migration_v1()  // initial schema (already applied)
-  if (currentVersion < 2) migration_v2()  // Accounts table + column removal
+  if (currentVersion < 1) migration_v1() // initial schema (already applied)
+  if (currentVersion < 2) migration_v2() // Accounts table + column removal
   db.pragma(`user_version = ${SCHEMA_VERSION}`)
 }
 ```
 
 **Migration v2 steps:**
+
 1. `CREATE TABLE IF NOT EXISTS Accounts (...)`.
 2. `INSERT OR IGNORE INTO Accounts SELECT DISTINCT ACCTID, ACCTTYPE, ORG, INTU_BID, ... FROM Transactions`.
 3. Create new `Transactions_new` without the account columns.
@@ -148,19 +156,19 @@ All migration steps run inside `db.transaction()` so a failed migration does not
 
 ## `db.js` Export Summary
 
-| Phase | New Export |
-|---|---|
-| 1 | `createTransactions(txns[])` |
-| 2 | `upsertAccount(acct)` |
-| 2 | `getAccounts()` |
-| 2 | `getAccount(acctid)` |
-| 2 | `updateAccount(acctid, updates)` |
-| 2 | `deleteAccount(acctid)` |
-| 3 | `getMonthlySummary(yyyymm)` |
-| 3 | `getCategoryTotals(yyyymm)` |
-| 3 | `getUncategorized(yyyymm)` |
-| 3 | `getAccountSummary()` |
-| 3 | `getMonthsWithData()` |
+| Phase | New Export                       |
+| ----- | -------------------------------- |
+| 1     | `createTransactions(txns[])`     |
+| 2     | `upsertAccount(acct)`            |
+| 2     | `getAccounts()`                  |
+| 2     | `getAccount(acctid)`             |
+| 2     | `updateAccount(acctid, updates)` |
+| 2     | `deleteAccount(acctid)`          |
+| 3     | `getMonthlySummary(yyyymm)`      |
+| 3     | `getCategoryTotals(yyyymm)`      |
+| 3     | `getUncategorized(yyyymm)`       |
+| 3     | `getAccountSummary()`            |
+| 3     | `getMonthsWithData()`            |
 
 ---
 
