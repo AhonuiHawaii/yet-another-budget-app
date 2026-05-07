@@ -1,12 +1,17 @@
 import { ipcMain } from 'electron'
-import { importAccount, importTransactions } from './main.js'
+import {
+  importAccount,
+  importTransactions,
+  fetchTransactions,
+  editTransaction,
+  removeTransaction
+} from './main.js'
 
-export function setupIpcHandlers() {
-  ipcMain.handle('ofx:importAccount', async (event, ofxData) => {
-    return await importAccount(ofxData)
-  })
+export const setupIpcHandlers = () => {
+  ipcMain.handle('ofx:importAccount', (_, ofxData) => importAccount(ofxData))
+  ipcMain.handle('ofx:importTransactions', (_, ofxData) => importTransactions(ofxData))
 
-  ipcMain.handle('ofx:importTransactions', async (event, ofxData) => {
-    return await importTransactions(ofxData)
-  })
+  ipcMain.handle('transactions:fetch', (_, filters) => fetchTransactions(filters))
+  ipcMain.handle('transactions:edit', (_, fitid, updates) => editTransaction(fitid, updates))
+  ipcMain.handle('transactions:remove', (_, fitid) => removeTransaction(fitid))
 }
