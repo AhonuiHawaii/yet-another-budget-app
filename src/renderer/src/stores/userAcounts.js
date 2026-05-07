@@ -1,83 +1,105 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 
-const STORAGE_KEY = 'budget:accounts'
-
-function loadFromStorage() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    return raw ? JSON.parse(raw) : []
-  } catch {
-    return []
-  }
-}
-
-function saveToStorage(accounts) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(accounts))
-}
+const ipc = window.electron.ipcRenderer
 
 export const useUserAccountsStore = defineStore('userAccounts', () => {
-  const accounts = ref(loadFromStorage())
+  const accounts = ref([])
   const loading = ref(false)
   const error = ref(null)
 
   const accountCount = computed(() => accounts.value.length)
 
+  // ── Helpers ──────────────────────────────────────────────────────────────
+
+  function setError(err) {
+    error.value = err?.message ?? String(err)
+  }
+
+  function clearError() {
+    error.value = null
+  }
+
+  // ── Reads ─────────────────────────────────────────────────────────────────
+
   /**
-   * Import an account from OFX file data string.
-   * Calls the main-process IPC handler `ofx:importAccount`.
-   * Returns the imported account object, or null on failure.
+   * Load all accounts from the DB into the store.
+   * Call this on app startup or after any mutation.
+   */
+  async function fetchAccounts() {
+    loading.value = true
+    error.value = null
+    try {
+      const result = await ipc.invoke('accounts:fetchAll')
+      if (!result.success) throw new Error(result.error)
+      accounts.value = result.data
+    } catch (err) {
+      setError(err)
+    } finally {
+      loading.value = false
+    }
+  }
+
+  // ── OFX Import ────────────────────────────────────────────────────────────
+
+  /**
+   * Parse an OFX file and upsert the account into the DB.
    * @param {string} ofxData - Raw OFX file content
+   * @returns {Object|null} The imported account data, or null on failure.
    */
   async function importAccountFromOfx(ofxData) {
     loading.value = true
     error.value = null
-
     try {
-      const result = await window.electron.ipcRenderer.invoke('ofx:importAccount', ofxData)
-
-      if (!result) {
-        throw new Error('No account data found in the selected file.')
-      }
-
-      // Avoid duplicates: same institution + same last-4 digits
-      const exists = accounts.value.some((a) => a.ACCTID === result.ACCTID && a.ORG === result.ORG)
-      if (!exists) {
-        accounts.value.push(result)
-        saveToStorage(accounts.value)
-      }
-
-      return result
+      const result = await ipc.invoke('ofx:importAccount', ofxData)
+      if (!result.success) throw new Error(result.error)
+      await fetchAccounts()
+      return result.data
     } catch (err) {
-      error.value = err.message || 'Failed to import account.'
+      setError(err)
       return null
     } finally {
       loading.value = false
     }
   }
 
-  function removeAccount(acctId, org) {
-    accounts.value = accounts.value.filter((a) => !(a.ACCTID === acctId && a.ORG === org))
-    saveToStorage(accounts.value)
-  }
+  // ── Mutations ─────────────────────────────────────────────────────────────
 
-  function updateBankName(oldOrg, newOrg) {
-    accounts.value = accounts.value.map((a) => {
-      const currentOrg = a.ORG || 'Unknown Institution'
-      return currentOrg === oldOrg ? { ...a, ORG: newOrg } : a
-    })
-    saveToStorage(accounts.value)
-  }
-
-  function updateAccount(acctId, org, updates) {
-    accounts.value = accounts.value.map((a) =>
-      a.ACCTID === acctId && a.ORG === org ? { ...a, ...updates } : a
-    )
-    saveToStorage(accounts.value)
-  }
-
-  function clearError() {
+  /**
+   * Update writable fields on an account (displayName, ACCTTYPE, ORG, INTU_BID).
+   * @param {string} acctid
+   * @param {Object} updates
+   */
+  async function updateAccount(acctid, updates) {
+    loading.value = true
     error.value = null
+    try {
+      const result = await ipc.invoke('accounts:edit', acctid, updates)
+      if (!result.success) throw new Error(result.error)
+      await fetchAccounts()
+    } catch (err) {
+      setError(err)
+    } finally {
+      loading.value = false
+    }
+  }
+
+  /**
+   * Delete an account and all of its transactions from the DB.
+   * @param {string} acctid
+   */
+  async function removeAccount(acctid) {
+    loading.value = true
+    error.value = null
+    try {
+      const result = await ipc.invoke('accounts:remove', acctid)
+      if (!result.success) throw new Error(result.error)
+      await fetchAccounts()
+    } catch (err) {
+      setError(err)
+    } finally {
+      loading.value = false
+    }
   }
 
   return {
@@ -85,10 +107,10 @@ export const useUserAccountsStore = defineStore('userAccounts', () => {
     loading,
     error,
     accountCount,
+    fetchAccounts,
     importAccountFromOfx,
-    removeAccount,
-    updateBankName,
     updateAccount,
+    removeAccount,
     clearError
   }
 })
