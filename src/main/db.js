@@ -32,116 +32,47 @@ const db = new Database(DB_PATH)
 db.pragma(`key='${encryptionKey}'`)
 db.pragma('journal_mode = WAL')
 
-// ── Schema migrations ────────────────────────────────────────────────────────
+// ── Schema initialization ─────────────────────────────────────────────────────
 
-const SCHEMA_VERSION = 2
+db.exec(`
+  CREATE TABLE IF NOT EXISTS Accounts (
+    ACCTID      TEXT PRIMARY KEY,
+    ACCTTYPE    TEXT,
+    ORG         TEXT,
+    INTU_BID    TEXT,
+    displayName TEXT,
+    createdAt   TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    lastImport  TEXT
+  )
+`)
 
-// Initial schema — Transactions with denormalized account columns
-function migration_v1() {
-  db.exec(`
-    CREATE TABLE IF NOT EXISTS Transactions (
-      FITID           TEXT PRIMARY KEY,
-      ACCTID          TEXT,
-      ACCTTYPE        TEXT,
-      ORG             TEXT,
-      INTU_BID        TEXT,
-      TRNTYPE         TEXT,
-      DTPOSTED        TEXT,
-      DTUSER          TEXT,
-      TRNAMT          TEXT,
-      NAME            TEXT,
-      MEMO            TEXT,
-      CHECKNUM        TEXT,
-      REFNUM          TEXT,
-      DTAVAIL         TEXT,
-      SRVRTID         TEXT,
-      PAYEEID         TEXT,
-      EXTDNAME        TEXT,
-      SIC             TEXT,
-      rawTransaction  TEXT NOT NULL,
-      createdAt       TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-      transactionType TEXT,
-      category        TEXT,
-      splitCategory1  TEXT,
-      splitAmount1    REAL,
-      splitCategory2  TEXT,
-      splitAmount2    REAL
-    )
-  `)
-}
-
-// Promote account columns into a dedicated Accounts table, strip them from Transactions
-function migration_v2() {
-  db.transaction(() => {
-    db.exec(`
-      CREATE TABLE IF NOT EXISTS Accounts (
-        ACCTID      TEXT PRIMARY KEY,
-        ACCTTYPE    TEXT,
-        ORG         TEXT,
-        INTU_BID    TEXT,
-        displayName TEXT,
-        createdAt   TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        lastImport  TEXT
-      )
-    `)
-
-    db.exec(`
-      INSERT OR IGNORE INTO Accounts (ACCTID, ACCTTYPE, ORG, INTU_BID)
-      SELECT DISTINCT ACCTID, ACCTTYPE, ORG, INTU_BID
-      FROM Transactions
-      WHERE ACCTID IS NOT NULL
-    `)
-
-    db.exec(`
-      CREATE TABLE Transactions_new (
-        FITID           TEXT PRIMARY KEY,
-        ACCTID          TEXT,
-        TRNTYPE         TEXT,
-        DTPOSTED        TEXT,
-        DTUSER          TEXT,
-        TRNAMT          TEXT,
-        NAME            TEXT,
-        MEMO            TEXT,
-        CHECKNUM        TEXT,
-        REFNUM          TEXT,
-        DTAVAIL         TEXT,
-        SRVRTID         TEXT,
-        PAYEEID         TEXT,
-        EXTDNAME        TEXT,
-        SIC             TEXT,
-        rawTransaction  TEXT NOT NULL,
-        createdAt       TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        transactionType TEXT,
-        category        TEXT,
-        splitCategory1  TEXT,
-        splitAmount1    REAL,
-        splitCategory2  TEXT,
-        splitAmount2    REAL
-      )
-    `)
-
-    db.exec(`
-      INSERT INTO Transactions_new
-      SELECT FITID, ACCTID, TRNTYPE, DTPOSTED, DTUSER, TRNAMT, NAME, MEMO,
-             CHECKNUM, REFNUM, DTAVAIL, SRVRTID, PAYEEID, EXTDNAME, SIC,
-             rawTransaction, createdAt, transactionType, category,
-             splitCategory1, splitAmount1, splitCategory2, splitAmount2
-      FROM Transactions
-    `)
-
-    db.exec('DROP TABLE Transactions')
-    db.exec('ALTER TABLE Transactions_new RENAME TO Transactions')
-  })()
-}
-
-function runMigrations() {
-  const currentVersion = db.pragma('user_version', { simple: true })
-  if (currentVersion < 1) migration_v1()
-  if (currentVersion < 2) migration_v2()
-  db.pragma(`user_version = ${SCHEMA_VERSION}`)
-}
-
-runMigrations()
+db.exec(`
+  CREATE TABLE IF NOT EXISTS Transactions (
+    FITID           TEXT PRIMARY KEY,
+    ACCTID          TEXT,
+    TRNTYPE         TEXT,
+    DTPOSTED        TEXT,
+    DTUSER          TEXT,
+    TRNAMT          TEXT,
+    NAME            TEXT,
+    MEMO            TEXT,
+    CHECKNUM        TEXT,
+    REFNUM          TEXT,
+    DTAVAIL         TEXT,
+    SRVRTID         TEXT,
+    PAYEEID         TEXT,
+    EXTDNAME        TEXT,
+    SIC             TEXT,
+    rawTransaction  TEXT NOT NULL,
+    createdAt       TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    transactionType TEXT,
+    category        TEXT,
+    splitCategory1  TEXT,
+    splitAmount1    REAL,
+    splitCategory2  TEXT,
+    splitAmount2    REAL
+  )
+`)
 
 // ── Column sets ──────────────────────────────────────────────────────────────
 
