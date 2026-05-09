@@ -1,6 +1,5 @@
 <template>
   <v-container fluid class="pa-6">
-
     <v-row class="mb-6">
       <v-col cols="12" sm="6" lg="3">
         <v-card class="pa-4 h-100" rounded="xl" elevation="0" border>

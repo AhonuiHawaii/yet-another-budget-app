@@ -1,7 +1,5 @@
 <template>
   <v-container fluid class="pa-6">
-
-
     <!-- Add Account Button -->
     <div class="mb-8">
       <v-btn color="primary" rounded="lg" prepend-icon="mdi-plus" @click="importDialog = true">

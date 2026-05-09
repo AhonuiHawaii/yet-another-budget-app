@@ -1,7 +1,5 @@
 <template>
   <v-container fluid class="pa-6">
-
-
     <div class="d-flex align-center flex-wrap gap-3 mb-6">
       <v-chip v-if="transactionsStore.monthsWithData.length === 0" variant="outlined" size="small">
         No transaction history yet
