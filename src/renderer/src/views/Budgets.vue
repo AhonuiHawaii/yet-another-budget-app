@@ -59,16 +59,10 @@
           >
             {{ formatCurrency(budgetVariance) }}
           </div>
-          <div class="text-caption text-medium-emphasis mt-1">{{ selectedMonthLabel }}</div>
+          <div class="text-caption text-medium-emphasis mt-1">Actual net vs planned net</div>
         </v-card>
       </v-col>
     </v-row>
-
-    <div class="d-flex align-center justify-space-between flex-wrap gap-3 mb-4">
-      <v-chip color="primary" variant="tonal" prepend-icon="mdi-calendar-month-outline">
-        {{ selectedMonthLabel }}
-      </v-chip>
-    </div>
 
     <v-alert
       v-if="budgetsStore.error || categoriesStore.error || loadError"
@@ -179,7 +173,6 @@ const categoryTypeOptions = [
 ]
 
 const selectedMonth = computed(() => settingsStore.selectedMonth)
-const selectedMonthLabel = computed(() => settingsStore.selectedMonthLabel)
 
 const categoryMeta = computed(() => {
   return Object.fromEntries(categoryTypeOptions.map((type) => [type.value, type]))

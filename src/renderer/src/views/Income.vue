@@ -176,96 +176,18 @@ const settingsStore = useUserSettingsStore()
 const transactionsStore = useUserTransactionsStore()
 
 // ── Period Picker Logic ───────────────────────────────────────────────────────
-const pickerMenu = ref(false)
-const granularity = ref('month')
-const granularities = [
-  { label: 'Weekly', value: 'week' },
-  { label: 'Bi-Weekly', value: 'biweek' },
-  { label: 'Month', value: 'month' },
-  { label: 'Quarter', value: 'quarter' },
-  { label: 'Year', value: 'year' }
-]
-const pickerDate = ref(monthToDate(settingsStore.selectedMonth))
-
-const pickerViewMode = computed(() => {
-  if (granularity.value === 'year') return 'year'
-  if (granularity.value === 'quarter') return 'month'
-  return 'month'
-})
-
-// Calculate the start and end dates based on the selected date and granularity
+// Calculate the selected month bounds from the drawer setting.
 const periodBounds = computed(() => {
-  if (!pickerDate.value) return null
-  const d = new Date(pickerDate.value)
-  const y = d.getFullYear()
-  const m = d.getMonth()
-  const day = d.getDay() // 0 is Sunday
-
-  let start, end
-
-  if (granularity.value === 'week') {
-    // Start on Sunday
-    const diff = d.getDate() - day
-    start = new Date(y, m, diff)
-    end = new Date(y, m, diff + 6, 23, 59, 59, 999)
-  } else if (granularity.value === 'biweek') {
-    // 14 days starting from Sunday of selected week
-    const diff = d.getDate() - day
-    start = new Date(y, m, diff)
-    end = new Date(y, m, diff + 13, 23, 59, 59, 999)
-  } else if (granularity.value === 'month') {
-    start = new Date(y, m, 1)
-    end = new Date(y, m + 1, 0, 23, 59, 59, 999)
-  } else if (granularity.value === 'quarter') {
-    const qStartMonth = Math.floor(m / 3) * 3
-    start = new Date(y, qStartMonth, 1)
-    end = new Date(y, qStartMonth + 3, 0, 23, 59, 59, 999)
-  } else if (granularity.value === 'year') {
-    start = new Date(y, 0, 1)
-    end = new Date(y, 11, 31, 23, 59, 59, 999)
+  const y = parseInt(settingsStore.selectedMonth.slice(0, 4))
+  const m = parseInt(settingsStore.selectedMonth.slice(4, 6)) - 1
+  return {
+    start: new Date(y, m, 1),
+    end: new Date(y, m + 1, 0, 23, 59, 59, 999)
   }
-
-  return { start, end }
 })
-
-const pickerLabel = computed(() => {
-  const bounds = periodBounds.value
-  if (!bounds) return 'Pick period'
-
-  const s = bounds.start
-  const e = bounds.end
-
-  if (granularity.value === 'week' || granularity.value === 'biweek') {
-    return `${s.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${e.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`
-  }
-  if (granularity.value === 'month')
-    return s.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
-  if (granularity.value === 'quarter')
-    return `Q${Math.floor(s.getMonth() / 3) + 1} ${s.getFullYear()}`
-  if (granularity.value === 'year') return String(s.getFullYear())
-
-  return ''
-})
-
-function onGranularityTab(g) {
-  granularity.value = g
-  if (pickerDate.value) applyPeriod()
-}
-
-function onPickerSelect(date) {
-  if (!date) return
-  settingsStore.setSelectedMonthFromDate(date)
-  pickerMenu.value = false
-}
 
 async function applyPeriod() {
   await transactionsStore.fetchTransactionsByMonth(settingsStore.selectedMonth)
-}
-
-function monthToDate(month) {
-  const y = parseInt(month.slice(0, 4))
-  const m = parseInt(month.slice(4, 6)) - 1
-  return new Date(y, m, 1)
 }
 
 // ── Categories Management ──────────────────────────────────────────────────────
@@ -345,14 +267,12 @@ function formatCurrency(val) {
 onMounted(async () => {
   await transactionsStore.fetchMonthsWithData()
   settingsStore.initializeSelectedMonth(transactionsStore.monthsWithData)
-  pickerDate.value = monthToDate(settingsStore.selectedMonth)
   await applyPeriod()
 })
 
 watch(
   () => settingsStore.selectedMonth,
-  async (month) => {
-    pickerDate.value = monthToDate(month)
+  async () => {
     await applyPeriod()
   }
 )

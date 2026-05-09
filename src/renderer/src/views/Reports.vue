@@ -10,9 +10,6 @@
     </div>
 
     <div class="d-flex align-center flex-wrap gap-3 mb-6">
-      <v-chip color="primary" variant="tonal" prepend-icon="mdi-calendar-month-outline">
-        {{ selectedMonthLabel }}
-      </v-chip>
       <v-chip v-if="transactionsStore.monthsWithData.length === 0" variant="outlined" size="small">
         No transaction history yet
       </v-chip>
@@ -60,7 +57,7 @@
           >
             {{ formatCurrency(netCashFlow) }}
           </div>
-          <div class="text-caption text-medium-emphasis mt-1">{{ selectedMonthLabel }}</div>
+          <div class="text-caption text-medium-emphasis mt-1">Income minus spending</div>
         </v-card>
       </v-col>
       <v-col cols="12" sm="6" lg="3">
@@ -271,7 +268,6 @@ const categoryTypes = {
 }
 
 const selectedMonth = computed(() => settingsStore.selectedMonth)
-const selectedMonthLabel = computed(() => settingsStore.selectedMonthLabel)
 
 const incomeTransactions = computed(() =>
   transactionsStore.transactions.filter((transaction) => Number(transaction.TRNAMT) > 0)

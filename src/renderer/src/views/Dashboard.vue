@@ -7,9 +7,6 @@
           A quick look at this month and what needs attention
         </p>
       </div>
-      <v-chip color="primary" variant="tonal" prepend-icon="mdi-calendar-month-outline">
-        {{ selectedMonthLabel }}
-      </v-chip>
     </div>
 
     <v-alert v-if="dashboardError" type="error" variant="tonal" class="mb-4">
@@ -253,8 +250,6 @@ const goalsStore = useUserGoalsStore()
 const settingsStore = useUserSettingsStore()
 const transactionsStore = useUserTransactionsStore()
 const dashboardError = ref(null)
-
-const selectedMonthLabel = computed(() => settingsStore.selectedMonthLabel)
 
 const incomeTransactions = computed(() =>
   transactionsStore.transactions.filter((transaction) => Number(transaction.TRNAMT) > 0)
