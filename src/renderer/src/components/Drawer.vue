@@ -1,4 +1,8 @@
 <script setup>
+import { computed, onMounted, ref, watch } from 'vue'
+import { useUserSettingsStore } from '../stores/userSettings'
+import { useUserTransactionsStore } from '../stores/userTransactions'
+
 const navItems = [
   { title: 'Dashboard', value: 'Dashboard', icon: 'mdi-view-dashboard' },
   { title: 'Accounts', value: 'Accounts', icon: 'mdi-bank' },
@@ -14,11 +18,96 @@ const navItems = [
 ]
 
 const emit = defineEmits(['change-view'])
+
+const settingsStore = useUserSettingsStore()
+const transactionsStore = useUserTransactionsStore()
+const monthMenu = ref(false)
+const pickerYear = ref(getSelectedYear())
+
+const monthOptions = computed(() => {
+  return Array.from({ length: 12 }, (_, index) => ({
+    label: new Date(pickerYear.value, index, 1).toLocaleDateString('en-US', { month: 'short' }),
+    value: `${pickerYear.value}${String(index + 1).padStart(2, '0')}`
+  }))
+})
+
+function getSelectedYear() {
+  return Number(settingsStore.selectedMonth.slice(0, 4)) || new Date().getFullYear()
+}
+
+function selectMonth(month) {
+  settingsStore.setSelectedMonth(month)
+  monthMenu.value = false
+}
+
+function changeYear(direction) {
+  pickerYear.value += direction
+}
+
+watch(monthMenu, (isOpen) => {
+  if (isOpen) pickerYear.value = getSelectedYear()
+})
+
+onMounted(async () => {
+  await transactionsStore.fetchMonthsWithData()
+  settingsStore.initializeSelectedMonth(transactionsStore.monthsWithData)
+})
 </script>
 
 <template>
   <v-navigation-drawer permanent color="surface-variant">
     <v-list-item title="Budgeting Tool" subtitle="Version 0.0.0"></v-list-item>
+    <v-divider></v-divider>
+    <div class="pa-3">
+      <v-menu v-model="monthMenu" location="bottom start" :close-on-content-click="false">
+        <template #activator="{ props }">
+          <v-btn
+            v-bind="props"
+            block
+            variant="tonal"
+            color="primary"
+            prepend-icon="mdi-calendar-month-outline"
+          >
+            {{ settingsStore.selectedMonthLabel }}
+            <v-icon end size="16">mdi-chevron-down</v-icon>
+          </v-btn>
+        </template>
+
+        <v-card min-width="260" rounded="lg" elevation="8" class="pa-3">
+          <div class="d-flex align-center justify-space-between mb-2">
+            <v-btn
+              icon="mdi-chevron-left"
+              variant="text"
+              size="small"
+              aria-label="Previous year"
+              @click="changeYear(-1)"
+            />
+            <div class="text-subtitle-1 font-weight-bold">{{ pickerYear }}</div>
+            <v-btn
+              icon="mdi-chevron-right"
+              variant="text"
+              size="small"
+              aria-label="Next year"
+              @click="changeYear(1)"
+            />
+          </div>
+
+          <v-row dense>
+            <v-col v-for="month in monthOptions" :key="month.value" cols="4">
+              <v-btn
+                block
+                size="small"
+                :variant="month.value === settingsStore.selectedMonth ? 'flat' : 'text'"
+                :color="month.value === settingsStore.selectedMonth ? 'primary' : undefined"
+                @click="selectMonth(month.value)"
+              >
+                {{ month.label }}
+              </v-btn>
+            </v-col>
+          </v-row>
+        </v-card>
+      </v-menu>
+    </div>
     <v-divider></v-divider>
 
     <v-list density="compact" nav>
