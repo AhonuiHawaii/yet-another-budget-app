@@ -57,7 +57,10 @@ export const useUserBudgetsStore = defineStore('userBudgets', () => {
   }
 
   function getRolloverAmount(categoryId, month) {
-    return rollovers.value.find((r) => r.categoryId === categoryId && r.month === month)?.rolloverAmount || 0
+    return (
+      rollovers.value.find((r) => r.categoryId === categoryId && r.month === month)
+        ?.rolloverAmount || 0
+    )
   }
 
   function getEffectiveBudget(categoryId, month) {

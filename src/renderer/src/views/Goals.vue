@@ -83,7 +83,6 @@
           <tr
             v-for="goal in goalRows"
             :key="goal.id"
-            class="dashed-row"
             draggable="true"
             @dragstart="onDragStart(goal.id)"
             @dragover.prevent

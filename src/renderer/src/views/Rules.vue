@@ -21,12 +21,7 @@
           Apply to {{ settingsStore.selectedMonthLabel }}
         </v-btn>
 
-        <v-btn
-          color="primary"
-          rounded="lg"
-          prepend-icon="mdi-plus"
-          @click="openAddDialog"
-        >
+        <v-btn color="primary" rounded="lg" prepend-icon="mdi-plus" @click="openAddDialog">
           Add Rule
         </v-btn>
       </div>
@@ -61,12 +56,7 @@
     </v-alert>
 
     <!-- Empty State -->
-    <v-card
-      v-if="!store.loading && store.rules.length === 0"
-      rounded="xl"
-      elevation="0"
-      border
-    >
+    <v-card v-if="!store.loading && store.rules.length === 0" rounded="xl" elevation="0" border>
       <v-card-text class="pa-12 text-center">
         <v-icon size="60" class="mb-4 text-disabled">mdi-tag-multiple-outline</v-icon>
         <div class="text-h6 font-weight-medium mb-2">No rules yet</div>
@@ -89,7 +79,6 @@
         :items-per-page="25"
         :items-per-page-options="[10, 25, 50]"
         hover
-        class="rules-table"
       >
         <!-- Field -->
         <template #item.field="{ item }">
@@ -125,7 +114,7 @@
 
         <!-- Priority -->
         <template #item.priority="{ item }">
-          <span class="font-monospace text-body-2">{{ item.priority }}</span>
+          <span class="text-body-2">{{ item.priority }}</span>
         </template>
 
         <!-- Actions -->
@@ -162,7 +151,9 @@
           <div class="d-flex align-center justify-space-between">
             <div class="d-flex align-center gap-3">
               <v-icon color="primary" size="20">mdi-tag-multiple-outline</v-icon>
-              <span class="text-h6 font-weight-bold">{{ editTarget ? 'Edit Rule' : 'Add Rule' }}</span>
+              <span class="text-h6 font-weight-bold">{{
+                editTarget ? 'Edit Rule' : 'Add Rule'
+              }}</span>
             </div>
             <v-btn icon="mdi-close" variant="text" density="compact" @click="closeRuleDialog" />
           </div>
@@ -290,8 +281,11 @@
         <v-card-title class="text-h6 pa-6 pb-2">Delete Rule</v-card-title>
         <v-card-text class="pa-6 pt-2 text-body-2 text-medium-emphasis">
           Delete the rule matching
-          <strong>{{ deleteTarget?.field }} {{ deleteTarget?.operator }} "{{ deleteTarget?.value }}"</strong>?
-          This cannot be undone.
+          <strong
+            >{{ deleteTarget?.field }} {{ deleteTarget?.operator }} "{{
+              deleteTarget?.value
+            }}"</strong
+          >? This cannot be undone.
         </v-card-text>
         <v-card-actions class="pa-6 pt-0 gap-2">
           <v-spacer />
@@ -359,7 +353,14 @@ const typeOptions = [
 const ruleDialog = ref(false)
 const editTarget = ref(null)
 
-const blankForm = () => ({ field: 'NAME', operator: 'contains', value: '', category: '', type: null, priority: 0 })
+const blankForm = () => ({
+  field: 'NAME',
+  operator: 'contains',
+  value: '',
+  category: '',
+  type: null,
+  priority: 0
+})
 const form = ref(blankForm())
 
 function openAddDialog() {
@@ -437,16 +438,3 @@ async function applyToCurrentMonth() {
   }
 }
 </script>
-
-<style scoped>
-.rules-table :deep(thead th) {
-  font-size: 0.72rem;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: rgba(var(--v-theme-on-surface), 0.6);
-}
-
-.font-monospace {
-  font-family: 'Roboto Mono', monospace;
-}
-</style>

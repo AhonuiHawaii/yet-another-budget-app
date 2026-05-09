@@ -90,7 +90,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="group in groupSummary" :key="group.type" class="dashed-row">
+              <tr v-for="group in groupSummary" :key="group.type">
                 <td class="pl-4">
                   <v-chip :color="group.color" variant="tonal" size="x-small" rounded="lg">
                     {{ group.label }}
@@ -167,7 +167,7 @@
               <tr v-if="topSpendingCategories.length === 0">
                 <td class="text-center py-8 text-medium-emphasis">No categorized spending yet.</td>
               </tr>
-              <tr v-for="category in topSpendingCategories" :key="category.name" class="dashed-row">
+              <tr v-for="category in topSpendingCategories" :key="category.name">
                 <td class="pl-4">{{ category.name }}</td>
                 <td class="text-right font-weight-bold">{{ formatCurrency(category.total) }}</td>
               </tr>
@@ -185,7 +185,7 @@
               <tr v-if="goalRows.length === 0">
                 <td class="text-center py-8 text-medium-emphasis">No goals configured.</td>
               </tr>
-              <tr v-for="goal in goalRows" :key="goal.id" class="dashed-row">
+              <tr v-for="goal in goalRows" :key="goal.id">
                 <td class="pl-4">
                   <div class="font-weight-medium">{{ goal.name }}</div>
                   <v-progress-linear
@@ -214,7 +214,7 @@
           <tr v-if="recentTransactions.length === 0">
             <td class="text-center py-8 text-medium-emphasis">No transactions this month.</td>
           </tr>
-          <tr v-for="transaction in recentTransactions" :key="transaction.FITID" class="dashed-row">
+          <tr v-for="transaction in recentTransactions" :key="transaction.FITID">
             <td class="pl-4">
               <div class="font-weight-medium">
                 {{ transaction.NAME || transaction.MEMO || transaction.FITID }}

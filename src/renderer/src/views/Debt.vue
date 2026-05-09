@@ -127,10 +127,14 @@
                   <tbody>
                     <tr v-for="row in projectionRows" :key="row.id">
                       <td class="text-body-2">{{ row.name }}</td>
-                      <td class="text-right text-body-2">{{ formatCurrency(row.currentBalance) }}</td>
+                      <td class="text-right text-body-2">
+                        {{ formatCurrency(row.currentBalance) }}
+                      </td>
                       <td class="text-right text-body-2">{{ formatCurrency(row.payment) }}</td>
                       <td class="text-right text-body-2">
-                        <span v-if="row.payoff" class="text-success font-weight-medium">{{ row.payoffLabel }}</span>
+                        <span v-if="row.payoff" class="text-success font-weight-medium">{{
+                          row.payoffLabel
+                        }}</span>
                         <span v-else class="text-error text-caption">Payment too low</span>
                       </td>
                       <td class="text-right text-body-2 text-warning">
@@ -145,42 +149,46 @@
               <v-col cols="12" lg="5">
                 <v-row dense>
                   <v-col cols="6">
-                    <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-2">
+                    <div
+                      class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-2"
+                    >
                       Avalanche order
                       <v-tooltip text="Highest APR first — minimizes total interest">
                         <template #activator="{ props }">
-                          <v-icon v-bind="props" size="14" class="ml-1">mdi-information-outline</v-icon>
+                          <v-icon v-bind="props" size="14" class="ml-1"
+                            >mdi-information-outline</v-icon
+                          >
                         </template>
                       </v-tooltip>
                     </div>
                     <ol class="pl-4">
-                      <li
-                        v-for="(row, i) in avalancheOrder"
-                        :key="row.id"
-                        class="text-body-2 mb-1"
-                      >
+                      <li v-for="(row, i) in avalancheOrder" :key="row.id" class="text-body-2 mb-1">
                         {{ row.name }}
-                        <span class="text-caption text-medium-emphasis ml-1">{{ formatPercent(row.interestRate) }}</span>
+                        <span class="text-caption text-medium-emphasis ml-1">{{
+                          formatPercent(row.interestRate)
+                        }}</span>
                       </li>
                     </ol>
                   </v-col>
                   <v-col cols="6">
-                    <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-2">
+                    <div
+                      class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-2"
+                    >
                       Snowball order
                       <v-tooltip text="Lowest balance first — fastest psychological wins">
                         <template #activator="{ props }">
-                          <v-icon v-bind="props" size="14" class="ml-1">mdi-information-outline</v-icon>
+                          <v-icon v-bind="props" size="14" class="ml-1"
+                            >mdi-information-outline</v-icon
+                          >
                         </template>
                       </v-tooltip>
                     </div>
                     <ol class="pl-4">
-                      <li
-                        v-for="row in snowballOrder"
-                        :key="row.id"
-                        class="text-body-2 mb-1"
-                      >
+                      <li v-for="row in snowballOrder" :key="row.id" class="text-body-2 mb-1">
                         {{ row.name }}
-                        <span class="text-caption text-medium-emphasis ml-1">{{ formatCurrency(row.currentBalance) }}</span>
+                        <span class="text-caption text-medium-emphasis ml-1">{{
+                          formatCurrency(row.currentBalance)
+                        }}</span>
                       </li>
                     </ol>
                   </v-col>
@@ -260,7 +268,7 @@
                 No credit card accounts yet.
               </td>
             </tr>
-            <tr v-for="(debt, idx) in debtRows" :key="debt.id" class="dashed-row">
+            <tr v-for="(debt, idx) in debtRows" :key="debt.id">
               <td class="text-center text-medium-emphasis">
                 {{ idx + 1 }}
               </td>
@@ -553,7 +561,15 @@ const projectionRows = computed(() =>
     .map((d) => {
       const payment = d.projected || d.minimumPayment || 0
       const payoff = calculatePayoff(d.currentBalance, d.interestRate, payment)
-      if (!payoff) return { id: d.id, name: d.name, currentBalance: d.currentBalance, interestRate: d.interestRate, payment, payoff: null }
+      if (!payoff)
+        return {
+          id: d.id,
+          name: d.name,
+          currentBalance: d.currentBalance,
+          interestRate: d.interestRate,
+          payment,
+          payoff: null
+        }
       const payoffDate = new Date()
       payoffDate.setMonth(payoffDate.getMonth() + payoff.months)
       return {

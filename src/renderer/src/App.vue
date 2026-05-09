@@ -65,13 +65,7 @@ onErrorCaptured((err) => {
   <v-app>
     <Drawer @change-view="changeView" />
     <v-main>
-      <v-alert
-        v-if="appError"
-        type="error"
-        class="ma-4"
-        closable
-        @click:close="appError = null"
-      >
+      <v-alert v-if="appError" type="error" class="ma-4" closable @click:close="appError = null">
         {{ appError }}
       </v-alert>
       <component v-else :is="currentComponent" />

@@ -30,11 +30,9 @@
       <div class="d-flex align-center gap-2 mb-4">
         <v-icon color="primary" size="20">mdi-chart-line</v-icon>
         <h2 class="text-h6 font-weight-bold">Spending Trends</h2>
-        <v-chip size="x-small" variant="tonal" color="primary" class="ml-1">
-          All time
-        </v-chip>
+        <v-chip size="x-small" variant="tonal" color="primary" class="ml-1"> All time </v-chip>
       </div>
-      <div style="height: 260px">
+      <div>
         <Line :data="chartData" :options="chartOptions" />
       </div>
     </v-card>
@@ -121,7 +119,7 @@
                   No categorized activity for this month.
                 </td>
               </tr>
-              <tr v-for="row in categoryPerformance" :key="row.key" class="dashed-row">
+              <tr v-for="row in categoryPerformance" :key="row.key">
                 <td class="pl-4">{{ row.name }}</td>
                 <td class="text-center">
                   <v-chip :color="row.color" variant="tonal" size="x-small" rounded="lg">
@@ -162,7 +160,7 @@
                   No account activity yet.
                 </td>
               </tr>
-              <tr v-for="account in accountRows" :key="account.ACCTID" class="dashed-row">
+              <tr v-for="account in accountRows" :key="account.ACCTID">
                 <td class="pl-4">
                   {{ account.displayName || account.ORG || `*${account.ACCTID}` }}
                 </td>
@@ -202,7 +200,7 @@
                   No goals configured.
                 </td>
               </tr>
-              <tr v-for="goal in goalRows" :key="goal.id" class="dashed-row">
+              <tr v-for="goal in goalRows" :key="goal.id">
                 <td class="pl-4">{{ goal.name }}</td>
                 <td class="text-center">{{ formatCurrency(goal.currentAmount) }}</td>
                 <td class="text-center">{{ formatCurrency(goal.targetAmount) }}</td>
@@ -244,7 +242,7 @@
                   Everything is categorized for this month.
                 </td>
               </tr>
-              <tr v-for="row in uncategorizedRows" :key="row.FITID" class="dashed-row">
+              <tr v-for="row in uncategorizedRows" :key="row.FITID">
                 <td class="pl-4">{{ row.NAME || row.MEMO || row.FITID }}</td>
                 <td
                   class="text-center font-weight-bold"
@@ -277,7 +275,16 @@ import {
 } from 'chart.js'
 import { useUserAccountsStore } from '../stores/userAccounts'
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler)
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+)
 import { useUserBudgetsStore } from '../stores/userBudgets'
 import { useUserCategoriesStore } from '../stores/userCategories'
 import { useUserGoalsStore } from '../stores/userGoals'

@@ -86,5 +86,15 @@ export const useUserRulesStore = defineStore('userRules', () => {
     }
   }
 
-  return { rules, loading, error, clearError, fetchRules, createRule, editRule, removeRule, applyToMonth }
+  return {
+    rules,
+    loading,
+    error,
+    clearError,
+    fetchRules,
+    createRule,
+    editRule,
+    removeRule,
+    applyToMonth
+  }
 })

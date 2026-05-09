@@ -1,7 +1,7 @@
 <template>
   <v-container fluid class="pa-6">
     <!-- Page Header -->
-    <div class="page-header mb-8">
+    <div class="mb-8">
       <h1 class="text-h4 font-weight-bold">Accounts</h1>
       <p class="text-body-1 text-medium-emphasis mt-1">Manage your linked financial accounts</p>
     </div>
@@ -85,7 +85,7 @@
     </v-dialog>
 
     <!-- Accounts List -->
-    <div class="accounts-section">
+    <div>
       <div class="d-flex align-center justify-space-between mb-4">
         <h2 class="text-h6 font-weight-semibold">
           Linked Accounts
@@ -102,13 +102,7 @@
       </div>
 
       <!-- Empty State -->
-      <v-card
-        v-if="store.accounts.length === 0"
-        class="empty-state"
-        rounded="xl"
-        elevation="0"
-        border
-      >
+      <v-card v-if="store.accounts.length === 0" rounded="xl" elevation="0" border>
         <v-card-text class="pa-10 text-center">
           <v-icon size="56" color="primary" class="mb-4 text-disabled">mdi-bank-off-outline</v-icon>
           <div class="text-h6 font-weight-medium mb-2">No accounts yet</div>
@@ -120,9 +114,9 @@
 
       <!-- Grouped Account List -->
       <template v-else>
-        <div v-for="(accounts, bank) in groupedAccounts" :key="bank" class="bank-group mb-4">
+        <div v-for="(accounts, bank) in groupedAccounts" :key="bank" class="mb-4">
           <!-- Bank subheader -->
-          <div class="d-flex align-center justify-space-between bank-subheader mb-1">
+          <div class="d-flex align-center justify-space-between mb-1">
             <div class="d-flex align-center gap-2">
               <v-icon size="16" color="primary">mdi-bank-outline</v-icon>
               <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis">
@@ -157,7 +151,7 @@
                     {{ account.displayName || account.ACCTTYPE || 'Unknown' }}
                   </v-list-item-title>
                   <v-list-item-subtitle>
-                    <span class="font-monospace">*{{ account.ACCTID || '----' }}</span>
+                    <span>*{{ account.ACCTID || '----' }}</span>
                   </v-list-item-subtitle>
 
                   <template #append>

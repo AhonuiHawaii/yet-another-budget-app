@@ -103,7 +103,7 @@
                   No {{ section.label.toLowerCase() }} categories yet.
                 </td>
               </tr>
-              <tr v-for="row in section.rows" :key="row.id" class="dashed-row">
+              <tr v-for="row in section.rows" :key="row.id">
                 <td class="pl-4">
                   <span>{{ row.name }}</span>
                 </td>

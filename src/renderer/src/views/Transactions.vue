@@ -302,18 +302,17 @@
         :items-per-page="25"
         :items-per-page-options="[10, 25, 50, 100]"
         hover
-        class="transactions-table"
       >
         <!-- Date column -->
         <template #item.DTPOSTED="{ item }">
-          <span class="text-body-2 font-monospace">{{ formatDate(item.DTPOSTED) }}</span>
+          <span class="text-body-2">{{ formatDate(item.DTPOSTED) }}</span>
         </template>
 
         <!-- Description column: show notes as subtitle when set -->
         <template #item.MEMO="{ item }">
           <div>
             <div class="text-body-2">{{ item.MEMO || item.NAME || '—' }}</div>
-            <div v-if="item.notes" class="text-caption text-medium-emphasis text-truncate" style="max-width: 280px">
+            <div v-if="item.notes" class="text-caption text-medium-emphasis text-truncate">
               {{ item.notes }}
             </div>
           </div>
@@ -378,7 +377,7 @@
 
         <!-- Account column -->
         <template #item.ACCTID="{ item }">
-          <span class="font-monospace text-caption text-medium-emphasis">*{{ item.ACCTID }}</span>
+          <span class="text-caption text-medium-emphasis">*{{ item.ACCTID }}</span>
         </template>
 
         <!-- Actions column -->
@@ -423,7 +422,7 @@
               <v-table density="compact" class="bg-transparent">
                 <tbody>
                   <tr v-if="item.splitCategory1 || item.splitAmount1">
-                    <td class="pl-0 text-body-2" style="width: 250px">
+                    <td class="pl-0 text-body-2">
                       <v-chip color="secondary" variant="tonal" size="x-small" rounded="lg">
                         {{ item.splitCategory1 || 'Uncategorized' }}
                       </v-chip>
@@ -433,7 +432,7 @@
                     </td>
                   </tr>
                   <tr v-if="item.splitCategory2 || item.splitAmount2">
-                    <td class="pl-0 text-body-2" style="width: 250px">
+                    <td class="pl-0 text-body-2">
                       <v-chip color="secondary" variant="tonal" size="x-small" rounded="lg">
                         {{ item.splitCategory2 || 'Uncategorized' }}
                       </v-chip>
@@ -573,7 +572,6 @@
               rounded="lg"
               hide-details
               prefix="$"
-              style="max-width: 140px"
             />
           </div>
 
@@ -599,7 +597,6 @@
               rounded="lg"
               hide-details
               prefix="$"
-              style="max-width: 140px"
             />
           </div>
         </v-card-text>
@@ -772,7 +769,9 @@ function openBulkCategoryDialog() {
 
 async function saveBulkCategory() {
   const category = (bulkCategoryValue.value || '').trim() || null
-  await Promise.all(selectedRows.value.map((item) => store.editTransaction(item.FITID, { category })))
+  await Promise.all(
+    selectedRows.value.map((item) => store.editTransaction(item.FITID, { category }))
+  )
   bulkCategoryDialog.value = false
   selectedRows.value = []
 }
@@ -1119,16 +1118,3 @@ async function saveSplits() {
   splitTarget.value = null
 }
 </script>
-
-<style scoped>
-.transactions-table :deep(thead th) {
-  font-size: 0.72rem;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: rgba(var(--v-theme-on-surface), 0.6);
-}
-
-.font-monospace {
-  font-family: 'Roboto Mono', monospace;
-}
-</style>

@@ -85,7 +85,10 @@ try {
 
 // 1.6: Migrate TRNAMT from TEXT to REAL (one-time, guarded by type check)
 {
-  const trnamtCol = db.prepare('PRAGMA table_info(Transactions)').all().find((c) => c.name === 'TRNAMT')
+  const trnamtCol = db
+    .prepare('PRAGMA table_info(Transactions)')
+    .all()
+    .find((c) => c.name === 'TRNAMT')
   if (trnamtCol && trnamtCol.type.toUpperCase() === 'TEXT') {
     db.exec(`
       BEGIN;

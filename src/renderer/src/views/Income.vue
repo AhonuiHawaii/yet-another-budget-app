@@ -94,7 +94,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(cat, idx) in combinedCategories" :key="cat.id" class="dashed-row">
+            <tr v-for="(cat, idx) in combinedCategories" :key="cat.id">
               <td class="font-weight-medium text-body-2 text-uppercase pl-4">
                 <div class="d-flex align-center position-relative w-100">
                   <span class="position-absolute left-0 text-medium-emphasis text-caption">{{
@@ -131,7 +131,12 @@
                   variant="tonal"
                   class="mb-1"
                 >
-                  +{{ formatCurrency(budgetsStore.getRolloverAmount(cat.id, settingsStore.selectedMonth)) }} rollover
+                  +{{
+                    formatCurrency(
+                      budgetsStore.getRolloverAmount(cat.id, settingsStore.selectedMonth)
+                    )
+                  }}
+                  rollover
                 </v-chip>
                 <div class="d-flex justify-center">
                   <v-text-field
@@ -155,14 +160,21 @@
               </td>
               <td class="text-center px-0">
                 <v-btn
-                  :icon="budgetsStore.getBudget(cat.id)?.rolloverEnabled ? 'mdi-reload' : 'mdi-reload'"
+                  :icon="
+                    budgetsStore.getBudget(cat.id)?.rolloverEnabled ? 'mdi-reload' : 'mdi-reload'
+                  "
                   :color="budgetsStore.getBudget(cat.id)?.rolloverEnabled ? 'info' : 'default'"
                   variant="text"
                   size="small"
                   density="compact"
                   class="opacity-70 mr-1"
                   title="Toggle rollover"
-                  @click="budgetsStore.toggleRolloverEnabled(cat.id, !budgetsStore.getBudget(cat.id)?.rolloverEnabled)"
+                  @click="
+                    budgetsStore.toggleRolloverEnabled(
+                      cat.id,
+                      !budgetsStore.getBudget(cat.id)?.rolloverEnabled
+                    )
+                  "
                 />
                 <v-btn
                   icon="mdi-delete"
