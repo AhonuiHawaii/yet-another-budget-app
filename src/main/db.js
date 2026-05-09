@@ -31,6 +31,7 @@ const encryptionKey = (() => {
 const db = new Database(DB_PATH)
 db.pragma(`key='${encryptionKey}'`)
 db.pragma('journal_mode = WAL')
+db.pragma('foreign_keys = ON')
 
 // ── Schema initialization ─────────────────────────────────────────────────────
 
@@ -74,6 +75,68 @@ db.exec(`
   )
 `)
 
+// 1.4: Add ORG column to Transactions (safe on re-runs — ALTER ADD COLUMN throws if exists)
+try {
+  db.exec(`ALTER TABLE Transactions ADD COLUMN ORG TEXT`)
+} catch {
+  // Column already exists
+}
+
+// 1.6: Migrate TRNAMT from TEXT to REAL (one-time, guarded by type check)
+{
+  const trnamtCol = db.prepare('PRAGMA table_info(Transactions)').all().find((c) => c.name === 'TRNAMT')
+  if (trnamtCol && trnamtCol.type.toUpperCase() === 'TEXT') {
+    db.exec(`
+      BEGIN;
+      CREATE TABLE Transactions_new (
+        FITID           TEXT PRIMARY KEY,
+        ACCTID          TEXT,
+        TRNTYPE         TEXT,
+        DTPOSTED        TEXT,
+        DTUSER          TEXT,
+        TRNAMT          REAL,
+        NAME            TEXT,
+        MEMO            TEXT,
+        CHECKNUM        TEXT,
+        REFNUM          TEXT,
+        DTAVAIL         TEXT,
+        SRVRTID         TEXT,
+        PAYEEID         TEXT,
+        EXTDNAME        TEXT,
+        SIC             TEXT,
+        ORG             TEXT,
+        rawTransaction  TEXT NOT NULL,
+        createdAt       TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        transactionType TEXT,
+        category        TEXT,
+        splitCategory1  TEXT,
+        splitAmount1    REAL,
+        splitCategory2  TEXT,
+        splitAmount2    REAL
+      );
+      INSERT INTO Transactions_new
+        (FITID, ACCTID, TRNTYPE, DTPOSTED, DTUSER, TRNAMT, NAME, MEMO,
+         CHECKNUM, REFNUM, DTAVAIL, SRVRTID, PAYEEID, EXTDNAME, SIC, ORG,
+         rawTransaction, createdAt, transactionType, category,
+         splitCategory1, splitAmount1, splitCategory2, splitAmount2)
+      SELECT
+        FITID, ACCTID, TRNTYPE, DTPOSTED, DTUSER, CAST(TRNAMT AS REAL), NAME, MEMO,
+        CHECKNUM, REFNUM, DTAVAIL, SRVRTID, PAYEEID, EXTDNAME, SIC, ORG,
+        rawTransaction, createdAt, transactionType, category,
+        splitCategory1, splitAmount1, splitCategory2, splitAmount2
+      FROM Transactions;
+      DROP TABLE Transactions;
+      ALTER TABLE Transactions_new RENAME TO Transactions;
+      COMMIT;
+    `)
+  }
+}
+
+// 1.1: Indexes on hot columns (recreated after any migration, IF NOT EXISTS is idempotent)
+db.exec(`CREATE INDEX IF NOT EXISTS idx_transactions_dtposted ON Transactions(DTPOSTED)`)
+db.exec(`CREATE INDEX IF NOT EXISTS idx_transactions_acctid   ON Transactions(ACCTID)`)
+db.exec(`CREATE INDEX IF NOT EXISTS idx_transactions_category ON Transactions(category)`)
+
 // ── Column sets ──────────────────────────────────────────────────────────────
 
 /*
@@ -116,7 +179,8 @@ const VALID_COLUMNS = new Set([
   'splitCategory1',
   'splitAmount1',
   'splitCategory2',
-  'splitAmount2'
+  'splitAmount2',
+  'ORG'
 ])
 
 // OFX date columns — use LIKE prefix matching so partial dates work
@@ -172,10 +236,10 @@ function createTransaction(txn) {
   const stmt = db.prepare(`
     INSERT OR IGNORE INTO Transactions
       (FITID, ACCTID, TRNTYPE, DTPOSTED, DTUSER, TRNAMT, NAME, MEMO,
-       CHECKNUM, REFNUM, DTAVAIL, SRVRTID, PAYEEID, EXTDNAME, SIC, rawTransaction)
+       CHECKNUM, REFNUM, DTAVAIL, SRVRTID, PAYEEID, EXTDNAME, SIC, ORG, rawTransaction)
     VALUES
       (@FITID, @ACCTID, @TRNTYPE, @DTPOSTED, @DTUSER, @TRNAMT, @NAME, @MEMO,
-       @CHECKNUM, @REFNUM, @DTAVAIL, @SRVRTID, @PAYEEID, @EXTDNAME, @SIC, @rawTransaction)
+       @CHECKNUM, @REFNUM, @DTAVAIL, @SRVRTID, @PAYEEID, @EXTDNAME, @SIC, @ORG, @rawTransaction)
   `)
 
   return stmt.run({ ...txn, rawTransaction: JSON.stringify(txn) }).changes
@@ -194,10 +258,10 @@ function createTransactions(txns) {
   const stmt = db.prepare(`
     INSERT OR IGNORE INTO Transactions
       (FITID, ACCTID, TRNTYPE, DTPOSTED, DTUSER, TRNAMT, NAME, MEMO,
-       CHECKNUM, REFNUM, DTAVAIL, SRVRTID, PAYEEID, EXTDNAME, SIC, rawTransaction)
+       CHECKNUM, REFNUM, DTAVAIL, SRVRTID, PAYEEID, EXTDNAME, SIC, ORG, rawTransaction)
     VALUES
       (@FITID, @ACCTID, @TRNTYPE, @DTPOSTED, @DTUSER, @TRNAMT, @NAME, @MEMO,
-       @CHECKNUM, @REFNUM, @DTAVAIL, @SRVRTID, @PAYEEID, @EXTDNAME, @SIC, @rawTransaction)
+       @CHECKNUM, @REFNUM, @DTAVAIL, @SRVRTID, @PAYEEID, @EXTDNAME, @SIC, @ORG, @rawTransaction)
   `)
 
   let inserted = 0
@@ -283,11 +347,19 @@ function updateAccount(acctid, updates = {}) {
 
   if (entries.length === 0) return 0
 
-  const setClause = entries.map(([col]) => `${col} = ?`).join(', ')
-  const values = entries.map(([, val]) => val)
+  return db.transaction(() => {
+    const setClause = entries.map(([col]) => `${col} = ?`).join(', ')
+    const values = entries.map(([, val]) => val)
+    const changes = db
+      .prepare(`UPDATE Accounts SET ${setClause} WHERE ACCTID = ?`)
+      .run(...values, acctid).changes
 
-  return db.prepare(`UPDATE Accounts SET ${setClause} WHERE ACCTID = ?`).run(...values, acctid)
-    .changes
+    if ('ORG' in updates) {
+      db.prepare('UPDATE Transactions SET ORG = ? WHERE ACCTID = ?').run(updates.ORG, acctid)
+    }
+
+    return changes
+  })()
 }
 
 /**
@@ -314,16 +386,31 @@ function deleteAccount(acctid) {
  * @returns {{ transactionType: string, total: number }[]}
  */
 function getMonthlySummary(yyyymm) {
+  const month = `${yyyymm}%`
   return db
     .prepare(
       `
-    SELECT transactionType, SUM(CAST(TRNAMT AS REAL)) AS total
-    FROM Transactions
-    WHERE DTPOSTED LIKE ?
+    SELECT transactionType, SUM(amount) AS total FROM (
+      SELECT transactionType, TRNAMT AS amount
+      FROM Transactions
+      WHERE DTPOSTED LIKE ? AND splitCategory1 IS NULL
+
+      UNION ALL
+
+      SELECT transactionType, splitAmount1 AS amount
+      FROM Transactions
+      WHERE DTPOSTED LIKE ? AND splitCategory1 IS NOT NULL
+
+      UNION ALL
+
+      SELECT transactionType, splitAmount2 AS amount
+      FROM Transactions
+      WHERE DTPOSTED LIKE ? AND splitCategory2 IS NOT NULL
+    )
     GROUP BY transactionType
   `
     )
-    .all(`${yyyymm}%`)
+    .all(month, month, month)
 }
 
 /**
@@ -331,16 +418,31 @@ function getMonthlySummary(yyyymm) {
  * @returns {{ category: string, total: number }[]}
  */
 function getCategoryTotals(yyyymm) {
+  const month = `${yyyymm}%`
   return db
     .prepare(
       `
-    SELECT category, SUM(CAST(TRNAMT AS REAL)) AS total
-    FROM Transactions
-    WHERE DTPOSTED LIKE ?
+    SELECT category, SUM(amount) AS total FROM (
+      SELECT category, TRNAMT AS amount
+      FROM Transactions
+      WHERE DTPOSTED LIKE ? AND splitCategory1 IS NULL AND category IS NOT NULL
+
+      UNION ALL
+
+      SELECT splitCategory1 AS category, splitAmount1 AS amount
+      FROM Transactions
+      WHERE DTPOSTED LIKE ? AND splitCategory1 IS NOT NULL
+
+      UNION ALL
+
+      SELECT splitCategory2 AS category, splitAmount2 AS amount
+      FROM Transactions
+      WHERE DTPOSTED LIKE ? AND splitCategory2 IS NOT NULL
+    )
     GROUP BY category
   `
     )
-    .all(`${yyyymm}%`)
+    .all(month, month, month)
 }
 
 /**

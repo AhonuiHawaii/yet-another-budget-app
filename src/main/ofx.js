@@ -36,11 +36,10 @@ async function extractAccountData(ofxData) {
   const fi = sonrs.FI || {}
 
   return {
-    ACCTID: (
+    ACCTID:
       (bankAccount && bankAccount.ACCTID) ||
       (bankCreditCardAccount && bankCreditCardAccount.ACCTID) ||
-      ''
-    ).slice(-4),
+      '',
     ACCTTYPE:
       {
         CHECKING: 'Checking',
@@ -99,11 +98,10 @@ async function extractTransactionData(ofxData) {
   const fi = sonrs.FI || {}
 
   const accountData = {
-    ACCTID: (
+    ACCTID:
       (bankAccount && bankAccount.ACCTID) ||
       (bankCreditCardAccount && bankCreditCardAccount.ACCTID) ||
-      ''
-    ).slice(-4),
+      '',
     ACCTTYPE:
       {
         CHECKING: 'Checking',
