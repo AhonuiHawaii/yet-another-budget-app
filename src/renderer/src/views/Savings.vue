@@ -1,9 +1,9 @@
 <template>
   <v-container fluid class="pa-6">
     <!-- Total Income Header -->
-    <v-card class="mb-6" rounded="sm" elevation="3" >
+    <v-card class="mb-6" rounded="sm" elevation="3">
       <v-row no-gutters>
-        <v-col cols="4" class="pa-6 text-center ">
+        <v-col cols="4" class="pa-6 text-center">
           <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-2">
             Projected
           </div>

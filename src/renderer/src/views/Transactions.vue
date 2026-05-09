@@ -223,7 +223,7 @@
     <!-- Bulk Action Toolbar -->
     <v-slide-y-transition>
       <div v-if="selectedRows.length > 0" class="mb-3">
-        <v-sheet rounded="lg" color="primary" class="pa-3 d-flex align-center gap-3">
+        <v-sheet rounded="sm" color="primary" class="pa-3 d-flex align-center gap-3">
           <v-chip color="white" variant="flat" size="small" class="font-weight-bold">
             {{ selectedRows.length }} selected
           </v-chip>
@@ -275,7 +275,7 @@
     </v-card>
 
     <!-- Data Table -->
-    <v-card v-else rounded="xl" elevation="3">
+    <v-card v-else rounded="sm" elevation="3">
       <v-data-table
         v-model:expanded="expandedRows"
         v-model:selected="selectedRows"

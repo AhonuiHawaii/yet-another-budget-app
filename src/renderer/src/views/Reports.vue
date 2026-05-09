@@ -15,7 +15,6 @@
       v-if="transactionsStore.monthlyTotals.length > 0"
       rounded="sm"
       elevation="3"
-      
       class="mb-6 pa-5"
     >
       <div class="d-flex align-center gap-2 mb-4">
@@ -30,7 +29,7 @@
 
     <v-row class="mb-6">
       <v-col cols="12" sm="6" lg="3">
-        <v-card class="pa-4 h-100" rounded="sm" elevation="3" >
+        <v-card class="pa-4 h-100" rounded="sm" elevation="3">
           <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-1">
             Income
           </div>
@@ -43,7 +42,7 @@
         </v-card>
       </v-col>
       <v-col cols="12" sm="6" lg="3">
-        <v-card class="pa-4 h-100" rounded="sm" elevation="3" >
+        <v-card class="pa-4 h-100" rounded="sm" elevation="3">
           <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-1">
             Spending
           </div>
@@ -56,7 +55,7 @@
         </v-card>
       </v-col>
       <v-col cols="12" sm="6" lg="3">
-        <v-card class="pa-4 h-100" rounded="sm" elevation="3" >
+        <v-card class="pa-4 h-100" rounded="sm" elevation="3">
           <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-1">
             Net Cash Flow
           </div>
@@ -70,7 +69,7 @@
         </v-card>
       </v-col>
       <v-col cols="12" sm="6" lg="3">
-        <v-card class="pa-4 h-100" rounded="sm" elevation="3" >
+        <v-card class="pa-4 h-100" rounded="sm" elevation="3">
           <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-1">
             Budget Variance
           </div>

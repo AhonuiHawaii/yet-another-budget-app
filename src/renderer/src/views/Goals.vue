@@ -2,7 +2,7 @@
   <v-container fluid class="pa-6">
     <v-row class="mb-6">
       <v-col cols="12" sm="6" lg="3">
-        <v-card class="pa-4 h-100" rounded="sm" elevation="3" >
+        <v-card class="pa-4 h-100" rounded="sm" elevation="3">
           <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-1">
             Total Target
           </div>
@@ -10,7 +10,7 @@
         </v-card>
       </v-col>
       <v-col cols="12" sm="6" lg="3">
-        <v-card class="pa-4 h-100" rounded="sm" elevation="3" >
+        <v-card class="pa-4 h-100" rounded="sm" elevation="3">
           <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-1">
             Saved
           </div>
@@ -20,7 +20,7 @@
         </v-card>
       </v-col>
       <v-col cols="12" sm="6" lg="3">
-        <v-card class="pa-4 h-100" rounded="sm" elevation="3" >
+        <v-card class="pa-4 h-100" rounded="sm" elevation="3">
           <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-1">
             Remaining
           </div>
@@ -28,7 +28,7 @@
         </v-card>
       </v-col>
       <v-col cols="12" sm="6" lg="3">
-        <v-card class="pa-4 h-100" rounded="sm" elevation="3" >
+        <v-card class="pa-4 h-100" rounded="sm" elevation="3">
           <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-1">
             Completed
           </div>

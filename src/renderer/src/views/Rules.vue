@@ -49,7 +49,7 @@
     </v-alert>
 
     <!-- Empty State -->
-    <v-card v-if="!store.loading && store.rules.length === 0" rounded="sm" elevation="3" >
+    <v-card v-if="!store.loading && store.rules.length === 0" rounded="sm" elevation="3">
       <v-card-text class="pa-12 text-center">
         <v-icon size="60" class="mb-4 text-disabled">mdi-tag-multiple-outline</v-icon>
         <div class="text-h6 font-weight-medium mb-2">No rules yet</div>
@@ -63,7 +63,7 @@
     </v-card>
 
     <!-- Rules Table -->
-    <v-card v-else rounded="sm" elevation="3" >
+    <v-card v-else rounded="sm" elevation="3">
       <v-data-table
         :headers="headers"
         :items="store.rules"
