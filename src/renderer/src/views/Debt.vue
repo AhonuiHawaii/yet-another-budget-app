@@ -4,43 +4,52 @@
       <div>
         <h1 class="text-h4 font-weight-bold">Debts</h1>
         <p class="text-body-1 text-medium-emphasis mt-1">
-          Track your projected vs actual debt payments
+          Track monthly payoff progress across your credit card accounts
         </p>
       </div>
     </div>
 
-    <!-- Total Income Header -->
     <v-card class="mb-6 bg-surface py-6 px-4" rounded="xl" elevation="0" border>
       <v-row no-gutters>
-        <v-col cols="4" class="text-center border-e border-opacity-25">
+        <v-col cols="12" sm="3" class="text-center border-e border-opacity-25">
           <div
             class="text-caption text-uppercase font-weight-bold tracking-widest text-medium-emphasis mb-1"
           >
-            Projected
+            Planned Payment
           </div>
           <div class="text-h4 font-weight-black text-white">
             {{ formatCurrency(totalProjected) }}
           </div>
         </v-col>
-        <v-col cols="4" class="text-center border-e border-opacity-25">
+        <v-col cols="12" sm="3" class="text-center border-e border-opacity-25">
           <div
             class="text-caption text-uppercase font-weight-bold tracking-widest text-medium-emphasis mb-1"
           >
-            Actual
+            Paid
           </div>
           <div class="text-h4 font-weight-black text-white">{{ formatCurrency(totalActual) }}</div>
         </v-col>
-        <v-col cols="4" class="text-center">
+        <v-col cols="12" sm="3" class="text-center border-e border-opacity-25">
           <div
             class="text-caption text-uppercase font-weight-bold tracking-widest text-medium-emphasis mb-1"
           >
-            Difference
+            Balance
+          </div>
+          <div class="text-h4 font-weight-black text-white">
+            {{ formatCurrency(totalCurrentBalance) }}
+          </div>
+        </v-col>
+        <v-col cols="12" sm="3" class="text-center">
+          <div
+            class="text-caption text-uppercase font-weight-bold tracking-widest text-medium-emphasis mb-1"
+          >
+            Utilization
           </div>
           <div
             class="text-h4 font-weight-black"
-            :class="totalActual - totalProjected >= 0 ? 'text-success' : 'text-error'"
+            :class="totalUtilization >= 70 ? 'text-warning' : 'text-white'"
           >
-            {{ formatCurrency(totalActual - totalProjected) }}
+            {{ totalUtilization }}%
           </div>
         </v-col>
       </v-row>
@@ -88,18 +97,42 @@
       </v-col>
     </v-row>
 
-    <!-- Merged Projected vs Actual Table & Manage Categories -->
-    <div class="d-flex justify-end mb-3">
-      <v-btn
-        prepend-icon="mdi-plus"
-        variant="tonal"
-        color="primary"
-        size="small"
-        @click="addNewRow"
-      >
-        Add Category
-      </v-btn>
-    </div>
+    <v-row class="mb-4" dense>
+      <v-col cols="12" md="6">
+        <v-card class="pa-4 h-100" rounded="xl" elevation="0" border>
+          <div class="d-flex align-center justify-space-between mb-2">
+            <div class="font-weight-bold">Remaining Payment</div>
+            <v-chip
+              :color="remainingThisPeriod <= 0 ? 'success' : 'warning'"
+              variant="tonal"
+              size="small"
+            >
+              {{ formatCurrency(remainingThisPeriod) }}
+            </v-chip>
+          </div>
+          <v-progress-linear
+            :model-value="paymentCoverage"
+            :color="paymentCoverage >= 100 ? 'success' : 'primary'"
+            height="8"
+            rounded
+          />
+        </v-card>
+      </v-col>
+      <v-col cols="12" md="6">
+        <v-card class="pa-4 h-100" rounded="xl" elevation="0" border>
+          <div class="d-flex align-center justify-space-between mb-2">
+            <div class="font-weight-bold">Highest Interest</div>
+            <v-chip color="primary" variant="tonal" size="small">
+              {{ highestInterestDebt?.name || 'None' }}
+            </v-chip>
+          </div>
+          <div class="text-body-2 text-medium-emphasis">
+            {{ formatPercent(highestInterestDebt?.interestRate || 0) }} APR
+          </div>
+        </v-card>
+      </v-col>
+    </v-row>
+
     <v-card class="bg-transparent" rounded="0" elevation="0">
       <div>
         <v-table density="comfortable" class="bg-transparent text-white" theme="dark">
@@ -108,98 +141,200 @@
               <th
                 class="text-left font-weight-bold text-uppercase text-caption text-white pb-2 pt-4 pl-6 border-b-0"
               >
-                Category
+                Priority
               </th>
               <th
                 class="text-center font-weight-bold text-uppercase text-caption text-white pb-2 pt-4 border-b-0"
               >
-                Actual<br />
-                <span class="text-body-1 font-weight-bold text-white">{{
-                  formatCurrency(totalActual)
-                }}</span>
+                Debt
               </th>
               <th
                 class="text-center font-weight-bold text-uppercase text-caption text-white pb-2 pt-4 border-b-0"
               >
-                Projected<br />
-                <span class="text-body-1 font-weight-bold text-white">{{
-                  formatCurrency(totalProjected)
-                }}</span>
+                Current Balance
               </th>
               <th
                 class="text-center font-weight-bold text-uppercase text-caption text-white pb-2 pt-4 border-b-0"
               >
-                Diff<br />
-                <span class="text-body-1 font-weight-bold text-white">{{
-                  formatCurrency(totalActual - totalProjected)
-                }}</span>
+                Starting Balance
               </th>
-              <th class="border-b-0"></th>
+              <th
+                class="text-center font-weight-bold text-uppercase text-caption text-white pb-2 pt-4 border-b-0"
+              >
+                APR
+              </th>
+              <th
+                class="text-center font-weight-bold text-uppercase text-caption text-white pb-2 pt-4 border-b-0"
+              >
+                Min Payment
+              </th>
+              <th
+                class="text-center font-weight-bold text-uppercase text-caption text-white pb-2 pt-4 border-b-0"
+              >
+                Planned Payment
+              </th>
+              <th
+                class="text-center font-weight-bold text-uppercase text-caption text-white pb-2 pt-4 border-b-0"
+              >
+                Paid
+              </th>
+              <th
+                class="text-center font-weight-bold text-uppercase text-caption text-white pb-2 pt-4 border-b-0"
+              >
+                Credit Limit
+              </th>
+              <th
+                class="text-center font-weight-bold text-uppercase text-caption text-white pb-2 pt-4 border-b-0"
+              >
+                Utilization
+              </th>
+              <th
+                class="text-center font-weight-bold text-uppercase text-caption text-white pb-2 pt-4 border-b-0"
+              >
+                Payoff Progress
+              </th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(cat, idx) in combinedCategories" :key="cat.id" class="dashed-row">
+            <tr v-if="debtRows.length === 0">
+              <td colspan="11" class="text-center py-8 text-medium-emphasis">
+                No credit card accounts yet.
+              </td>
+            </tr>
+            <tr v-for="(debt, idx) in debtRows" :key="debt.id" class="dashed-row">
+              <td class="text-center text-medium-emphasis">
+                {{ idx + 1 }}
+              </td>
               <td class="font-weight-medium text-body-2 text-uppercase pl-4">
-                <div class="d-flex align-center position-relative w-100">
-                  <span class="position-absolute left-0 text-medium-emphasis text-caption">{{
-                    idx + 1
-                  }}</span>
-                  <div v-if="editingCatId === cat.id">
-                    <v-text-field
-                      v-model="editingCatName"
-                      variant="solo-filled"
-                      flat
-                      density="compact"
-                      hide-details
-                      @keyup.enter="saveCategoryEdit"
-                      @blur="saveCategoryEdit"
-                      autofocus
-                      class="text-left"
-                    />
-                  </div>
-                  <div v-else>
-                    <span class="cursor-pointer" @click="startCategoryEdit(cat)">{{
-                      cat.name
-                    }}</span>
+                <div>
+                  {{ debt.name }}
+                  <div class="text-caption text-medium-emphasis text-none">
+                    {{ debt.accountType }}
                   </div>
                 </div>
               </td>
-              <td class="text-center font-weight-bold">
-                {{ formatCurrency(cat.actual) }}
-              </td>
-              <td class="text-center">
+              <td>
                 <div class="d-flex justify-center">
                   <v-text-field
-                    :model-value="cat.projected"
-                    @update:model-value="(val) => updateBudgetInline(cat.id, val)"
+                    :model-value="debt.currentBalance"
                     type="number"
                     prefix="$"
                     variant="solo"
                     flat
                     density="compact"
                     hide-details
-                    class="mt-n2 mb-n2 text-center font-weight-bold"
+                    width="130"
+                    class="mt-n2 mb-n2"
+                    @update:model-value="
+                      (val) => updateDebtDetail(debt.id, { currentBalance: val })
+                    "
                   />
                 </div>
               </td>
-              <td
-                class="text-center font-weight-bold"
-                :class="cat.actual - cat.projected >= 0 ? 'text-success' : 'text-error'"
-              >
-                {{ formatCurrency(cat.actual - cat.projected) }}
+              <td>
+                <div class="d-flex justify-center">
+                  <v-text-field
+                    :model-value="debt.startingBalance"
+                    type="number"
+                    prefix="$"
+                    variant="solo"
+                    flat
+                    density="compact"
+                    hide-details
+                    width="130"
+                    class="mt-n2 mb-n2"
+                    @update:model-value="
+                      (val) => updateDebtDetail(debt.id, { startingBalance: val })
+                    "
+                  />
+                </div>
               </td>
-              <td class="text-center px-0">
-                <v-btn
-                  icon="mdi-delete"
-                  variant="text"
-                  size="small"
-                  color="error"
-                  class="opacity-50"
-                  @click="categoriesStore.deleteCategory(cat.id)"
-                />
+              <td>
+                <div class="d-flex justify-center">
+                  <v-text-field
+                    :model-value="debt.interestRate"
+                    type="number"
+                    suffix="%"
+                    variant="solo"
+                    flat
+                    density="compact"
+                    hide-details
+                    width="100"
+                    class="mt-n2 mb-n2"
+                    @update:model-value="(val) => updateDebtDetail(debt.id, { interestRate: val })"
+                  />
+                </div>
+              </td>
+              <td>
+                <div class="d-flex justify-center">
+                  <v-text-field
+                    :model-value="debt.minimumPayment"
+                    type="number"
+                    prefix="$"
+                    variant="solo"
+                    flat
+                    density="compact"
+                    hide-details
+                    width="120"
+                    class="mt-n2 mb-n2"
+                    @update:model-value="
+                      (val) => updateDebtDetail(debt.id, { minimumPayment: val })
+                    "
+                  />
+                </div>
+              </td>
+              <td class="text-center">
+                <div class="d-flex justify-center">
+                  <v-text-field
+                    :model-value="debt.projected"
+                    type="number"
+                    prefix="$"
+                    variant="solo"
+                    flat
+                    density="compact"
+                    hide-details
+                    width="140"
+                    class="mt-n2 mb-n2 text-center font-weight-bold"
+                    @update:model-value="(val) => updateBudgetInline(debt.id, val)"
+                  />
+                </div>
+              </td>
+              <td class="text-center font-weight-bold">
+                {{ formatCurrency(debt.actual) }}
+              </td>
+              <td>
+                <div class="d-flex justify-center">
+                  <v-text-field
+                    :model-value="debt.creditLimit"
+                    type="number"
+                    prefix="$"
+                    variant="solo"
+                    flat
+                    density="compact"
+                    hide-details
+                    width="130"
+                    class="mt-n2 mb-n2"
+                    @update:model-value="(val) => updateDebtDetail(debt.id, { creditLimit: val })"
+                  />
+                </div>
+              </td>
+              <td class="text-center font-weight-bold">
+                <span :class="debt.utilization >= 70 ? 'text-warning' : 'text-medium-emphasis'">
+                  {{ debt.utilization }}%
+                </span>
+              </td>
+              <td class="text-center">
+                <div class="d-flex align-center gap-2">
+                  <v-progress-linear
+                    :model-value="debt.progress"
+                    :color="debt.progress >= 100 ? 'success' : 'primary'"
+                    height="8"
+                    rounded
+                  />
+                  <span class="text-caption">{{ debt.progressLabel }}</span>
+                </div>
               </td>
             </tr>
-            <!-- No trailing row, rows are added directly to the table data -->
           </tbody>
         </v-table>
       </div>
@@ -209,13 +344,16 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { useUserCategoriesStore } from '../stores/userCategories'
+import { useUserAccountsStore } from '../stores/userAcounts'
 import { useUserBudgetsStore } from '../stores/userBudgets'
 import { useUserTransactionsStore } from '../stores/userTransactions'
 
-const categoriesStore = useUserCategoriesStore()
+const accountsStore = useUserAccountsStore()
 const budgetsStore = useUserBudgetsStore()
 const transactionsStore = useUserTransactionsStore()
+const debtDetails = ref({})
+
+const DEBT_DETAILS_KEY = 'budget.debtDetails'
 
 // ── Period Picker Logic ───────────────────────────────────────────────────────
 const pickerMenu = ref(false)
@@ -325,36 +463,56 @@ async function applyPeriod() {
 }
 
 // ── Categories Management ──────────────────────────────────────────────────────
-const editingCatId = ref(null)
-const editingCatName = ref('')
-
-const debtCategories = computed(() => categoriesStore.getCategoriesByType('debt'))
-
-async function addNewRow() {
-  const newCat = await categoriesStore.addCategory({ name: 'New Category', type: 'debt' })
-  startCategoryEdit(newCat)
-}
-
-function startCategoryEdit(cat) {
-  editingCatId.value = cat.id
-  editingCatName.value = cat.name
-}
-
-async function saveCategoryEdit() {
-  if (editingCatId.value && editingCatName.value.trim()) {
-    await categoriesStore.updateCategory(editingCatId.value, { name: editingCatName.value.trim() })
-  }
-  editingCatId.value = null
-  editingCatName.value = ''
-}
-
 // ── Budgets Management ───────────────────────────────────────────────────────
 
-async function updateBudgetInline(categoryId, amount) {
-  await budgetsStore.upsertBudget(categoryId, Number(amount) || 0)
+async function updateBudgetInline(accountId, amount) {
+  await budgetsStore.upsertBudget(accountId, Number(amount) || 0)
+}
+
+function loadDebtDetails() {
+  try {
+    debtDetails.value = JSON.parse(localStorage.getItem(DEBT_DETAILS_KEY) || '{}')
+  } catch {
+    debtDetails.value = {}
+  }
+}
+
+function saveDebtDetails() {
+  localStorage.setItem(DEBT_DETAILS_KEY, JSON.stringify(debtDetails.value))
+}
+
+function getDebtDetail(id) {
+  return {
+    currentBalance: 0,
+    startingBalance: 0,
+    interestRate: 0,
+    minimumPayment: 0,
+    creditLimit: 0,
+    ...(debtDetails.value[id] || {})
+  }
+}
+
+function updateDebtDetail(id, updates) {
+  debtDetails.value = {
+    ...debtDetails.value,
+    [id]: {
+      ...getDebtDetail(id),
+      ...Object.fromEntries(
+        Object.entries(updates).map(([key, value]) => [key, Number(value) || 0])
+      )
+    }
+  }
+  saveDebtDetails()
 }
 
 // ── Data Aggregation ─────────────────────────────────────────────────────────
+
+const debtAccounts = computed(() =>
+  accountsStore.accounts.filter((account) => {
+    const accountType = String(account.ACCTTYPE || '').toLowerCase()
+    return accountType.includes('credit')
+  })
+)
 
 // Filter transactions to strictly within the period bounds
 const currentTransactions = computed(() => {
@@ -372,34 +530,81 @@ const currentTransactions = computed(() => {
   })
 })
 
-const combinedCategories = computed(() => {
-  const actuals = new Map()
+const paymentsByAccount = computed(() => {
+  const payments = new Map()
   for (const t of currentTransactions.value) {
-    const trnAmt = Number(t.TRNAMT)
-    if (t.category)
-      actuals.set(t.category, (actuals.get(t.category) || 0) + (trnAmt < 0 ? Math.abs(trnAmt) : 0))
-    if (t.splitCategory1 && t.splitCategory1 !== t.category && t.splitAmount1 > 0)
-      actuals.set(t.splitCategory1, (actuals.get(t.splitCategory1) || 0) + t.splitAmount1)
-    if (t.splitCategory2 && t.splitCategory2 !== t.category && t.splitAmount2 > 0)
-      actuals.set(t.splitCategory2, (actuals.get(t.splitCategory2) || 0) + t.splitAmount2)
+    const accountId = t.ACCTID
+    const amount = Number(t.TRNAMT) || 0
+    if (!accountId || amount <= 0) continue
+    payments.set(accountId, (payments.get(accountId) || 0) + amount)
   }
 
-  return debtCategories.value.map((cat) => ({
-    ...cat,
-    projected: budgetsStore.getBudget(cat.id)?.amount || 0,
-    actual: actuals.get(cat.name) || 0
-  }))
+  return payments
 })
 
-const totalProjected = computed(() => combinedCategories.value.reduce((s, c) => s + c.projected, 0))
-const totalActual = computed(() => combinedCategories.value.reduce((s, c) => s + c.actual, 0))
+const debtRows = computed(() => {
+  return debtAccounts.value
+    .map((account) => {
+      const accountId = account.ACCTID
+      const details = getDebtDetail(accountId)
+      const projected =
+        budgetsStore.getBudget(accountId)?.amount || Number(details.minimumPayment) || 0
+      const actual = paymentsByAccount.value.get(accountId) || 0
+      const remaining = Math.max(projected - actual, 0)
+      const rawProgress = projected > 0 ? (actual / projected) * 100 : 0
+      const payoffProgress =
+        details.startingBalance > 0
+          ? ((details.startingBalance - details.currentBalance) / details.startingBalance) * 100
+          : rawProgress
+      const utilization =
+        details.creditLimit > 0 ? (details.currentBalance / details.creditLimit) * 100 : 0
+
+      return {
+        id: accountId,
+        name: account.displayName || account.ORG || `Account ${accountId}`,
+        accountType: account.ACCTTYPE || 'Credit account',
+        projected,
+        actual,
+        ...details,
+        remaining,
+        progress: Math.min(Math.max(payoffProgress, 0), 100),
+        progressLabel: `${Math.round(Math.max(payoffProgress, 0))}%`,
+        utilization: Math.round(utilization)
+      }
+    })
+    .sort((a, b) => b.interestRate - a.interestRate || b.currentBalance - a.currentBalance)
+})
+
+const totalProjected = computed(() => debtRows.value.reduce((s, c) => s + c.projected, 0))
+const totalActual = computed(() => debtRows.value.reduce((s, c) => s + c.actual, 0))
+const totalCurrentBalance = computed(() => debtRows.value.reduce((s, c) => s + c.currentBalance, 0))
+const totalCreditLimit = computed(() => debtRows.value.reduce((s, c) => s + c.creditLimit, 0))
+const totalUtilization = computed(() => {
+  if (!totalCreditLimit.value) return 0
+  return Math.round((totalCurrentBalance.value / totalCreditLimit.value) * 100)
+})
+const remainingThisPeriod = computed(() => Math.max(totalProjected.value - totalActual.value, 0))
+const paymentCoverage = computed(() => {
+  if (!totalProjected.value) return 0
+  return Math.min(Math.round((totalActual.value / totalProjected.value) * 100), 100)
+})
+const highestInterestDebt = computed(() => debtRows.value[0] || null)
 
 function formatCurrency(val) {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(val || 0)
 }
 
+function formatPercent(val) {
+  return `${Number(val || 0).toFixed(2)}%`
+}
+
 onMounted(async () => {
-  await transactionsStore.fetchMonthsWithData()
+  loadDebtDetails()
+  await Promise.all([
+    accountsStore.fetchAccounts(),
+    budgetsStore.fetchBudgets(),
+    transactionsStore.fetchMonthsWithData()
+  ])
   if (transactionsStore.monthsWithData.length) {
     const latest = transactionsStore.monthsWithData[transactionsStore.monthsWithData.length - 1]
     const y = parseInt(latest.slice(0, 4))
