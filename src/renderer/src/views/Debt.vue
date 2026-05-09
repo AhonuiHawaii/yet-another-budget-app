@@ -301,19 +301,18 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
+import { computed, onMounted, watch } from 'vue'
 import { useUserAccountsStore } from '../stores/userAccounts'
 import { useUserBudgetsStore } from '../stores/userBudgets'
+import { useUserDebtsStore } from '../stores/userDebts'
 import { useUserSettingsStore } from '../stores/userSettings'
 import { useUserTransactionsStore } from '../stores/userTransactions'
 
 const accountsStore = useUserAccountsStore()
 const budgetsStore = useUserBudgetsStore()
+const debtsStore = useUserDebtsStore()
 const settingsStore = useUserSettingsStore()
 const transactionsStore = useUserTransactionsStore()
-const debtDetails = ref({})
-
-const DEBT_DETAILS_KEY = 'budget.debtDetails'
 
 // ── Period Picker Logic ───────────────────────────────────────────────────────
 // Calculate the selected month bounds from the drawer setting.
@@ -337,40 +336,12 @@ async function updateBudgetInline(accountId, amount) {
   await budgetsStore.upsertBudget(accountId, Number(amount) || 0)
 }
 
-function loadDebtDetails() {
-  try {
-    debtDetails.value = JSON.parse(localStorage.getItem(DEBT_DETAILS_KEY) || '{}')
-  } catch {
-    debtDetails.value = {}
-  }
-}
-
-function saveDebtDetails() {
-  localStorage.setItem(DEBT_DETAILS_KEY, JSON.stringify(debtDetails.value))
-}
-
 function getDebtDetail(id) {
-  return {
-    currentBalance: 0,
-    startingBalance: 0,
-    interestRate: 0,
-    minimumPayment: 0,
-    creditLimit: 0,
-    ...(debtDetails.value[id] || {})
-  }
+  return debtsStore.getDetail(id)
 }
 
 function updateDebtDetail(id, updates) {
-  debtDetails.value = {
-    ...debtDetails.value,
-    [id]: {
-      ...getDebtDetail(id),
-      ...Object.fromEntries(
-        Object.entries(updates).map(([key, value]) => [key, Number(value) || 0])
-      )
-    }
-  }
-  saveDebtDetails()
+  debtsStore.upsertDebtDetail(id, updates)
 }
 
 // ── Data Aggregation ─────────────────────────────────────────────────────────
@@ -403,10 +374,10 @@ const paymentsByAccount = computed(() => {
   for (const t of currentTransactions.value) {
     const accountId = t.ACCTID
     const amount = Number(t.TRNAMT) || 0
-    if (!accountId || amount <= 0) continue
-    payments.set(accountId, (payments.get(accountId) || 0) + amount)
+    // Credit card payments reduce balance → negative TRNAMT in OFX
+    if (!accountId || amount >= 0) continue
+    payments.set(accountId, (payments.get(accountId) || 0) + Math.abs(amount))
   }
-
   return payments
 })
 
@@ -467,7 +438,6 @@ function formatPercent(val) {
 }
 
 onMounted(async () => {
-  loadDebtDetails()
   await Promise.all([accountsStore.fetchAccounts(), budgetsStore.fetchBudgets()])
   await applyPeriod()
 })
