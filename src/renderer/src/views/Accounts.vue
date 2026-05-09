@@ -284,7 +284,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { useUserAccountsStore } from '../stores/userAcounts'
+import { useUserAccountsStore } from '../stores/userAccounts'
 
 const store = useUserAccountsStore()
 

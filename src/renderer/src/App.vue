@@ -1,5 +1,7 @@
 <script setup>
-import { shallowRef } from 'vue'
+import { shallowRef, ref, onMounted, onErrorCaptured } from 'vue'
+import { useUserTransactionsStore } from './stores/userTransactions'
+import { useUserSettingsStore } from './stores/userSettings'
 import Drawer from './components/Drawer.vue'
 import Dashboard from './views/Dashboard.vue'
 import Settings from './views/Settings.vue'
@@ -31,18 +33,46 @@ const views = {
 
 const currentComponent = shallowRef(views.Dashboard)
 
+const transactionsStore = useUserTransactionsStore()
+const settingsStore = useUserSettingsStore()
+
+// 2.2: Single authoritative initialization of monthsWithData + selectedMonth
+onMounted(async () => {
+  await transactionsStore.fetchMonthsWithData()
+  settingsStore.initializeSelectedMonth(transactionsStore.monthsWithData)
+})
+
+// 2.3: Warn on unknown view names instead of silently ignoring
 const changeView = (viewName) => {
-  if (views[viewName]) {
-    currentComponent.value = views[viewName]
+  if (!views[viewName]) {
+    console.warn(`[App] Unknown view: "${viewName}"`)
+    return
   }
+  currentComponent.value = views[viewName]
 }
+
+// 2.4: Top-level error boundary so a crashing child view shows a recovery UI
+const appError = ref(null)
+onErrorCaptured((err) => {
+  appError.value = err.message
+  return false
+})
 </script>
 
 <template>
   <v-app>
     <Drawer @change-view="changeView" />
     <v-main>
-      <component :is="currentComponent" />
+      <v-alert
+        v-if="appError"
+        type="error"
+        class="ma-4"
+        closable
+        @click:close="appError = null"
+      >
+        {{ appError }}
+      </v-alert>
+      <component v-else :is="currentComponent" />
     </v-main>
   </v-app>
 </template>

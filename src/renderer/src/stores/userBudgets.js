@@ -15,7 +15,8 @@ db.version(1).stores({
 
 export const useUserBudgetsStore = defineStore('userBudgets', () => {
   const budgets = ref([])
-  const loading = ref(false)
+  const loadingCount = ref(0)
+  const loading = computed(() => loadingCount.value > 0)
   const error = ref(null)
 
   const monthlyBudgets = computed(() =>
@@ -27,14 +28,14 @@ export const useUserBudgetsStore = defineStore('userBudgets', () => {
   }
 
   async function fetchBudgets() {
-    loading.value = true
+    loadingCount.value++
     error.value = null
     try {
       budgets.value = await db.budgets.toArray()
     } catch (err) {
       setError(err)
     } finally {
-      loading.value = false
+      loadingCount.value--
     }
   }
 
@@ -45,7 +46,7 @@ export const useUserBudgetsStore = defineStore('userBudgets', () => {
   }
 
   async function upsertBudget(categoryId, amount, period = 'monthly') {
-    loading.value = true
+    loadingCount.value++
     error.value = null
     try {
       const existingRows = await db.budgets.where('categoryId').equals(categoryId).toArray()
@@ -70,12 +71,12 @@ export const useUserBudgetsStore = defineStore('userBudgets', () => {
     } catch (err) {
       setError(err)
     } finally {
-      loading.value = false
+      loadingCount.value--
     }
   }
 
   async function deleteBudget(id) {
-    loading.value = true
+    loadingCount.value++
     error.value = null
     try {
       if (!budgets.value.some((budget) => budget.id === id)) return
@@ -84,7 +85,7 @@ export const useUserBudgetsStore = defineStore('userBudgets', () => {
     } catch (err) {
       setError(err)
     } finally {
-      loading.value = false
+      loadingCount.value--
     }
   }
 

@@ -243,7 +243,7 @@
 
 <script setup>
 import { computed, onMounted, ref, watch } from 'vue'
-import { useUserAccountsStore } from '../stores/userAcounts'
+import { useUserAccountsStore } from '../stores/userAccounts'
 import { useUserBudgetsStore } from '../stores/userBudgets'
 import { useUserCategoriesStore } from '../stores/userCategories'
 import { useUserGoalsStore } from '../stores/userGoals'
@@ -386,8 +386,6 @@ async function loadReport() {
 }
 
 onMounted(async () => {
-  await transactionsStore.fetchMonthsWithData()
-  settingsStore.initializeSelectedMonth(transactionsStore.monthsWithData)
   await loadReport()
 })
 

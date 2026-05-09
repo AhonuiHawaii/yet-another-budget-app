@@ -1,7 +1,6 @@
 <script setup>
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useUserSettingsStore } from '../stores/userSettings'
-import { useUserTransactionsStore } from '../stores/userTransactions'
 
 const navItems = [
   { title: 'Dashboard', value: 'Dashboard', icon: 'mdi-view-dashboard' },
@@ -20,7 +19,6 @@ const navItems = [
 const emit = defineEmits(['change-view'])
 
 const settingsStore = useUserSettingsStore()
-const transactionsStore = useUserTransactionsStore()
 const monthMenu = ref(false)
 const pickerYear = ref(getSelectedYear())
 
@@ -46,11 +44,6 @@ function changeYear(direction) {
 
 watch(monthMenu, (isOpen) => {
   if (isOpen) pickerYear.value = getSelectedYear()
-})
-
-onMounted(async () => {
-  await transactionsStore.fetchMonthsWithData()
-  settingsStore.initializeSelectedMonth(transactionsStore.monthsWithData)
 })
 </script>
 

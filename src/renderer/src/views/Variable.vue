@@ -267,8 +267,6 @@ function formatCurrency(val) {
 }
 
 onMounted(async () => {
-  await transactionsStore.fetchMonthsWithData()
-  settingsStore.initializeSelectedMonth(transactionsStore.monthsWithData)
   await applyPeriod()
 })
 

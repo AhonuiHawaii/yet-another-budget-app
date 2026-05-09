@@ -302,7 +302,7 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
-import { useUserAccountsStore } from '../stores/userAcounts'
+import { useUserAccountsStore } from '../stores/userAccounts'
 import { useUserBudgetsStore } from '../stores/userBudgets'
 import { useUserSettingsStore } from '../stores/userSettings'
 import { useUserTransactionsStore } from '../stores/userTransactions'
@@ -468,12 +468,7 @@ function formatPercent(val) {
 
 onMounted(async () => {
   loadDebtDetails()
-  await Promise.all([
-    accountsStore.fetchAccounts(),
-    budgetsStore.fetchBudgets(),
-    transactionsStore.fetchMonthsWithData()
-  ])
-  settingsStore.initializeSelectedMonth(transactionsStore.monthsWithData)
+  await Promise.all([accountsStore.fetchAccounts(), budgetsStore.fetchBudgets()])
   await applyPeriod()
 })
 

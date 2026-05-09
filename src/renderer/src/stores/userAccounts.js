@@ -5,7 +5,8 @@ const ipc = window.electron.ipcRenderer
 
 export const useUserAccountsStore = defineStore('userAccounts', () => {
   const accounts = ref([])
-  const loading = ref(false)
+  const loadingCount = ref(0)
+  const loading = computed(() => loadingCount.value > 0)
   const error = ref(null)
 
   const accountCount = computed(() => accounts.value.length)
@@ -27,7 +28,7 @@ export const useUserAccountsStore = defineStore('userAccounts', () => {
    * Call this on app startup or after any mutation.
    */
   async function fetchAccounts() {
-    loading.value = true
+    loadingCount.value++
     error.value = null
     try {
       const result = await ipc.invoke('accounts:fetchAll')
@@ -36,7 +37,7 @@ export const useUserAccountsStore = defineStore('userAccounts', () => {
     } catch (err) {
       setError(err)
     } finally {
-      loading.value = false
+      loadingCount.value--
     }
   }
 
@@ -48,7 +49,7 @@ export const useUserAccountsStore = defineStore('userAccounts', () => {
    * @returns {Object|null} The imported account data, or null on failure.
    */
   async function importAccountFromOfx(ofxData) {
-    loading.value = true
+    loadingCount.value++
     error.value = null
     try {
       const result = await ipc.invoke('ofx:importAccount', ofxData)
@@ -59,7 +60,7 @@ export const useUserAccountsStore = defineStore('userAccounts', () => {
       setError(err)
       return null
     } finally {
-      loading.value = false
+      loadingCount.value--
     }
   }
 
@@ -71,7 +72,7 @@ export const useUserAccountsStore = defineStore('userAccounts', () => {
    * @param {Object} updates
    */
   async function updateAccount(acctid, updates) {
-    loading.value = true
+    loadingCount.value++
     error.value = null
     try {
       const result = await ipc.invoke('accounts:edit', acctid, updates)
@@ -80,7 +81,7 @@ export const useUserAccountsStore = defineStore('userAccounts', () => {
     } catch (err) {
       setError(err)
     } finally {
-      loading.value = false
+      loadingCount.value--
     }
   }
 
@@ -90,7 +91,7 @@ export const useUserAccountsStore = defineStore('userAccounts', () => {
    * @param {string} newName - Replacement ORG value
    */
   async function updateBankName(oldName, newName) {
-    loading.value = true
+    loadingCount.value++
     error.value = null
     try {
       const affected = accounts.value.filter((a) => a.ORG === oldName)
@@ -102,7 +103,7 @@ export const useUserAccountsStore = defineStore('userAccounts', () => {
     } catch (err) {
       setError(err)
     } finally {
-      loading.value = false
+      loadingCount.value--
     }
   }
 
@@ -111,7 +112,7 @@ export const useUserAccountsStore = defineStore('userAccounts', () => {
    * @param {string} acctid
    */
   async function removeAccount(acctid) {
-    loading.value = true
+    loadingCount.value++
     error.value = null
     try {
       const result = await ipc.invoke('accounts:remove', acctid)
@@ -120,7 +121,7 @@ export const useUserAccountsStore = defineStore('userAccounts', () => {
     } catch (err) {
       setError(err)
     } finally {
-      loading.value = false
+      loadingCount.value--
     }
   }
 

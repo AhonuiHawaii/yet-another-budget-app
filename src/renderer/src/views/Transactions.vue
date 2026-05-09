@@ -593,7 +593,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useUserTransactionsStore } from '../stores/userTransactions'
-import { useUserAccountsStore } from '../stores/userAcounts'
+import { useUserAccountsStore } from '../stores/userAccounts'
 import { useUserSettingsStore } from '../stores/userSettings'
 
 const store = useUserTransactionsStore()
@@ -621,8 +621,7 @@ async function handleImport() {
 
 // ── On mount ──────────────────────────────────────────────────────────────────
 onMounted(async () => {
-  await Promise.all([store.fetchMonthsWithData(), accountsStore.fetchAccounts()])
-  settingsStore.initializeSelectedMonth(store.monthsWithData)
+  await accountsStore.fetchAccounts()
   const selectedMonth = settingsStore.selectedMonth
   const y = parseInt(selectedMonth.slice(0, 4))
   const m = parseInt(selectedMonth.slice(4, 6)) - 1

@@ -405,13 +405,10 @@ async function loadDashboard() {
   dashboardError.value = null
   try {
     await Promise.all([
-      transactionsStore.fetchMonthsWithData(),
       categoriesStore.fetchCategories(),
       budgetsStore.fetchBudgets(),
       goalsStore.fetchGoals()
     ])
-
-    settingsStore.initializeSelectedMonth(transactionsStore.monthsWithData)
 
     await Promise.all([
       transactionsStore.fetchTransactionsByMonth(settingsStore.selectedMonth),

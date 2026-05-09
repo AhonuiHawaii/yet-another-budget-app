@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 
 const ipc = window.electron.ipcRenderer
 
@@ -16,7 +16,8 @@ export const useUserTransactionsStore = defineStore('userTransactions', () => {
   const uncategorized = ref([]) // Transaction[]
   const accountSummary = ref([]) // [{ ACCTID, count, total }]
 
-  const loading = ref(false)
+  const loadingCount = ref(0)
+  const loading = computed(() => loadingCount.value > 0)
   const error = ref(null)
 
   // ── Helpers ───────────────────────────────────────────────────────────────
@@ -37,7 +38,7 @@ export const useUserTransactionsStore = defineStore('userTransactions', () => {
    * @param {Object} [filters] - e.g. { ACCTID: '4321' } or { DTPOSTED: '202605' }
    */
   async function fetchTransactions(filters = {}) {
-    loading.value = true
+    loadingCount.value++
     error.value = null
     try {
       const result = await ipc.invoke('transactions:fetch', filters)
@@ -46,7 +47,7 @@ export const useUserTransactionsStore = defineStore('userTransactions', () => {
     } catch (err) {
       setError(err)
     } finally {
-      loading.value = false
+      loadingCount.value--
     }
   }
 
@@ -68,7 +69,7 @@ export const useUserTransactionsStore = defineStore('userTransactions', () => {
    * @returns {{ total: number, inserted: number, skipped: number }|null}
    */
   async function importTransactionsFromOfx(ofxData) {
-    loading.value = true
+    loadingCount.value++
     error.value = null
     try {
       const result = await ipc.invoke('ofx:importTransactions', ofxData)
@@ -79,7 +80,7 @@ export const useUserTransactionsStore = defineStore('userTransactions', () => {
       setError(err)
       return null
     } finally {
-      loading.value = false
+      loadingCount.value--
     }
   }
 
@@ -89,7 +90,7 @@ export const useUserTransactionsStore = defineStore('userTransactions', () => {
    * @param {Object} updates
    */
   async function editTransaction(fitid, updates) {
-    loading.value = true
+    loadingCount.value++
     error.value = null
     try {
       const result = await ipc.invoke('transactions:edit', fitid, updates)
@@ -100,7 +101,7 @@ export const useUserTransactionsStore = defineStore('userTransactions', () => {
     } catch (err) {
       setError(err)
     } finally {
-      loading.value = false
+      loadingCount.value--
     }
   }
 
@@ -109,7 +110,7 @@ export const useUserTransactionsStore = defineStore('userTransactions', () => {
    * @param {string} fitid
    */
   async function removeTransaction(fitid) {
-    loading.value = true
+    loadingCount.value++
     error.value = null
     try {
       const result = await ipc.invoke('transactions:remove', fitid)
@@ -118,7 +119,7 @@ export const useUserTransactionsStore = defineStore('userTransactions', () => {
     } catch (err) {
       setError(err)
     } finally {
-      loading.value = false
+      loadingCount.value--
     }
   }
 
@@ -127,7 +128,7 @@ export const useUserTransactionsStore = defineStore('userTransactions', () => {
    * @param {string} acctid
    */
   async function removeAccountTransactions(acctid) {
-    loading.value = true
+    loadingCount.value++
     error.value = null
     try {
       const result = await ipc.invoke('transactions:removeByAccount', acctid)
@@ -136,7 +137,7 @@ export const useUserTransactionsStore = defineStore('userTransactions', () => {
     } catch (err) {
       setError(err)
     } finally {
-      loading.value = false
+      loadingCount.value--
     }
   }
 
@@ -147,7 +148,7 @@ export const useUserTransactionsStore = defineStore('userTransactions', () => {
    * @param {string} yyyymm - e.g. '202605'
    */
   async function fetchReports(yyyymm) {
-    loading.value = true
+    loadingCount.value++
     error.value = null
     try {
       const [summary, categories, uncat] = await Promise.all([
@@ -165,7 +166,7 @@ export const useUserTransactionsStore = defineStore('userTransactions', () => {
     } catch (err) {
       setError(err)
     } finally {
-      loading.value = false
+      loadingCount.value--
     }
   }
 
@@ -173,7 +174,7 @@ export const useUserTransactionsStore = defineStore('userTransactions', () => {
    * Load the account-level summary (count + total per account).
    */
   async function fetchAccountSummary() {
-    loading.value = true
+    loadingCount.value++
     error.value = null
     try {
       const result = await ipc.invoke('reports:accountSummary')
@@ -182,7 +183,7 @@ export const useUserTransactionsStore = defineStore('userTransactions', () => {
     } catch (err) {
       setError(err)
     } finally {
-      loading.value = false
+      loadingCount.value--
     }
   }
 
@@ -191,7 +192,7 @@ export const useUserTransactionsStore = defineStore('userTransactions', () => {
    * Sets activeMonth to the most recent month if not already set.
    */
   async function fetchMonthsWithData() {
-    loading.value = true
+    loadingCount.value++
     error.value = null
     try {
       const result = await ipc.invoke('reports:monthsWithData')
@@ -203,7 +204,7 @@ export const useUserTransactionsStore = defineStore('userTransactions', () => {
     } catch (err) {
       setError(err)
     } finally {
-      loading.value = false
+      loadingCount.value--
     }
   }
 

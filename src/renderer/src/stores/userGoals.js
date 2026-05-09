@@ -25,7 +25,8 @@ db.version(2).stores({
 
 export const useUserGoalsStore = defineStore('userGoals', () => {
   const goals = ref([])
-  const loading = ref(false)
+  const loadingCount = ref(0)
+  const loading = computed(() => loadingCount.value > 0)
   const error = ref(null)
 
   const activeGoals = computed(() => goals.value.filter((goal) => goal.status !== 'completed'))
@@ -57,7 +58,7 @@ export const useUserGoalsStore = defineStore('userGoals', () => {
   }
 
   async function fetchGoals() {
-    loading.value = true
+    loadingCount.value++
     error.value = null
     try {
       const rows = await db.goals.orderBy('createdAt').toArray()
@@ -65,12 +66,12 @@ export const useUserGoalsStore = defineStore('userGoals', () => {
     } catch (err) {
       setError(err)
     } finally {
-      loading.value = false
+      loadingCount.value--
     }
   }
 
   async function addGoal(goal) {
-    loading.value = true
+    loadingCount.value++
     error.value = null
     try {
       const now = new Date().toISOString()
@@ -92,12 +93,12 @@ export const useUserGoalsStore = defineStore('userGoals', () => {
       setError(err)
       return null
     } finally {
-      loading.value = false
+      loadingCount.value--
     }
   }
 
   async function updateGoal(id, updates = {}) {
-    loading.value = true
+    loadingCount.value++
     error.value = null
     try {
       const existing = await db.goals.get(id)
@@ -117,12 +118,12 @@ export const useUserGoalsStore = defineStore('userGoals', () => {
       setError(err)
       return null
     } finally {
-      loading.value = false
+      loadingCount.value--
     }
   }
 
   async function deleteGoal(id) {
-    loading.value = true
+    loadingCount.value++
     error.value = null
     try {
       await db.goals.delete(id)
@@ -130,12 +131,12 @@ export const useUserGoalsStore = defineStore('userGoals', () => {
     } catch (err) {
       setError(err)
     } finally {
-      loading.value = false
+      loadingCount.value--
     }
   }
 
   async function reorderGoals(orderedIds = []) {
-    loading.value = true
+    loadingCount.value++
     error.value = null
     try {
       const now = new Date().toISOString()
@@ -153,7 +154,7 @@ export const useUserGoalsStore = defineStore('userGoals', () => {
     } catch (err) {
       setError(err)
     } finally {
-      loading.value = false
+      loadingCount.value--
     }
   }
 
