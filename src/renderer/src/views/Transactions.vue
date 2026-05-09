@@ -2,12 +2,7 @@
   <v-container fluid class="pa-6">
     <!-- Page Header -->
     <div class="d-flex align-center justify-space-between flex-wrap gap-3 mb-6">
-      <div>
-        <h1 class="text-h4 font-weight-bold">Transactions</h1>
-        <p class="text-body-1 text-medium-emphasis mt-1">
-          Browse and manage your transaction history
-        </p>
-      </div>
+
 
       <div class="d-flex align-center gap-3">
         <v-btn

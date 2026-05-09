@@ -1,13 +1,6 @@
 <template>
   <v-container fluid class="pa-6">
-    <div class="d-flex align-center justify-space-between flex-wrap gap-3 mb-6">
-      <div>
-        <h1 class="text-h4 font-weight-bold">Goals</h1>
-        <p class="text-body-1 text-medium-emphasis mt-1">
-          Track progress toward savings goals and upcoming targets
-        </p>
-      </div>
-    </div>
+
 
     <v-row class="mb-6">
       <v-col cols="12" sm="6" lg="3">

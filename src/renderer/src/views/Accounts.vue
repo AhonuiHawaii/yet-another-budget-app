@@ -1,10 +1,6 @@
 <template>
   <v-container fluid class="pa-6">
-    <!-- Page Header -->
-    <div class="mb-8">
-      <h1 class="text-h4 font-weight-bold">Accounts</h1>
-      <p class="text-body-1 text-medium-emphasis mt-1">Manage your linked financial accounts</p>
-    </div>
+
 
     <!-- Add Account Button -->
     <div class="mb-8">

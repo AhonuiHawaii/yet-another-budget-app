@@ -1,13 +1,6 @@
 <template>
   <v-container fluid class="pa-6">
-    <div class="d-flex align-center justify-space-between flex-wrap gap-3 mb-6">
-      <div>
-        <h1 class="text-h4 font-weight-bold">Reports</h1>
-        <p class="text-body-1 text-medium-emphasis mt-1">
-          Review cash flow, budget variance, goals, and uncategorized activity
-        </p>
-      </div>
-    </div>
+
 
     <div class="d-flex align-center flex-wrap gap-3 mb-6">
       <v-chip v-if="transactionsStore.monthsWithData.length === 0" variant="outlined" size="small">

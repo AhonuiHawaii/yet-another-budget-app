@@ -1,13 +1,6 @@
 <template>
   <v-container fluid class="pa-6">
-    <div class="d-flex align-center justify-space-between flex-wrap gap-3 mb-6">
-      <div>
-        <h1 class="text-h4 font-weight-bold">Debts</h1>
-        <p class="text-body-1 text-medium-emphasis mt-1">
-          Track monthly payoff progress across your credit card accounts
-        </p>
-      </div>
-    </div>
+
 
     <v-card class="mb-6" rounded="xl" elevation="0" border>
       <v-row no-gutters>

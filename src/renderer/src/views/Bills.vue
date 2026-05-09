@@ -1,11 +1,6 @@
 <template>
   <v-container fluid class="pa-6">
-    <div class="d-flex align-center justify-space-between flex-wrap gap-3 mb-6">
-      <div>
-        <h1 class="text-h4 font-weight-bold">Bills</h1>
-        <p class="text-body-1 text-medium-emphasis mt-1">Track your projected vs actual bills</p>
-      </div>
-    </div>
+
 
     <!-- Total Income Header -->
     <v-card class="mb-6" rounded="xl" elevation="0" border>
