@@ -5,9 +5,6 @@
         <h1 class="text-h4 font-weight-bold">Income</h1>
         <p class="text-body-1 text-medium-emphasis mt-1">Track your projected vs actual income</p>
       </div>
-      <div class="d-flex align-center gap-3">
-        <v-btn icon="mdi-plus" variant="tonal" color="primary" size="small" @click="addNewRow" />
-      </div>
     </div>
 
     <!-- Total Income Header -->
@@ -90,6 +87,17 @@
     </v-row>
 
     <!-- Merged Projected vs Actual Table & Manage Categories -->
+    <div class="d-flex justify-end mb-3">
+      <v-btn
+        prepend-icon="mdi-plus"
+        variant="tonal"
+        color="primary"
+        size="small"
+        @click="addNewRow"
+      >
+        Add Category
+      </v-btn>
+    </div>
     <v-card class="bg-transparent" rounded="0" elevation="0">
       <div>
         <v-table density="comfortable" class="bg-transparent text-white" theme="dark">
