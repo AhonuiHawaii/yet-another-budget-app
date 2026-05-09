@@ -227,6 +227,36 @@
       </v-col>
     </v-row>
 
+    <!-- Bulk Action Toolbar -->
+    <v-slide-y-transition>
+      <div v-if="selectedRows.length > 0" class="mb-3">
+        <v-sheet rounded="lg" color="primary" class="pa-3 d-flex align-center gap-3">
+          <v-chip color="white" variant="flat" size="small" class="font-weight-bold">
+            {{ selectedRows.length }} selected
+          </v-chip>
+          <v-btn
+            size="small"
+            variant="flat"
+            color="white"
+            rounded="lg"
+            prepend-icon="mdi-tag-multiple-outline"
+            @click="openBulkCategoryDialog"
+          >
+            Set Category
+          </v-btn>
+          <v-spacer />
+          <v-btn
+            icon="mdi-close"
+            variant="text"
+            size="small"
+            color="white"
+            density="compact"
+            @click="selectedRows = []"
+          />
+        </v-sheet>
+      </div>
+    </v-slide-y-transition>
+
     <!-- Error Banner -->
     <v-alert
       v-if="store.error"
@@ -260,7 +290,10 @@
     <v-card v-else rounded="xl" elevation="0" border>
       <v-data-table
         v-model:expanded="expandedRows"
+        v-model:selected="selectedRows"
         show-expand
+        show-select
+        item-value="FITID"
         :headers="headers"
         :items="filteredTransactions"
         :loading="store.loading"
@@ -636,6 +669,62 @@
       </v-card>
     </v-dialog>
 
+    <!-- Bulk Category Dialog -->
+    <v-dialog v-model="bulkCategoryDialog" max-width="420">
+      <v-card rounded="xl">
+        <v-card-title class="pa-6 pb-4">
+          <div class="d-flex align-center justify-space-between">
+            <div class="d-flex align-center gap-3">
+              <v-icon color="primary" size="20">mdi-tag-multiple-outline</v-icon>
+              <span class="text-h6 font-weight-bold">Set Category</span>
+            </div>
+            <v-btn
+              icon="mdi-close"
+              variant="text"
+              density="compact"
+              @click="bulkCategoryDialog = false"
+            />
+          </div>
+        </v-card-title>
+
+        <v-divider />
+
+        <v-card-text class="pa-6">
+          <div class="text-body-2 text-medium-emphasis mb-4">
+            Apply to <strong>{{ selectedRows.length }}</strong> selected transaction{{
+              selectedRows.length === 1 ? '' : 's'
+            }}.
+          </div>
+          <v-combobox
+            v-model="bulkCategoryValue"
+            :items="allCategoryNames"
+            label="Category"
+            variant="solo"
+            inset
+            density="comfortable"
+            rounded="lg"
+            hide-details
+            autofocus
+            clearable
+          />
+        </v-card-text>
+
+        <v-card-actions class="pa-6 pt-0">
+          <v-spacer />
+          <v-btn variant="text" @click="bulkCategoryDialog = false">Cancel</v-btn>
+          <v-btn
+            color="primary"
+            variant="flat"
+            rounded="lg"
+            :loading="store.loading"
+            @click="saveBulkCategory"
+          >
+            Apply
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
     <!-- Delete Confirmation Dialog -->
     <v-dialog v-model="deleteDialog" max-width="400">
       <v-card rounded="xl">
@@ -662,10 +751,31 @@ import { ref, computed, onMounted } from 'vue'
 import { useUserTransactionsStore } from '../stores/userTransactions'
 import { useUserAccountsStore } from '../stores/userAccounts'
 import { useUserSettingsStore } from '../stores/userSettings'
+import { useUserCategoriesStore } from '../stores/userCategories'
 
 const store = useUserTransactionsStore()
 const accountsStore = useUserAccountsStore()
 const settingsStore = useUserSettingsStore()
+const categoriesStore = useUserCategoriesStore()
+
+const allCategoryNames = computed(() => categoriesStore.categories.map((c) => c.name))
+
+// ── Bulk Recategorization ─────────────────────────────────────────────────────
+const selectedRows = ref([])
+const bulkCategoryDialog = ref(false)
+const bulkCategoryValue = ref('')
+
+function openBulkCategoryDialog() {
+  bulkCategoryValue.value = ''
+  bulkCategoryDialog.value = true
+}
+
+async function saveBulkCategory() {
+  const category = (bulkCategoryValue.value || '').trim() || null
+  await Promise.all(selectedRows.value.map((item) => store.editTransaction(item.FITID, { category })))
+  bulkCategoryDialog.value = false
+  selectedRows.value = []
+}
 
 // ── Import dialog ────────────────────────────────────────────────────────────
 const importDialog = ref(false)
