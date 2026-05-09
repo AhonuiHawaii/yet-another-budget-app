@@ -13,7 +13,8 @@ const navItems = [
   { title: 'Debts', value: 'Debts', icon: 'mdi-cash-remove' },
   { title: 'Budgets', value: 'Budgets', icon: 'mdi-chart-donut' },
   { title: 'Goals', value: 'Goals', icon: 'mdi-flag' },
-  { title: 'Reports', value: 'Reports', icon: 'mdi-chart-bar' }
+  { title: 'Reports', value: 'Reports', icon: 'mdi-chart-bar' },
+  { title: 'Auto-Rules', value: 'Rules', icon: 'mdi-tag-multiple-outline' }
 ]
 
 const emit = defineEmits(['change-view'])

@@ -13,7 +13,12 @@ import {
   getCategoryTotals,
   getUncategorized,
   getAccountSummary,
-  getMonthsWithData
+  getMonthsWithData,
+  getRules,
+  createRule as dbCreateRule,
+  updateRule as dbUpdateRule,
+  deleteRule as dbDeleteRule,
+  applyRules
 } from './db.js'
 
 /*
@@ -55,7 +60,17 @@ export const importTransactions = async (ofxData) => {
       })
     }
 
-    return ok(createTransactions(transactions))
+    const result = createTransactions(transactions)
+
+    // Auto-categorize newly inserted transactions using saved rules
+    const patches = applyRules(transactions)
+    for (const patch of patches) {
+      const updates = { category: patch.category }
+      if (patch.transactionType) updates.transactionType = patch.transactionType
+      updateTransaction(patch.FITID, updates)
+    }
+
+    return ok(result)
   } catch (e) {
     return fail(e)
   }
@@ -177,6 +192,59 @@ export const fetchAccountSummary = () => {
 export const fetchMonthsWithData = () => {
   try {
     return ok(getMonthsWithData())
+  } catch (e) {
+    return fail(e)
+  }
+}
+
+// Rules
+
+export const fetchRules = () => {
+  try {
+    return ok(getRules())
+  } catch (e) {
+    return fail(e)
+  }
+}
+
+export const addRule = (rule) => {
+  try {
+    return ok(dbCreateRule(rule))
+  } catch (e) {
+    return fail(e)
+  }
+}
+
+export const editRule = (id, updates) => {
+  try {
+    const changes = dbUpdateRule(id, updates)
+    if (!changes) return fail(new Error(`No rule found with id: ${id}`))
+    return ok({ id, changes })
+  } catch (e) {
+    return fail(e)
+  }
+}
+
+export const removeRule = (id) => {
+  try {
+    const changes = dbDeleteRule(id)
+    if (!changes) return fail(new Error(`No rule found with id: ${id}`))
+    return ok({ id, changes })
+  } catch (e) {
+    return fail(e)
+  }
+}
+
+export const applyRulesToMonth = (yyyymm) => {
+  try {
+    const transactions = getUncategorized(yyyymm)
+    const patches = applyRules(transactions)
+    for (const patch of patches) {
+      const updates = { category: patch.category }
+      if (patch.transactionType) updates.transactionType = patch.transactionType
+      updateTransaction(patch.FITID, updates)
+    }
+    return ok({ applied: patches.length })
   } catch (e) {
     return fail(e)
   }

@@ -380,6 +380,101 @@ function deleteAccount(acctid) {
   })()
 }
 
+// ── Category Rules ───────────────────────────────────────────────────────────
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS CategoryRules (
+    id        INTEGER PRIMARY KEY AUTOINCREMENT,
+    field     TEXT NOT NULL,
+    operator  TEXT NOT NULL,
+    value     TEXT NOT NULL,
+    category  TEXT NOT NULL,
+    type      TEXT,
+    priority  INTEGER DEFAULT 0,
+    createdAt TEXT DEFAULT CURRENT_TIMESTAMP
+  )
+`)
+
+function getRules() {
+  return db.prepare('SELECT * FROM CategoryRules ORDER BY priority DESC, id ASC').all()
+}
+
+function createRule(rule) {
+  const stmt = db.prepare(`
+    INSERT INTO CategoryRules (field, operator, value, category, type, priority)
+    VALUES (@field, @operator, @value, @category, @type, @priority)
+  `)
+  const info = stmt.run({
+    field: rule.field,
+    operator: rule.operator,
+    value: rule.value,
+    category: rule.category,
+    type: rule.type ?? null,
+    priority: rule.priority ?? 0
+  })
+  return db.prepare('SELECT * FROM CategoryRules WHERE id = ?').get(info.lastInsertRowid)
+}
+
+function updateRule(id, updates) {
+  const ALLOWED = new Set(['field', 'operator', 'value', 'category', 'type', 'priority'])
+  const entries = Object.entries(updates).filter(([col]) => ALLOWED.has(col))
+  if (entries.length === 0) return 0
+  const setClause = entries.map(([col]) => `${col} = ?`).join(', ')
+  const values = entries.map(([, val]) => val)
+  return db.prepare(`UPDATE CategoryRules SET ${setClause} WHERE id = ?`).run(...values, id).changes
+}
+
+function deleteRule(id) {
+  return db.prepare('DELETE FROM CategoryRules WHERE id = ?').run(id).changes
+}
+
+/**
+ * Evaluate all rules (highest priority first) against each transaction.
+ * First matching rule wins per transaction.
+ * @param {Object[]} transactions
+ * @returns {{ FITID: string, category: string, transactionType?: string }[]}
+ */
+function applyRules(transactions) {
+  const rules = getRules()
+  if (!rules.length || !transactions.length) return []
+
+  const patches = []
+  for (const txn of transactions) {
+    for (const rule of rules) {
+      const raw = txn[rule.field]
+      const fieldStr = String(raw ?? '')
+      const ruleVal = rule.value
+      let matches = false
+
+      switch (rule.operator) {
+        case 'contains':
+          matches = fieldStr.toLowerCase().includes(ruleVal.toLowerCase())
+          break
+        case 'equals':
+          matches = fieldStr.toLowerCase() === ruleVal.toLowerCase()
+          break
+        case 'startsWith':
+          matches = fieldStr.toLowerCase().startsWith(ruleVal.toLowerCase())
+          break
+        case 'gt':
+          matches = Number(raw) > Number(ruleVal)
+          break
+        case 'lt':
+          matches = Number(raw) < Number(ruleVal)
+          break
+      }
+
+      if (matches) {
+        const patch = { FITID: txn.FITID, category: rule.category }
+        if (rule.type) patch.transactionType = rule.type
+        patches.push(patch)
+        break
+      }
+    }
+  }
+  return patches
+}
+
 // ── Reporting ────────────────────────────────────────────────────────────────
 
 // TRNAMT is stored as TEXT (OFX format) — cast to REAL in SQL for aggregation
@@ -514,5 +609,11 @@ export {
   getCategoryTotals,
   getUncategorized,
   getAccountSummary,
-  getMonthsWithData
+  getMonthsWithData,
+  // Rules
+  getRules,
+  createRule,
+  updateRule,
+  deleteRule,
+  applyRules
 }

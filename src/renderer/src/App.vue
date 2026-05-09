@@ -15,6 +15,7 @@ import Bills from './views/Bills.vue'
 import Budgets from './views/Budgets.vue'
 import Reports from './views/Reports.vue'
 import Goals from './views/Goals.vue'
+import Rules from './views/Rules.vue'
 
 const views = {
   Dashboard,
@@ -28,7 +29,8 @@ const views = {
   Bills,
   Budgets,
   Reports,
-  Goals
+  Goals,
+  Rules
 }
 
 const currentComponent = shallowRef(views.Dashboard)
