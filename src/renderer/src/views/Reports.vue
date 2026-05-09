@@ -37,7 +37,7 @@
       </div>
     </v-card>
 
-    <v-row class="mb-6" dense>
+    <v-row class="mb-6">
       <v-col cols="12" sm="6" lg="3">
         <v-card class="pa-4 h-100" rounded="xl" elevation="0" border>
           <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-1">
@@ -94,17 +94,17 @@
       </v-col>
     </v-row>
 
-    <v-row dense>
+    <v-row>
       <v-col cols="12" lg="7">
-        <v-card class="bg-transparent mb-6" rounded="0" elevation="0">
+        <div class="mb-6">
           <div class="d-flex align-center gap-2 mb-2">
             <v-icon color="primary" size="20">mdi-chart-bar</v-icon>
             <h2 class="text-h6 font-weight-bold">Category Performance</h2>
           </div>
-          <v-table density="comfortable" class="bg-transparent text-white" theme="dark">
+          <v-table density="comfortable">
             <thead>
               <tr>
-                <th class="text-left text-uppercase text-caption font-weight-bold pl-4">
+                <th class="text-start text-uppercase text-caption font-weight-bold pl-4">
                   Category
                 </th>
                 <th class="text-center text-uppercase text-caption font-weight-bold">Group</th>
@@ -137,19 +137,21 @@
               </tr>
             </tbody>
           </v-table>
-        </v-card>
+        </div>
       </v-col>
 
       <v-col cols="12" lg="5">
-        <v-card class="bg-transparent mb-6" rounded="0" elevation="0">
+        <div class="mb-6">
           <div class="d-flex align-center gap-2 mb-2">
             <v-icon color="primary" size="20">mdi-bank-outline</v-icon>
             <h2 class="text-h6 font-weight-bold">Accounts</h2>
           </div>
-          <v-table density="comfortable" class="bg-transparent text-white" theme="dark">
+          <v-table density="comfortable">
             <thead>
               <tr>
-                <th class="text-left text-uppercase text-caption font-weight-bold pl-4">Account</th>
+                <th class="text-start text-uppercase text-caption font-weight-bold pl-4">
+                  Account
+                </th>
                 <th class="text-center text-uppercase text-caption font-weight-bold">Count</th>
                 <th class="text-center text-uppercase text-caption font-weight-bold">Net</th>
               </tr>
@@ -174,21 +176,21 @@
               </tr>
             </tbody>
           </v-table>
-        </v-card>
+        </div>
       </v-col>
     </v-row>
 
-    <v-row dense>
+    <v-row>
       <v-col cols="12" lg="6">
-        <v-card class="bg-transparent mb-6" rounded="0" elevation="0">
+        <div class="mb-6">
           <div class="d-flex align-center gap-2 mb-2">
             <v-icon color="primary" size="20">mdi-flag-outline</v-icon>
             <h2 class="text-h6 font-weight-bold">Goals</h2>
           </div>
-          <v-table density="comfortable" class="bg-transparent text-white" theme="dark">
+          <v-table density="comfortable">
             <thead>
               <tr>
-                <th class="text-left text-uppercase text-caption font-weight-bold pl-4">Goal</th>
+                <th class="text-start text-uppercase text-caption font-weight-bold pl-4">Goal</th>
                 <th class="text-center text-uppercase text-caption font-weight-bold">Saved</th>
                 <th class="text-center text-uppercase text-caption font-weight-bold">Target</th>
                 <th class="text-center text-uppercase text-caption font-weight-bold">Progress</th>
@@ -218,19 +220,19 @@
               </tr>
             </tbody>
           </v-table>
-        </v-card>
+        </div>
       </v-col>
 
       <v-col cols="12" lg="6">
-        <v-card class="bg-transparent mb-6" rounded="0" elevation="0">
+        <div class="mb-6">
           <div class="d-flex align-center gap-2 mb-2">
             <v-icon color="warning" size="20">mdi-alert-circle-outline</v-icon>
             <h2 class="text-h6 font-weight-bold">Uncategorized</h2>
           </div>
-          <v-table density="comfortable" class="bg-transparent text-white" theme="dark">
+          <v-table density="comfortable">
             <thead>
               <tr>
-                <th class="text-left text-uppercase text-caption font-weight-bold pl-4">
+                <th class="text-start text-uppercase text-caption font-weight-bold pl-4">
                   Transaction
                 </th>
                 <th class="text-center text-uppercase text-caption font-weight-bold">Amount</th>
@@ -253,7 +255,7 @@
               </tr>
             </tbody>
           </v-table>
-        </v-card>
+        </div>
       </v-col>
     </v-row>
   </v-container>

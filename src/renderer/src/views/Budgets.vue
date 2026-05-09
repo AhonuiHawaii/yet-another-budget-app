@@ -9,7 +9,7 @@
       </div>
     </div>
 
-    <v-row class="mb-6" dense>
+    <v-row class="mb-6">
       <v-col cols="12" sm="6" lg="3">
         <v-card class="pa-4 h-100" rounded="xl" elevation="0" border>
           <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-1">
@@ -73,8 +73,8 @@
       {{ budgetsStore.error || categoriesStore.error || loadError }}
     </v-alert>
 
-    <div class="budget-sections">
-      <section v-for="section in budgetSections" :key="section.value" class="budget-section">
+    <div>
+      <section v-for="section in budgetSections" :key="section.value">
         <div class="d-flex align-center justify-space-between flex-wrap gap-3 mb-2">
           <div class="d-flex align-center gap-2">
             <v-icon :color="section.color" size="20">{{ section.icon }}</v-icon>
@@ -82,69 +82,61 @@
           </div>
         </div>
 
-        <v-card class="bg-transparent mb-6" rounded="0" elevation="0">
-          <v-table density="comfortable" class="bg-transparent text-white" theme="dark">
-            <thead>
-              <tr>
-                <th class="text-left text-uppercase text-caption font-weight-bold pl-4">
-                  Category
-                </th>
-                <th class="text-center text-uppercase text-caption font-weight-bold">Actual</th>
-                <th class="text-center text-uppercase text-caption font-weight-bold">Budget</th>
-                <th class="text-center text-uppercase text-caption font-weight-bold">
-                  {{ section.type === 'income' ? 'Variance' : 'Remaining' }}
-                </th>
-                <th class="text-center text-uppercase text-caption font-weight-bold">Used</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-if="section.rows.length === 0">
-                <td colspan="5" class="text-center py-8 text-medium-emphasis">
-                  No {{ section.label.toLowerCase() }} categories yet.
-                </td>
-              </tr>
-              <tr v-for="row in section.rows" :key="row.id">
-                <td class="pl-4">
-                  <span>{{ row.name }}</span>
-                </td>
-                <td class="text-center font-weight-bold">{{ formatCurrency(row.actual) }}</td>
-                <td>
-                  <div class="d-flex justify-center">
-                    <v-text-field
-                      :model-value="row.planned"
-                      type="number"
-                      prefix="$"
-                      variant="solo"
-                      flat
-                      density="compact"
-                      hide-details
-                      width="140"
-                      class="mt-n2 mb-n2"
-                      @update:model-value="(value) => updateBudget(row.id, value)"
-                    />
-                  </div>
-                </td>
-                <td
-                  class="text-center font-weight-bold"
-                  :class="row.remaining >= 0 ? 'text-success' : 'text-error'"
-                >
-                  {{ formatCurrency(row.remaining) }}
-                </td>
-                <td class="text-center">
-                  <div class="d-flex align-center gap-2">
-                    <v-progress-linear
-                      :model-value="row.percentUsed"
-                      :color="row.percentColor"
-                      height="8"
-                      rounded
-                    />
-                    <span class="text-caption">{{ row.percentLabel }}</span>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </v-table>
-        </v-card>
+        <v-table density="comfortable" class="mb-6">
+          <thead>
+            <tr>
+              <th class="text-start text-uppercase text-caption font-weight-bold pl-4">Category</th>
+              <th class="text-center text-uppercase text-caption font-weight-bold">Actual</th>
+              <th class="text-center text-uppercase text-caption font-weight-bold">Budget</th>
+              <th class="text-center text-uppercase text-caption font-weight-bold">
+                {{ section.type === 'income' ? 'Variance' : 'Remaining' }}
+              </th>
+              <th class="text-center text-uppercase text-caption font-weight-bold">Used</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-if="section.rows.length === 0">
+              <td colspan="5" class="text-center py-8 text-medium-emphasis">
+                No {{ section.label.toLowerCase() }} categories yet.
+              </td>
+            </tr>
+            <tr v-for="row in section.rows" :key="row.id">
+              <td class="pl-4">
+                <span>{{ row.name }}</span>
+              </td>
+              <td class="text-center font-weight-bold">{{ formatCurrency(row.actual) }}</td>
+              <td>
+                <v-text-field
+                  :model-value="row.planned"
+                  type="number"
+                  prefix="$"
+                  variant="solo"
+                  flat
+                  density="compact"
+                  hide-details
+                  @update:model-value="(value) => updateBudget(row.id, value)"
+                />
+              </td>
+              <td
+                class="text-center font-weight-bold"
+                :class="row.remaining >= 0 ? 'text-success' : 'text-error'"
+              >
+                {{ formatCurrency(row.remaining) }}
+              </td>
+              <td class="text-center">
+                <div class="d-flex align-center gap-2">
+                  <v-progress-linear
+                    :model-value="row.percentUsed"
+                    :color="row.percentColor"
+                    height="8"
+                    rounded
+                  />
+                  <span class="text-caption">{{ row.percentLabel }}</span>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </v-table>
       </section>
     </div>
   </v-container>

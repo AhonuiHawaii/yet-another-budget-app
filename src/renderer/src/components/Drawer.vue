@@ -91,7 +91,7 @@ watch(monthMenu, (isOpen) => {
               <v-btn
                 block
                 size="small"
-                :variant="month.value === settingsStore.selectedMonth ? 'flat' : 'text'"
+                :variant="text"
                 :color="month.value === settingsStore.selectedMonth ? 'primary' : undefined"
                 @click="selectMonth(month.value)"
               >

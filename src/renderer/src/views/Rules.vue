@@ -162,7 +162,7 @@
         <v-divider />
 
         <v-card-text class="pa-6">
-          <v-row dense>
+          <v-row>
             <!-- Field -->
             <v-col cols="6">
               <v-select

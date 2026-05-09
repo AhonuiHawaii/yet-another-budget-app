@@ -13,7 +13,7 @@
       {{ dashboardError }}
     </v-alert>
 
-    <v-row class="mb-6" dense>
+    <v-row class="mb-6">
       <v-col cols="12" sm="6" lg="3">
         <v-card class="pa-4 h-100" rounded="xl" elevation="0" border>
           <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-1">
@@ -72,17 +72,17 @@
       </v-col>
     </v-row>
 
-    <v-row dense>
+    <v-row>
       <v-col cols="12" lg="7">
-        <v-card class="bg-transparent mb-6" rounded="0" elevation="0">
-          <div class="d-flex align-center gap-2 mb-2">
+        <div class="mb-6">
+          <div class="d-flex align-center gap-2 mb-4">
             <v-icon color="primary" size="20">mdi-view-dashboard-outline</v-icon>
             <h2 class="text-h6 font-weight-bold">Monthly Summary</h2>
           </div>
-          <v-table density="comfortable" class="bg-transparent text-white" theme="dark">
+          <v-table density="comfortable">
             <thead>
               <tr>
-                <th class="text-left text-uppercase text-caption font-weight-bold pl-4">Group</th>
+                <th class="text-start text-uppercase text-caption font-weight-bold pl-4">Group</th>
                 <th class="text-center text-uppercase text-caption font-weight-bold">Budget</th>
                 <th class="text-center text-uppercase text-caption font-weight-bold">Actual</th>
                 <th class="text-center text-uppercase text-caption font-weight-bold">Progress</th>
@@ -118,9 +118,9 @@
               </tr>
             </tbody>
           </v-table>
-        </v-card>
+        </div>
 
-        <v-row dense>
+        <v-row>
           <v-col cols="12" md="6">
             <v-card class="pa-4 h-100" rounded="xl" elevation="0" border>
               <div class="d-flex align-center justify-space-between mb-2">
@@ -157,12 +157,12 @@
       </v-col>
 
       <v-col cols="12" lg="5">
-        <v-card class="bg-transparent mb-6" rounded="0" elevation="0">
-          <div class="d-flex align-center gap-2 mb-2">
+        <div class="mb-6">
+          <div class="d-flex align-center gap-2 mb-4">
             <v-icon color="primary" size="20">mdi-chart-donut</v-icon>
             <h2 class="text-h6 font-weight-bold">Top Spending</h2>
           </div>
-          <v-table density="comfortable" class="bg-transparent text-white" theme="dark">
+          <v-table density="comfortable">
             <tbody>
               <tr v-if="topSpendingCategories.length === 0">
                 <td class="text-center py-8 text-medium-emphasis">No categorized spending yet.</td>
@@ -173,14 +173,14 @@
               </tr>
             </tbody>
           </v-table>
-        </v-card>
+        </div>
 
-        <v-card class="bg-transparent mb-6" rounded="0" elevation="0">
-          <div class="d-flex align-center gap-2 mb-2">
+        <div class="mb-6">
+          <div class="d-flex align-center gap-2 mb-4">
             <v-icon color="primary" size="20">mdi-flag-outline</v-icon>
             <h2 class="text-h6 font-weight-bold">Goals</h2>
           </div>
-          <v-table density="comfortable" class="bg-transparent text-white" theme="dark">
+          <v-table density="comfortable">
             <tbody>
               <tr v-if="goalRows.length === 0">
                 <td class="text-center py-8 text-medium-emphasis">No goals configured.</td>
@@ -200,16 +200,16 @@
               </tr>
             </tbody>
           </v-table>
-        </v-card>
+        </div>
       </v-col>
     </v-row>
 
-    <v-card class="bg-transparent mb-6" rounded="0" elevation="0">
-      <div class="d-flex align-center gap-2 mb-2">
+    <div class="mb-6">
+      <div class="d-flex align-center gap-2 mb-4">
         <v-icon color="primary" size="20">mdi-receipt-text-outline</v-icon>
         <h2 class="text-h6 font-weight-bold">Recent Transactions</h2>
       </div>
-      <v-table density="comfortable" class="bg-transparent text-white" theme="dark">
+      <v-table density="comfortable">
         <tbody>
           <tr v-if="recentTransactions.length === 0">
             <td class="text-center py-8 text-medium-emphasis">No transactions this month.</td>
@@ -232,7 +232,7 @@
           </tr>
         </tbody>
       </v-table>
-    </v-card>
+    </div>
   </v-container>
 </template>
 

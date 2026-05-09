@@ -9,7 +9,7 @@
       </div>
     </div>
 
-    <v-row class="mb-6" dense>
+    <v-row class="mb-6">
       <v-col cols="12" sm="6" lg="3">
         <v-card class="pa-4 h-100" rounded="xl" elevation="0" border>
           <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-1">
@@ -62,94 +62,88 @@
       </v-btn>
     </div>
 
-    <v-card class="bg-transparent" rounded="0" elevation="0">
-      <v-table density="comfortable" class="bg-transparent text-white" theme="dark">
-        <thead>
-          <tr>
-            <th class="text-left text-uppercase text-caption font-weight-bold pl-4">Goal</th>
-            <th class="text-center text-uppercase text-caption font-weight-bold">Priority</th>
-            <th class="text-center text-uppercase text-caption font-weight-bold">Saved</th>
-            <th class="text-center text-uppercase text-caption font-weight-bold">Target</th>
-            <th class="text-center text-uppercase text-caption font-weight-bold">Remaining</th>
-            <th class="text-center text-uppercase text-caption font-weight-bold">Progress</th>
-            <th class="text-center text-uppercase text-caption font-weight-bold">Target Date</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-if="goalRows.length === 0">
-            <td colspan="8" class="text-center py-10 text-medium-emphasis">No goals yet.</td>
-          </tr>
-          <tr
-            v-for="goal in goalRows"
-            :key="goal.id"
-            draggable="true"
-            @dragstart="onDragStart(goal.id)"
-            @dragover.prevent
-            @drop="onDrop(goal.id)"
+    <v-table density="comfortable">
+      <thead>
+        <tr>
+          <th class="text-start text-uppercase text-caption font-weight-bold pl-4">Goal</th>
+          <th class="text-center text-uppercase text-caption font-weight-bold">Priority</th>
+          <th class="text-center text-uppercase text-caption font-weight-bold">Saved</th>
+          <th class="text-center text-uppercase text-caption font-weight-bold">Target</th>
+          <th class="text-center text-uppercase text-caption font-weight-bold">Remaining</th>
+          <th class="text-center text-uppercase text-caption font-weight-bold">Progress</th>
+          <th class="text-center text-uppercase text-caption font-weight-bold">Target Date</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-if="goalRows.length === 0">
+          <td colspan="8" class="text-center py-10 text-medium-emphasis">No goals yet.</td>
+        </tr>
+        <tr
+          v-for="goal in goalRows"
+          :key="goal.id"
+          draggable="true"
+          @dragstart="onDragStart(goal.id)"
+          @dragover.prevent
+          @drop="onDrop(goal.id)"
+        >
+          <td class="pl-4 font-weight-medium">{{ goal.name }}</td>
+          <td class="text-center">
+            <v-chip color="primary" variant="tonal" size="x-small" rounded="lg">
+              {{ goal.priority }}
+            </v-chip>
+          </td>
+          <td>
+            <v-text-field
+              :model-value="goal.currentAmount"
+              type="number"
+              prefix="$"
+              variant="solo"
+              flat
+              density="compact"
+              hide-details
+              @update:model-value="(value) => updateCurrentAmount(goal.id, value)"
+            />
+          </td>
+          <td class="text-center font-weight-bold">{{ formatCurrency(goal.targetAmount) }}</td>
+          <td
+            class="text-center font-weight-bold"
+            :class="goal.remaining <= 0 ? 'text-success' : 'text-medium-emphasis'"
           >
-            <td class="pl-4 font-weight-medium">{{ goal.name }}</td>
-            <td class="text-center">
-              <v-chip color="primary" variant="tonal" size="x-small" rounded="lg">
-                {{ goal.priority }}
-              </v-chip>
-            </td>
-            <td>
-              <div class="d-flex justify-center">
-                <v-text-field
-                  :model-value="goal.currentAmount"
-                  type="number"
-                  prefix="$"
-                  variant="solo"
-                  flat
-                  density="compact"
-                  hide-details
-                  width="140"
-                  class="mt-n2 mb-n2"
-                  @update:model-value="(value) => updateCurrentAmount(goal.id, value)"
-                />
-              </div>
-            </td>
-            <td class="text-center font-weight-bold">{{ formatCurrency(goal.targetAmount) }}</td>
-            <td
-              class="text-center font-weight-bold"
-              :class="goal.remaining <= 0 ? 'text-success' : 'text-medium-emphasis'"
-            >
-              {{ formatCurrency(goal.remaining) }}
-            </td>
-            <td class="text-center">
-              <div class="d-flex align-center gap-2">
-                <v-progress-linear
-                  :model-value="goal.progress"
-                  :color="goal.status === 'completed' ? 'success' : 'primary'"
-                  height="8"
-                  rounded
-                />
-                <span class="text-caption">{{ goal.progressLabel }}</span>
-              </div>
-            </td>
-            <td class="text-center">{{ formatDate(goal.targetDate) }}</td>
-            <td class="text-right">
-              <v-btn
-                icon="mdi-pencil-outline"
-                variant="text"
-                size="small"
-                density="compact"
-                @click="openEditGoal(goal)"
+            {{ formatCurrency(goal.remaining) }}
+          </td>
+          <td class="text-center">
+            <div class="d-flex align-center gap-2">
+              <v-progress-linear
+                :model-value="goal.progress"
+                :color="goal.status === 'completed' ? 'success' : 'primary'"
+                height="8"
+                rounded
               />
-              <v-btn
-                icon="mdi-delete-outline"
-                variant="text"
-                size="small"
-                density="compact"
-                color="error"
-                @click="store.deleteGoal(goal.id)"
-              />
-            </td>
-          </tr>
-        </tbody>
-      </v-table>
-    </v-card>
+              <span class="text-caption">{{ goal.progressLabel }}</span>
+            </div>
+          </td>
+          <td class="text-center">{{ formatDate(goal.targetDate) }}</td>
+          <td class="text-right">
+            <v-btn
+              icon="mdi-pencil-outline"
+              variant="text"
+              size="small"
+              density="compact"
+              @click="openEditGoal(goal)"
+            />
+            <v-btn
+              icon="mdi-delete-outline"
+              variant="text"
+              size="small"
+              density="compact"
+              color="error"
+              @click="store.deleteGoal(goal.id)"
+            />
+          </td>
+        </tr>
+      </tbody>
+    </v-table>
 
     <v-dialog v-model="goalDialog" max-width="520">
       <v-card rounded="xl">

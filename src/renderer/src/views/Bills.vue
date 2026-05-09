@@ -8,30 +8,24 @@
     </div>
 
     <!-- Total Income Header -->
-    <v-card class="mb-6 bg-surface py-6 px-4" rounded="xl" elevation="0" border>
+    <v-card class="mb-6" rounded="xl" elevation="0" border>
       <v-row no-gutters>
-        <v-col cols="4" class="text-center border-e border-opacity-25">
-          <div
-            class="text-caption text-uppercase font-weight-bold tracking-widest text-medium-emphasis mb-1"
-          >
+        <v-col cols="4" class="pa-6 text-center border-e border-opacity-25">
+          <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-2">
             Projected
           </div>
           <div class="text-h4 font-weight-black text-white">
             {{ formatCurrency(totalProjected) }}
           </div>
         </v-col>
-        <v-col cols="4" class="text-center border-e border-opacity-25">
-          <div
-            class="text-caption text-uppercase font-weight-bold tracking-widest text-medium-emphasis mb-1"
-          >
+        <v-col cols="4" class="pa-6 text-center border-e border-opacity-25">
+          <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-2">
             Actual
           </div>
           <div class="text-h4 font-weight-black text-white">{{ formatCurrency(totalActual) }}</div>
         </v-col>
-        <v-col cols="4" class="text-center">
-          <div
-            class="text-caption text-uppercase font-weight-bold tracking-widest text-medium-emphasis mb-1"
-          >
+        <v-col cols="4" class="pa-6 text-center">
+          <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-2">
             Difference
           </div>
           <div
@@ -56,139 +50,115 @@
         Add Category
       </v-btn>
     </div>
-    <v-card class="bg-transparent" rounded="0" elevation="0">
-      <div>
-        <v-table density="comfortable" class="bg-transparent text-white" theme="dark">
-          <thead>
-            <tr>
-              <th
-                class="text-left font-weight-bold text-uppercase text-caption text-white pb-2 pt-4 pl-6 border-b-0"
-              >
-                Category
-              </th>
-              <th
-                class="text-center font-weight-bold text-uppercase text-caption text-white pb-2 pt-4 border-b-0"
-              >
-                Actual<br />
-                <span class="text-body-1 font-weight-bold text-white">{{
-                  formatCurrency(totalActual)
-                }}</span>
-              </th>
-              <th
-                class="text-center font-weight-bold text-uppercase text-caption text-white pb-2 pt-4 border-b-0"
-              >
-                Projected<br />
-                <span class="text-body-1 font-weight-bold text-white">{{
-                  formatCurrency(totalProjected)
-                }}</span>
-              </th>
-              <th
-                class="text-center font-weight-bold text-uppercase text-caption text-white pb-2 pt-4 border-b-0"
-              >
-                Diff<br />
-                <span class="text-body-1 font-weight-bold text-white">{{
-                  formatCurrency(totalActual - totalProjected)
-                }}</span>
-              </th>
-              <th class="border-b-0"></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(cat, idx) in combinedCategories" :key="cat.id">
-              <td class="font-weight-medium text-body-2 text-uppercase pl-4">
-                <div class="d-flex align-center position-relative w-100">
-                  <span class="position-absolute left-0 text-medium-emphasis text-caption">{{
-                    idx + 1
-                  }}</span>
-                  <div v-if="editingCatId === cat.id">
-                    <v-text-field
-                      v-model="editingCatName"
-                      variant="solo-filled"
-                      flat
-                      density="compact"
-                      hide-details
-                      @keyup.enter="saveCategoryEdit"
-                      @blur="saveCategoryEdit"
-                      autofocus
-                      class="text-left"
-                    />
-                  </div>
-                  <div v-else>
-                    <span class="cursor-pointer" @click="startCategoryEdit(cat)">{{
-                      cat.name
-                    }}</span>
-                  </div>
-                </div>
-              </td>
-              <td class="text-center font-weight-bold">
-                {{ formatCurrency(cat.actual) }}
-              </td>
-              <td class="text-center">
-                <v-chip
-                  v-if="budgetsStore.getRolloverAmount(cat.id, settingsStore.selectedMonth) > 0"
-                  size="x-small"
-                  color="info"
-                  variant="tonal"
-                  class="mb-1"
-                >
-                  +{{
-                    formatCurrency(
-                      budgetsStore.getRolloverAmount(cat.id, settingsStore.selectedMonth)
-                    )
-                  }}
-                  rollover
-                </v-chip>
-                <div class="d-flex justify-center">
-                  <v-text-field
-                    :model-value="cat.projected"
-                    @update:model-value="(val) => updateBudgetInline(cat.id, val)"
-                    type="number"
-                    prefix="$"
-                    variant="solo"
-                    flat
-                    density="compact"
-                    hide-details
-                    class="mt-n2 mb-n2 text-center font-weight-bold"
-                  />
-                </div>
-              </td>
-              <td
-                class="text-center font-weight-bold"
-                :class="cat.actual - cat.projected >= 0 ? 'text-success' : 'text-error'"
-              >
-                {{ formatCurrency(cat.actual - cat.projected) }}
-              </td>
-              <td class="text-center px-0">
-                <v-btn
-                  :color="budgetsStore.getBudget(cat.id)?.rolloverEnabled ? 'info' : 'default'"
-                  icon="mdi-reload"
-                  variant="text"
-                  size="small"
+    <v-table density="comfortable">
+      <thead>
+        <tr>
+          <th class="text-start font-weight-bold text-uppercase text-caption pl-4">Category</th>
+          <th class="text-center font-weight-bold text-uppercase text-caption">
+            Actual
+            <div class="text-body-2 font-weight-bold">{{ formatCurrency(totalActual) }}</div>
+          </th>
+          <th class="text-center font-weight-bold text-uppercase text-caption">
+            Projected
+            <div class="text-body-2 font-weight-bold">{{ formatCurrency(totalProjected) }}</div>
+          </th>
+          <th class="text-center font-weight-bold text-uppercase text-caption">
+            Diff
+            <div class="text-body-2 font-weight-bold">
+              {{ formatCurrency(totalActual - totalProjected) }}
+            </div>
+          </th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="(cat, idx) in combinedCategories" :key="cat.id">
+          <td class="font-weight-medium text-body-2 text-uppercase pl-4">
+            <div class="d-flex align-center position-relative w-100">
+              <span class="position-absolute left-0 text-medium-emphasis text-caption">{{
+                idx + 1
+              }}</span>
+              <div v-if="editingCatId === cat.id">
+                <v-text-field
+                  v-model="editingCatName"
+                  variant="solo-filled"
+                  flat
                   density="compact"
-                  class="opacity-70 mr-1"
-                  title="Toggle rollover"
-                  @click="
-                    budgetsStore.toggleRolloverEnabled(
-                      cat.id,
-                      !budgetsStore.getBudget(cat.id)?.rolloverEnabled
-                    )
-                  "
+                  hide-details
+                  @keyup.enter="saveCategoryEdit"
+                  @blur="saveCategoryEdit"
+                  autofocus
+                  class="text-start"
                 />
-                <v-btn
-                  icon="mdi-delete"
-                  variant="text"
-                  size="small"
-                  color="error"
-                  class="opacity-50"
-                  @click="categoriesStore.deleteCategory(cat.id)"
-                />
-              </td>
-            </tr>
-            <!-- No trailing row, rows are added directly to the table data -->
-          </tbody>
-        </v-table>
-      </div>
-    </v-card>
+              </div>
+              <div v-else>
+                <span class="cursor-pointer" @click="startCategoryEdit(cat)">{{ cat.name }}</span>
+              </div>
+            </div>
+          </td>
+          <td class="text-center font-weight-bold">
+            {{ formatCurrency(cat.actual) }}
+          </td>
+          <td class="text-center">
+            <v-chip
+              v-if="budgetsStore.getRolloverAmount(cat.id, settingsStore.selectedMonth) > 0"
+              size="x-small"
+              color="info"
+              variant="tonal"
+              class="mb-1"
+            >
+              +{{
+                formatCurrency(budgetsStore.getRolloverAmount(cat.id, settingsStore.selectedMonth))
+              }}
+              rollover
+            </v-chip>
+            <v-text-field
+              :model-value="cat.projected"
+              @update:model-value="(val) => updateBudgetInline(cat.id, val)"
+              type="number"
+              prefix="$"
+              variant="solo"
+              flat
+              density="compact"
+              hide-details
+              class="text-center font-weight-bold"
+            />
+          </td>
+          <td
+            class="text-center font-weight-bold"
+            :class="cat.actual - cat.projected >= 0 ? 'text-success' : 'text-error'"
+          >
+            {{ formatCurrency(cat.actual - cat.projected) }}
+          </td>
+          <td class="text-center px-0">
+            <v-btn
+              :color="budgetsStore.getBudget(cat.id)?.rolloverEnabled ? 'info' : 'default'"
+              icon="mdi-reload"
+              variant="text"
+              size="small"
+              density="compact"
+              class="opacity-70 mr-1"
+              title="Toggle rollover"
+              @click="
+                budgetsStore.toggleRolloverEnabled(
+                  cat.id,
+                  !budgetsStore.getBudget(cat.id)?.rolloverEnabled
+                )
+              "
+            />
+            <v-btn
+              icon="mdi-delete"
+              variant="text"
+              size="small"
+              color="error"
+              class="opacity-50"
+              @click="categoriesStore.deleteCategory(cat.id)"
+            />
+          </td>
+        </tr>
+        <!-- No trailing row, rows are added directly to the table data -->
+      </tbody>
+    </v-table>
   </v-container>
 </template>
 
