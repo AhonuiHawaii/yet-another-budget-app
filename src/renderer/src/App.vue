@@ -5,12 +5,14 @@ import Dashboard from './views/Dashboard.vue'
 import Settings from './views/Settings.vue'
 import Accounts from './views/Accounts.vue'
 import Transactions from './views/Transactions.vue'
+import Income from './views/Income.vue'
 
 const views = {
   Dashboard,
   Settings,
   Accounts,
-  Transactions
+  Transactions,
+  Income
 }
 
 const currentComponent = shallowRef(views.Dashboard)

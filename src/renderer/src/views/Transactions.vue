@@ -64,7 +64,8 @@
             label="Choose OFX / QFX file"
             prepend-icon=""
             prepend-inner-icon="mdi-folder-open-outline"
-            variant="solo-filled"
+            variant="solo"
+            inset
             density="comfortable"
             rounded="lg"
             hide-details="auto"
@@ -156,9 +157,9 @@
       <v-col cols="12" sm="5" class="pr-sm-2 mb-2 mb-sm-0">
         <v-text-field
           v-model="search"
-          placeholder="Search transactions…"
           prepend-inner-icon="mdi-magnify"
-          variant="solo-filled"
+          variant="solo"
+          inset
           density="comfortable"
           rounded="lg"
           hide-details
@@ -173,7 +174,8 @@
           item-title="label"
           item-value="value"
           label="Account"
-          variant="solo-filled"
+          variant="solo"
+          inset
           density="comfortable"
           rounded="lg"
           hide-details
@@ -188,7 +190,8 @@
           item-title="label"
           item-value="value"
           label="Type"
-          variant="solo-filled"
+          variant="solo"
+          inset
           density="comfortable"
           rounded="lg"
           hide-details
@@ -258,6 +261,8 @@
     <!-- Data Table -->
     <v-card v-else rounded="xl" elevation="0" border>
       <v-data-table
+        v-model:expanded="expandedRows"
+        show-expand
         :headers="headers"
         :items="filteredTransactions"
         :loading="store.loading"
@@ -299,7 +304,16 @@
         <template #item.category="{ item }">
           <div class="d-flex align-center gap-1">
             <v-chip
-              v-if="item.category"
+              v-if="item.splitCategory1 || item.splitCategory2"
+              color="info"
+              variant="tonal"
+              size="x-small"
+              rounded="lg"
+            >
+              Split
+            </v-chip>
+            <v-chip
+              v-else-if="item.category"
               color="secondary"
               variant="tonal"
               size="x-small"
@@ -308,7 +322,9 @@
               {{ item.category }}
             </v-chip>
             <span v-else class="text-disabled text-caption">Uncategorized</span>
+
             <v-btn
+              v-if="!item.splitCategory1 && !item.splitCategory2"
               icon="mdi-pencil-outline"
               variant="text"
               size="x-small"
@@ -326,14 +342,60 @@
 
         <!-- Actions column -->
         <template #item.actions="{ item }">
-          <v-btn
-            icon="mdi-delete-outline"
-            variant="text"
-            size="small"
-            color="error"
-            density="compact"
-            @click="confirmDelete(item)"
-          />
+          <div class="d-flex align-center justify-end">
+            <v-btn
+              icon="mdi-call-split"
+              variant="text"
+              size="small"
+              color="primary"
+              density="compact"
+              class="mr-1"
+              @click="openSplitDialog(item)"
+            />
+            <v-btn
+              icon="mdi-delete-outline"
+              variant="text"
+              size="small"
+              color="error"
+              density="compact"
+              @click="confirmDelete(item)"
+            />
+          </div>
+        </template>
+
+        <!-- Expanded Row for Splits -->
+        <template #expanded-row="{ columns, item }">
+          <tr v-if="item.splitCategory1 || item.splitCategory2">
+            <td :colspan="columns.length" class="pa-4 bg-surface-light">
+              <div class="text-caption text-uppercase text-medium-emphasis mb-2 font-weight-bold">
+                Split Details
+              </div>
+              <v-table density="compact" class="bg-transparent">
+                <tbody>
+                  <tr v-if="item.splitCategory1 || item.splitAmount1">
+                    <td class="pl-0 text-body-2" style="width: 250px">
+                      <v-chip color="secondary" variant="tonal" size="x-small" rounded="lg">
+                        {{ item.splitCategory1 || 'Uncategorized' }}
+                      </v-chip>
+                    </td>
+                    <td class="text-body-2 font-weight-medium">
+                      {{ formatCurrency(Math.abs(item.splitAmount1 || 0)) }}
+                    </td>
+                  </tr>
+                  <tr v-if="item.splitCategory2 || item.splitAmount2">
+                    <td class="pl-0 text-body-2" style="width: 250px">
+                      <v-chip color="secondary" variant="tonal" size="x-small" rounded="lg">
+                        {{ item.splitCategory2 || 'Uncategorized' }}
+                      </v-chip>
+                    </td>
+                    <td class="text-body-2 font-weight-medium">
+                      {{ formatCurrency(Math.abs(item.splitAmount2 || 0)) }}
+                    </td>
+                  </tr>
+                </tbody>
+              </v-table>
+            </td>
+          </tr>
         </template>
 
         <!-- Loading skeleton -->
@@ -370,7 +432,8 @@
           <v-text-field
             v-model="editCategoryValue"
             label="Category"
-            variant="solo-filled"
+            variant="solo"
+            inset
             density="comfortable"
             rounded="lg"
             hide-details
@@ -391,6 +454,118 @@
             @click="saveCategory"
           >
             Save
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- Split Transaction Dialog -->
+    <v-dialog v-model="splitDialog" max-width="500" persistent>
+      <v-card rounded="xl">
+        <v-card-title class="pa-6 pb-4">
+          <div class="d-flex align-center justify-space-between">
+            <div class="d-flex align-center gap-3">
+              <v-icon color="primary" size="20">mdi-call-split</v-icon>
+              <span class="text-h6 font-weight-bold">Split Transaction</span>
+            </div>
+            <v-btn icon="mdi-close" variant="text" density="compact" @click="splitDialog = false" />
+          </div>
+        </v-card-title>
+
+        <v-divider />
+
+        <v-card-text class="pa-6">
+          <div
+            class="d-flex align-center justify-space-between mb-6 pa-4 bg-surface-light rounded-lg"
+          >
+            <div>
+              <div class="text-caption text-medium-emphasis text-uppercase font-weight-bold">
+                Total Amount
+              </div>
+              <div class="text-body-1 font-weight-bold">{{ formatCurrency(splitTotal) }}</div>
+            </div>
+            <div class="text-right">
+              <div class="text-caption text-medium-emphasis text-uppercase font-weight-bold">
+                Remaining
+              </div>
+              <div
+                class="text-body-1 font-weight-bold"
+                :class="isSplitValid ? 'text-success' : 'text-error'"
+              >
+                {{ formatCurrency(Math.abs(splitRemaining)) }}
+              </div>
+            </div>
+          </div>
+
+          <div class="text-body-2 text-medium-emphasis mb-3">
+            Split into exactly two categories:
+          </div>
+
+          <!-- Split 1 -->
+          <div class="d-flex align-start gap-3 mb-3">
+            <v-text-field
+              v-model="splitState.category1"
+              label="Category"
+              variant="solo"
+              inset
+              density="compact"
+              rounded="lg"
+              hide-details
+              class="flex-grow-1"
+            />
+            <v-text-field
+              v-model.number="splitState.amount1"
+              label="Amount"
+              type="number"
+              variant="solo"
+              inset
+              density="compact"
+              rounded="lg"
+              hide-details
+              prefix="$"
+              style="max-width: 140px"
+            />
+          </div>
+
+          <!-- Split 2 -->
+          <div class="d-flex align-start gap-3">
+            <v-text-field
+              v-model="splitState.category2"
+              label="Category"
+              variant="solo"
+              inset
+              density="compact"
+              rounded="lg"
+              hide-details
+              class="flex-grow-1"
+            />
+            <v-text-field
+              v-model.number="splitState.amount2"
+              label="Amount"
+              type="number"
+              variant="solo"
+              inset
+              density="compact"
+              rounded="lg"
+              hide-details
+              prefix="$"
+              style="max-width: 140px"
+            />
+          </div>
+        </v-card-text>
+
+        <v-card-actions class="pa-6 pt-0">
+          <v-spacer />
+          <v-btn variant="text" @click="splitDialog = false">Cancel</v-btn>
+          <v-btn
+            color="primary"
+            variant="flat"
+            rounded="lg"
+            :loading="store.loading"
+            :disabled="!isSplitValid"
+            @click="saveSplits"
+          >
+            Save Splits
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -691,6 +866,63 @@ async function doDelete() {
   await store.removeTransaction(deleteTarget.value.FITID)
   deleteDialog.value = false
   deleteTarget.value = null
+}
+
+// ── Split Transactions ────────────────────────────────────────────────────────
+const splitDialog = ref(false)
+const splitTarget = ref(null)
+const expandedRows = ref([])
+const splitState = ref({
+  category1: '',
+  amount1: 0,
+  category2: '',
+  amount2: 0
+})
+
+function openSplitDialog(item) {
+  splitTarget.value = item
+  splitState.value = {
+    category1: item.splitCategory1 || '',
+    amount1: item.splitAmount1
+      ? Math.abs(Number(item.splitAmount1))
+      : Math.abs(Number(item.TRNAMT)),
+    category2: item.splitCategory2 || '',
+    amount2: item.splitAmount2 ? Math.abs(Number(item.splitAmount2)) : 0
+  }
+  splitDialog.value = true
+}
+
+const splitTotal = computed(() => {
+  if (!splitTarget.value) return 0
+  return Math.abs(Number(splitTarget.value.TRNAMT))
+})
+
+const splitSum = computed(() => {
+  return (Number(splitState.value.amount1) || 0) + (Number(splitState.value.amount2) || 0)
+})
+
+const splitRemaining = computed(() => {
+  return splitTotal.value - splitSum.value
+})
+
+const isSplitValid = computed(() => {
+  return Math.abs(splitRemaining.value) < 0.001
+})
+
+async function saveSplits() {
+  if (!splitTarget.value || !isSplitValid.value) return
+
+  const sign = Math.sign(Number(splitTarget.value.TRNAMT)) || 1
+
+  await store.editTransaction(splitTarget.value.FITID, {
+    splitCategory1: splitState.value.category1 || null,
+    splitAmount1: splitState.value.amount1 ? Number(splitState.value.amount1) * sign : null,
+    splitCategory2: splitState.value.category2 || null,
+    splitAmount2: splitState.value.amount2 ? Number(splitState.value.amount2) * sign : null
+  })
+
+  splitDialog.value = false
+  splitTarget.value = null
 }
 </script>
 
