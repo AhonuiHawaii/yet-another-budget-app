@@ -30,7 +30,7 @@
             <div class="d-flex align-center justify-space-between mb-2">
               <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis"
                 >Spending</span
-              >
+              >``
               <v-icon color="error" size="18" opacity="70">mdi-arrow-up-circle-outline</v-icon>
             </div>
             <div class="text-h5 font-weight-black text-error mb-1">
@@ -117,7 +117,7 @@
             <tbody>
               <tr v-for="group in groupSummary" :key="group.type">
                 <td class="pl-5">
-                  <v-chip :color="group.color" variant="tonal" size="x-small" rounded>{{
+                  <v-chip :color="group.color" variant="tonal" size="x-small" rounded="lg">{{
                     group.label
                   }}</v-chip>
                 </td>
