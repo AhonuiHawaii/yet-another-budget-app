@@ -71,7 +71,8 @@ db.exec(`
     splitCategory1  TEXT,
     splitAmount1    REAL,
     splitCategory2  TEXT,
-    splitAmount2    REAL
+    splitAmount2    REAL,
+    notes           TEXT
   )
 `)
 
@@ -112,18 +113,19 @@ try {
         splitCategory1  TEXT,
         splitAmount1    REAL,
         splitCategory2  TEXT,
-        splitAmount2    REAL
+        splitAmount2    REAL,
+        notes           TEXT
       );
       INSERT INTO Transactions_new
         (FITID, ACCTID, TRNTYPE, DTPOSTED, DTUSER, TRNAMT, NAME, MEMO,
          CHECKNUM, REFNUM, DTAVAIL, SRVRTID, PAYEEID, EXTDNAME, SIC, ORG,
          rawTransaction, createdAt, transactionType, category,
-         splitCategory1, splitAmount1, splitCategory2, splitAmount2)
+         splitCategory1, splitAmount1, splitCategory2, splitAmount2, notes)
       SELECT
         FITID, ACCTID, TRNTYPE, DTPOSTED, DTUSER, CAST(TRNAMT AS REAL), NAME, MEMO,
         CHECKNUM, REFNUM, DTAVAIL, SRVRTID, PAYEEID, EXTDNAME, SIC, ORG,
         rawTransaction, createdAt, transactionType, category,
-        splitCategory1, splitAmount1, splitCategory2, splitAmount2
+        splitCategory1, splitAmount1, splitCategory2, splitAmount2, notes
       FROM Transactions;
       DROP TABLE Transactions;
       ALTER TABLE Transactions_new RENAME TO Transactions;
@@ -180,7 +182,8 @@ const VALID_COLUMNS = new Set([
   'splitAmount1',
   'splitCategory2',
   'splitAmount2',
-  'ORG'
+  'ORG',
+  'notes'
 ])
 
 // OFX date columns — use LIKE prefix matching so partial dates work

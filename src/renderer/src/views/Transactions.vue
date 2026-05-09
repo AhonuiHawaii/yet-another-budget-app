@@ -276,6 +276,16 @@
           <span class="text-body-2 font-monospace">{{ formatDate(item.DTPOSTED) }}</span>
         </template>
 
+        <!-- Description column: show notes as subtitle when set -->
+        <template #item.MEMO="{ item }">
+          <div>
+            <div class="text-body-2">{{ item.MEMO || item.NAME || '—' }}</div>
+            <div v-if="item.notes" class="text-caption text-medium-emphasis text-truncate" style="max-width: 280px">
+              {{ item.notes }}
+            </div>
+          </div>
+        </template>
+
         <!-- Amount column -->
         <template #item.TRNAMT="{ item }">
           <span
@@ -341,6 +351,15 @@
         <!-- Actions column -->
         <template #item.actions="{ item }">
           <div class="d-flex align-center justify-end">
+            <v-btn
+              :icon="item.notes ? 'mdi-note-text' : 'mdi-note-outline'"
+              variant="text"
+              size="small"
+              :color="item.notes ? 'warning' : 'default'"
+              density="compact"
+              class="mr-1"
+              @click="openNotesDialog(item)"
+            />
             <v-btn
               icon="mdi-call-split"
               variant="text"
@@ -569,6 +588,54 @@
       </v-card>
     </v-dialog>
 
+    <!-- Notes Dialog -->
+    <v-dialog v-model="notesDialog" max-width="460">
+      <v-card rounded="xl">
+        <v-card-title class="pa-6 pb-4">
+          <div class="d-flex align-center justify-space-between">
+            <div class="d-flex align-center gap-3">
+              <v-icon color="warning" size="20">mdi-note-text-outline</v-icon>
+              <span class="text-h6 font-weight-bold">Notes</span>
+            </div>
+            <v-btn icon="mdi-close" variant="text" density="compact" @click="notesDialog = false" />
+          </div>
+        </v-card-title>
+
+        <v-divider />
+
+        <v-card-text class="pa-6">
+          <div class="text-body-2 text-medium-emphasis mb-4 text-truncate">
+            {{ notesTarget?.MEMO || notesTarget?.NAME || notesTarget?.FITID }}
+          </div>
+          <v-textarea
+            v-model="notesValue"
+            label="Add a note…"
+            variant="solo"
+            inset
+            rounded="lg"
+            rows="4"
+            hide-details
+            autofocus
+            no-resize
+          />
+        </v-card-text>
+
+        <v-card-actions class="pa-6 pt-0">
+          <v-spacer />
+          <v-btn variant="text" @click="notesDialog = false">Cancel</v-btn>
+          <v-btn
+            color="primary"
+            variant="flat"
+            rounded="lg"
+            :loading="store.loading"
+            @click="saveNotes"
+          >
+            Save
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
     <!-- Delete Confirmation Dialog -->
     <v-dialog v-model="deleteDialog" max-width="400">
       <v-card rounded="xl">
@@ -757,7 +824,7 @@ const headers = [
   { title: 'Type', key: 'transactionType', width: '120px', sortable: true },
   { title: 'Category', key: 'category', width: '180px', sortable: true },
   { title: 'Account', key: 'ACCTID', width: '110px', sortable: true },
-  { title: '', key: 'actions', width: '56px', sortable: false, align: 'center' }
+  { title: '', key: 'actions', width: '100px', sortable: false, align: 'center' }
 ]
 
 // ── Filtered data ─────────────────────────────────────────────────────────────
@@ -863,6 +930,26 @@ async function doDelete() {
   await store.removeTransaction(deleteTarget.value.FITID)
   deleteDialog.value = false
   deleteTarget.value = null
+}
+
+// ── Notes ─────────────────────────────────────────────────────────────────────
+const notesDialog = ref(false)
+const notesTarget = ref(null)
+const notesValue = ref('')
+
+function openNotesDialog(item) {
+  notesTarget.value = item
+  notesValue.value = item.notes || ''
+  notesDialog.value = true
+}
+
+async function saveNotes() {
+  if (!notesTarget.value) return
+  await store.editTransaction(notesTarget.value.FITID, {
+    notes: notesValue.value.trim() || null
+  })
+  notesDialog.value = false
+  notesTarget.value = null
 }
 
 // ── Split Transactions ────────────────────────────────────────────────────────
