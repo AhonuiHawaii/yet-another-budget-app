@@ -240,27 +240,21 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useUserBudgetsStore } from '../stores/userBudgets'
 import { useUserCategoriesStore } from '../stores/userCategories'
 import { useUserGoalsStore } from '../stores/userGoals'
+import { useUserSettingsStore } from '../stores/userSettings'
 import { useUserTransactionsStore } from '../stores/userTransactions'
 
 const budgetsStore = useUserBudgetsStore()
 const categoriesStore = useUserCategoriesStore()
 const goalsStore = useUserGoalsStore()
+const settingsStore = useUserSettingsStore()
 const transactionsStore = useUserTransactionsStore()
 const dashboardError = ref(null)
 
-const selectedMonthLabel = computed(() => {
-  if (!transactionsStore.activeMonth) return 'Current Month'
-  const year = Number(transactionsStore.activeMonth.slice(0, 4))
-  const month = Number(transactionsStore.activeMonth.slice(4, 6)) - 1
-  return new Date(year, month, 1).toLocaleDateString('en-US', {
-    month: 'long',
-    year: 'numeric'
-  })
-})
+const selectedMonthLabel = computed(() => settingsStore.selectedMonthLabel)
 
 const incomeTransactions = computed(() =>
   transactionsStore.transactions.filter((transaction) => Number(transaction.TRNAMT) > 0)
@@ -422,20 +416,23 @@ async function loadDashboard() {
       goalsStore.fetchGoals()
     ])
 
-    const latestMonth =
-      transactionsStore.activeMonth ||
-      transactionsStore.monthsWithData[transactionsStore.monthsWithData.length - 1]
+    settingsStore.initializeSelectedMonth(transactionsStore.monthsWithData)
 
-    if (latestMonth) {
-      await Promise.all([
-        transactionsStore.fetchTransactionsByMonth(latestMonth),
-        transactionsStore.fetchReports(latestMonth)
-      ])
-    }
+    await Promise.all([
+      transactionsStore.fetchTransactionsByMonth(settingsStore.selectedMonth),
+      transactionsStore.fetchReports(settingsStore.selectedMonth)
+    ])
   } catch (err) {
     dashboardError.value = err?.message ?? String(err)
   }
 }
 
 onMounted(loadDashboard)
+
+watch(
+  () => settingsStore.selectedMonth,
+  () => {
+    loadDashboard()
+  }
+)
 </script>

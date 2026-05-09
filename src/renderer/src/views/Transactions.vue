@@ -115,7 +115,6 @@
             </template>
 
             <v-card rounded="xl" elevation="6" min-width="340">
-              <!-- Granularity tab strip inside the card -->
               <v-tabs
                 v-model="granularity"
                 density="compact"
@@ -129,7 +128,6 @@
                 </v-tab>
               </v-tabs>
 
-              <!-- Date picker, no extra header needed -->
               <v-date-picker
                 v-model="pickerDate"
                 :view-mode="pickerViewMode"
@@ -593,12 +591,14 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useUserTransactionsStore } from '../stores/userTransactions'
 import { useUserAccountsStore } from '../stores/userAcounts'
+import { useUserSettingsStore } from '../stores/userSettings'
 
 const store = useUserTransactionsStore()
 const accountsStore = useUserAccountsStore()
+const settingsStore = useUserSettingsStore()
 
 // ── Import dialog ────────────────────────────────────────────────────────────
 const importDialog = ref(false)
@@ -622,14 +622,12 @@ async function handleImport() {
 // ── On mount ──────────────────────────────────────────────────────────────────
 onMounted(async () => {
   await Promise.all([store.fetchMonthsWithData(), accountsStore.fetchAccounts()])
-  // Default to the most recent month
-  if (store.monthsWithData.length) {
-    const latest = store.monthsWithData[store.monthsWithData.length - 1]
-    const y = parseInt(latest.slice(0, 4))
-    const m = parseInt(latest.slice(4, 6)) - 1
-    pickerDate.value = new Date(y, m, 1)
-    await store.fetchTransactionsByMonth(latest)
-  }
+  settingsStore.initializeSelectedMonth(store.monthsWithData)
+  const selectedMonth = settingsStore.selectedMonth
+  const y = parseInt(selectedMonth.slice(0, 4))
+  const m = parseInt(selectedMonth.slice(4, 6)) - 1
+  pickerDate.value = new Date(y, m, 1)
+  await store.fetchTransactionsByMonth(selectedMonth)
 })
 
 // ── Date picker ──────────────────────────────────────────────────────────────
@@ -709,7 +707,7 @@ function onPickerSelect(date) {
   pickerMenu.value = false
 }
 
-async function applyPeriod(date) {
+async function applyPeriod() {
   const months = activePeriodMonths.value
   // Fetch each month that has data (avoid unnecessary calls)
   const available = store.monthsWithData

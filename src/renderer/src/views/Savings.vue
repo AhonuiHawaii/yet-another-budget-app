@@ -44,48 +44,6 @@
       </v-row>
     </v-card>
 
-    <!-- Toolbar: period picker -->
-    <v-row class="mb-4" align="center" no-gutters>
-      <v-col cols="12" class="mb-3">
-        <v-menu v-model="pickerMenu" :close-on-content-click="false" location="bottom start">
-          <template #activator="{ props }">
-            <v-btn
-              v-bind="props"
-              rounded="lg"
-              color="primary"
-              prepend-icon="mdi-calendar-month-outline"
-              size="small"
-            >
-              {{ pickerLabel }}
-              <v-icon end size="16">mdi-chevron-down</v-icon>
-            </v-btn>
-          </template>
-          <v-card rounded="xl" elevation="6" min-width="400">
-            <v-tabs
-              v-model="granularity"
-              density="compact"
-              color="primary"
-              align-tabs="center"
-              class="border-b"
-              @update:model-value="onGranularityTab"
-            >
-              <v-tab v-for="g in granularities" :key="g.value" :value="g.value">{{
-                g.label
-              }}</v-tab>
-            </v-tabs>
-            <v-date-picker
-              v-model="pickerDate"
-              :view-mode="pickerViewMode"
-              color="primary"
-              hide-header
-              show-adjacent-months
-              @update:model-value="onPickerSelect"
-            />
-          </v-card>
-        </v-menu>
-      </v-col>
-    </v-row>
-
     <!-- Merged Projected vs Actual Table & Manage Categories -->
     <div class="d-flex justify-end mb-3">
       <v-btn
@@ -206,13 +164,15 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useUserCategoriesStore } from '../stores/userCategories'
 import { useUserBudgetsStore } from '../stores/userBudgets'
+import { useUserSettingsStore } from '../stores/userSettings'
 import { useUserTransactionsStore } from '../stores/userTransactions'
 
 const categoriesStore = useUserCategoriesStore()
 const budgetsStore = useUserBudgetsStore()
+const settingsStore = useUserSettingsStore()
 const transactionsStore = useUserTransactionsStore()
 
 // ── Period Picker Logic ───────────────────────────────────────────────────────
@@ -225,7 +185,7 @@ const granularities = [
   { label: 'Quarter', value: 'quarter' },
   { label: 'Year', value: 'year' }
 ]
-const pickerDate = ref(new Date())
+const pickerDate = ref(monthToDate(settingsStore.selectedMonth))
 
 const pickerViewMode = computed(() => {
   if (granularity.value === 'year') return 'year'
@@ -268,23 +228,6 @@ const periodBounds = computed(() => {
   return { start, end }
 })
 
-// Returns an array of yyyymm strings needed to fetch data for the current bounds
-const activePeriodMonths = computed(() => {
-  const bounds = periodBounds.value
-  if (!bounds) return []
-
-  const months = []
-  let curr = new Date(bounds.start)
-  curr.setDate(1) // Avoid end of month skips
-
-  while (curr <= bounds.end) {
-    months.push(`${curr.getFullYear()}${String(curr.getMonth() + 1).padStart(2, '0')}`)
-    curr.setMonth(curr.getMonth() + 1)
-  }
-
-  return months
-})
-
 const pickerLabel = computed(() => {
   const bounds = periodBounds.value
   if (!bounds) return 'Pick period'
@@ -311,15 +254,18 @@ function onGranularityTab(g) {
 
 function onPickerSelect(date) {
   if (!date) return
-  pickerDate.value = date
-  applyPeriod()
+  settingsStore.setSelectedMonthFromDate(date)
   pickerMenu.value = false
 }
 
 async function applyPeriod() {
-  const available = transactionsStore.monthsWithData
-  const toFetch = activePeriodMonths.value.filter((m) => available.includes(m))
-  await Promise.all(toFetch.map((ym) => transactionsStore.fetchTransactionsByMonth(ym)))
+  await transactionsStore.fetchTransactionsByMonth(settingsStore.selectedMonth)
+}
+
+function monthToDate(month) {
+  const y = parseInt(month.slice(0, 4))
+  const m = parseInt(month.slice(4, 6)) - 1
+  return new Date(y, m, 1)
 }
 
 // ── Categories Management ──────────────────────────────────────────────────────
@@ -398,12 +344,16 @@ function formatCurrency(val) {
 
 onMounted(async () => {
   await transactionsStore.fetchMonthsWithData()
-  if (transactionsStore.monthsWithData.length) {
-    const latest = transactionsStore.monthsWithData[transactionsStore.monthsWithData.length - 1]
-    const y = parseInt(latest.slice(0, 4))
-    const m = parseInt(latest.slice(4, 6)) - 1
-    pickerDate.value = new Date(y, m, 1) // default to 1st of the latest month
+  settingsStore.initializeSelectedMonth(transactionsStore.monthsWithData)
+  pickerDate.value = monthToDate(settingsStore.selectedMonth)
+  await applyPeriod()
+})
+
+watch(
+  () => settingsStore.selectedMonth,
+  async (month) => {
+    pickerDate.value = monthToDate(month)
     await applyPeriod()
   }
-})
+)
 </script>

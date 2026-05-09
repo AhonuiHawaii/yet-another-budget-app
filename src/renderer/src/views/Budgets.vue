@@ -65,29 +65,9 @@
     </v-row>
 
     <div class="d-flex align-center justify-space-between flex-wrap gap-3 mb-4">
-      <v-menu v-model="pickerMenu" :close-on-content-click="false" location="bottom start">
-        <template #activator="{ props }">
-          <v-btn
-            v-bind="props"
-            rounded="lg"
-            color="primary"
-            prepend-icon="mdi-calendar-month-outline"
-            size="small"
-          >
-            {{ selectedMonthLabel }}
-            <v-icon end size="16">mdi-chevron-down</v-icon>
-          </v-btn>
-        </template>
-        <v-card rounded="xl" elevation="6" min-width="360">
-          <v-date-picker
-            v-model="pickerDate"
-            view-mode="month"
-            color="primary"
-            hide-header
-            @update:model-value="onPickerSelect"
-          />
-        </v-card>
-      </v-menu>
+      <v-chip color="primary" variant="tonal" prepend-icon="mdi-calendar-month-outline">
+        {{ selectedMonthLabel }}
+      </v-chip>
     </div>
 
     <v-alert
@@ -177,16 +157,16 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useUserBudgetsStore } from '../stores/userBudgets'
 import { useUserCategoriesStore } from '../stores/userCategories'
+import { useUserSettingsStore } from '../stores/userSettings'
 
 const budgetsStore = useUserBudgetsStore()
 const categoriesStore = useUserCategoriesStore()
+const settingsStore = useUserSettingsStore()
 
 const ipc = window.electron?.ipcRenderer
-const pickerMenu = ref(false)
-const pickerDate = ref(new Date())
 const transactions = ref([])
 const loadError = ref(null)
 
@@ -198,17 +178,8 @@ const categoryTypeOptions = [
   { label: 'Debt', value: 'debt', icon: 'mdi-cash-remove', color: 'error' }
 ]
 
-const selectedMonth = computed(() => {
-  const date = new Date(pickerDate.value || new Date())
-  return `${date.getFullYear()}${String(date.getMonth() + 1).padStart(2, '0')}`
-})
-
-const selectedMonthLabel = computed(() => {
-  return new Date(pickerDate.value || new Date()).toLocaleDateString('en-US', {
-    month: 'long',
-    year: 'numeric'
-  })
-})
+const selectedMonth = computed(() => settingsStore.selectedMonth)
+const selectedMonthLabel = computed(() => settingsStore.selectedMonthLabel)
 
 const categoryMeta = computed(() => {
   return Object.fromEntries(categoryTypeOptions.map((type) => [type.value, type]))
@@ -315,13 +286,6 @@ async function loadMonth() {
   }
 }
 
-async function onPickerSelect(date) {
-  if (!date) return
-  pickerDate.value = date
-  pickerMenu.value = false
-  await loadMonth()
-}
-
 async function updateBudget(categoryId, value) {
   await budgetsStore.upsertBudget(categoryId, Number(value) || 0)
 }
@@ -330,4 +294,11 @@ onMounted(async () => {
   await Promise.all([categoriesStore.fetchCategories(), budgetsStore.fetchBudgets()])
   await loadMonth()
 })
+
+watch(
+  () => settingsStore.selectedMonth,
+  () => {
+    loadMonth()
+  }
+)
 </script>

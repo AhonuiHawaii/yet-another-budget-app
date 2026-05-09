@@ -10,30 +10,9 @@
     </div>
 
     <div class="d-flex align-center flex-wrap gap-3 mb-6">
-      <v-menu v-model="pickerMenu" :close-on-content-click="false" location="bottom start">
-        <template #activator="{ props }">
-          <v-btn
-            v-bind="props"
-            rounded="lg"
-            color="primary"
-            prepend-icon="mdi-calendar-month-outline"
-            size="small"
-            :loading="transactionsStore.loading"
-          >
-            {{ selectedMonthLabel }}
-            <v-icon end size="16">mdi-chevron-down</v-icon>
-          </v-btn>
-        </template>
-        <v-card rounded="xl" elevation="6" min-width="360">
-          <v-date-picker
-            v-model="pickerDate"
-            view-mode="month"
-            color="primary"
-            hide-header
-            @update:model-value="onPickerSelect"
-          />
-        </v-card>
-      </v-menu>
+      <v-chip color="primary" variant="tonal" prepend-icon="mdi-calendar-month-outline">
+        {{ selectedMonthLabel }}
+      </v-chip>
       <v-chip v-if="transactionsStore.monthsWithData.length === 0" variant="outlined" size="small">
         No transaction history yet
       </v-chip>
@@ -266,21 +245,21 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useUserAccountsStore } from '../stores/userAcounts'
 import { useUserBudgetsStore } from '../stores/userBudgets'
 import { useUserCategoriesStore } from '../stores/userCategories'
 import { useUserGoalsStore } from '../stores/userGoals'
+import { useUserSettingsStore } from '../stores/userSettings'
 import { useUserTransactionsStore } from '../stores/userTransactions'
 
 const accountsStore = useUserAccountsStore()
 const budgetsStore = useUserBudgetsStore()
 const categoriesStore = useUserCategoriesStore()
 const goalsStore = useUserGoalsStore()
+const settingsStore = useUserSettingsStore()
 const transactionsStore = useUserTransactionsStore()
 
-const pickerMenu = ref(false)
-const pickerDate = ref(new Date())
 const reportError = ref(null)
 
 const categoryTypes = {
@@ -291,17 +270,8 @@ const categoryTypes = {
   debt: { label: 'Debt', color: 'error' }
 }
 
-const selectedMonth = computed(() => {
-  const date = new Date(pickerDate.value || new Date())
-  return `${date.getFullYear()}${String(date.getMonth() + 1).padStart(2, '0')}`
-})
-
-const selectedMonthLabel = computed(() => {
-  return new Date(pickerDate.value || new Date()).toLocaleDateString('en-US', {
-    month: 'long',
-    year: 'numeric'
-  })
-})
+const selectedMonth = computed(() => settingsStore.selectedMonth)
+const selectedMonthLabel = computed(() => settingsStore.selectedMonthLabel)
 
 const incomeTransactions = computed(() =>
   transactionsStore.transactions.filter((transaction) => Number(transaction.TRNAMT) > 0)
@@ -419,21 +389,16 @@ async function loadReport() {
   }
 }
 
-async function onPickerSelect(date) {
-  if (!date) return
-  pickerDate.value = date
-  pickerMenu.value = false
-  await loadReport()
-}
-
 onMounted(async () => {
   await transactionsStore.fetchMonthsWithData()
-  if (transactionsStore.monthsWithData.length) {
-    const latest = transactionsStore.monthsWithData[transactionsStore.monthsWithData.length - 1]
-    const year = Number(latest.slice(0, 4))
-    const month = Number(latest.slice(4, 6)) - 1
-    pickerDate.value = new Date(year, month, 1)
-  }
+  settingsStore.initializeSelectedMonth(transactionsStore.monthsWithData)
   await loadReport()
 })
+
+watch(
+  () => settingsStore.selectedMonth,
+  () => {
+    loadReport()
+  }
+)
 </script>
