@@ -6,13 +6,21 @@ import Settings from './views/Settings.vue'
 import Accounts from './views/Accounts.vue'
 import Transactions from './views/Transactions.vue'
 import Income from './views/Income.vue'
+import Variable from './views/Variable.vue'
+import Savings from './views/Savings.vue'
+import Debt from './views/Debt.vue'
+import Bills from './views/Bills.vue'
 
 const views = {
   Dashboard,
   Settings,
   Accounts,
   Transactions,
-  Income
+  Income,
+  Variable,
+  Savings,
+  Debt,
+  Bills
 }
 
 const currentComponent = shallowRef(views.Dashboard)
