@@ -13,9 +13,9 @@
     <!-- Spending Trends Chart -->
     <v-card
       v-if="transactionsStore.monthlyTotals.length > 0"
-      rounded="xl"
-      elevation="0"
-      border
+      rounded="sm"
+      elevation="3"
+      
       class="mb-6 pa-5"
     >
       <div class="d-flex align-center gap-2 mb-4">
@@ -30,7 +30,7 @@
 
     <v-row class="mb-6">
       <v-col cols="12" sm="6" lg="3">
-        <v-card class="pa-4 h-100" rounded="xl" elevation="0" border>
+        <v-card class="pa-4 h-100" rounded="sm" elevation="3" >
           <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-1">
             Income
           </div>
@@ -43,7 +43,7 @@
         </v-card>
       </v-col>
       <v-col cols="12" sm="6" lg="3">
-        <v-card class="pa-4 h-100" rounded="xl" elevation="0" border>
+        <v-card class="pa-4 h-100" rounded="sm" elevation="3" >
           <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-1">
             Spending
           </div>
@@ -56,7 +56,7 @@
         </v-card>
       </v-col>
       <v-col cols="12" sm="6" lg="3">
-        <v-card class="pa-4 h-100" rounded="xl" elevation="0" border>
+        <v-card class="pa-4 h-100" rounded="sm" elevation="3" >
           <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-1">
             Net Cash Flow
           </div>
@@ -70,7 +70,7 @@
         </v-card>
       </v-col>
       <v-col cols="12" sm="6" lg="3">
-        <v-card class="pa-4 h-100" rounded="xl" elevation="0" border>
+        <v-card class="pa-4 h-100" rounded="sm" elevation="3" >
           <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-1">
             Budget Variance
           </div>
@@ -113,7 +113,7 @@
               <tr v-for="row in categoryPerformance" :key="row.key">
                 <td class="pl-4">{{ row.name }}</td>
                 <td class="text-center">
-                  <v-chip :color="row.color" variant="tonal" size="x-small" rounded="lg">
+                  <v-chip :color="row.color" variant="tonal" size="x-small" rounded="sm">
                     {{ row.typeLabel }}
                   </v-chip>
                 </td>
@@ -414,7 +414,7 @@ const chartData = computed(() => {
       {
         label: 'Income',
         data: rows.map((r) => r.income),
-        borderColor: '#4caf50',
+        Color: '#4caf50',
         backgroundColor: 'rgba(76,175,80,0.08)',
         fill: true,
         tension: 0.3,
@@ -424,7 +424,7 @@ const chartData = computed(() => {
       {
         label: 'Spending',
         data: rows.map((r) => r.spending),
-        borderColor: '#f44336',
+        Color: '#f44336',
         backgroundColor: 'rgba(244,67,54,0.08)',
         fill: true,
         tension: 0.3,

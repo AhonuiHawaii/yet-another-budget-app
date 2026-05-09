@@ -2,7 +2,7 @@
   <v-container fluid class="pa-6">
     <!-- Add Account Button -->
     <div class="mb-8">
-      <v-btn color="primary" rounded="lg" prepend-icon="mdi-plus" @click="importDialog = true">
+      <v-btn color="primary" rounded="sm" prepend-icon="mdi-plus" @click="importDialog = true">
         Add Account
       </v-btn>
 
@@ -22,7 +22,7 @@
 
     <!-- Import Account Modal -->
     <v-dialog v-model="importDialog" max-width="500">
-      <v-card rounded="xl">
+      <v-card rounded="sm">
         <v-card-title class="pa-6 pb-4">
           <div class="d-flex align-center justify-space-between">
             <div class="d-flex align-center gap-3">
@@ -53,7 +53,7 @@
             prepend-inner-icon="mdi-folder-open-outline"
             variant="solo-filled"
             density="comfortable"
-            rounded="lg"
+            rounded="sm"
             hide-details="auto"
             :error-messages="store.error ? [store.error] : []"
             @update:model-value="store.clearError()"
@@ -66,7 +66,7 @@
           <v-btn
             color="primary"
             variant="flat"
-            rounded="lg"
+            rounded="sm"
             :loading="store.loading"
             :disabled="!selectedFile"
             prepend-icon="mdi-import"
@@ -96,7 +96,7 @@
       </div>
 
       <!-- Empty State -->
-      <v-card v-if="store.accounts.length === 0" rounded="xl" elevation="0" border>
+      <v-card v-if="store.accounts.length === 0" rounded="sm" elevation="3">
         <v-card-text class="pa-10 text-center">
           <v-icon size="56" color="primary" class="mb-4 text-disabled">mdi-bank-off-outline</v-icon>
           <div class="text-h6 font-weight-medium mb-2">No accounts yet</div>
@@ -177,7 +177,7 @@
 
     <!-- Edit Bank Name Modal -->
     <v-dialog v-model="editBankDialog" max-width="400">
-      <v-card rounded="xl">
+      <v-card rounded="sm">
         <v-card-title class="pa-6 pb-4">
           <div class="d-flex align-center justify-space-between">
             <div class="d-flex align-center gap-3">
@@ -199,7 +199,7 @@
             label="Bank name"
             variant="solo-filled"
             density="comfortable"
-            rounded="lg"
+            rounded="sm"
             hide-details
             autofocus
             @keyup.enter="saveEditBank"
@@ -208,14 +208,14 @@
         <v-card-actions class="pa-6 pt-0">
           <v-spacer />
           <v-btn variant="text" @click="editBankDialog = false">Cancel</v-btn>
-          <v-btn color="primary" variant="flat" rounded="lg" @click="saveEditBank">Save</v-btn>
+          <v-btn color="primary" variant="flat" rounded="sm" @click="saveEditBank">Save</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
 
     <!-- Edit Account Name Modal -->
     <v-dialog v-model="editNameDialog" max-width="400">
-      <v-card rounded="xl">
+      <v-card rounded="sm">
         <v-card-title class="pa-6 pb-4">
           <div class="d-flex align-center justify-space-between">
             <div class="d-flex align-center gap-3">
@@ -237,7 +237,7 @@
             label="Account name"
             variant="solo-filled"
             density="comfortable"
-            rounded="lg"
+            rounded="sm"
             hide-details
             autofocus
             @keyup.enter="saveEditName"
@@ -246,14 +246,14 @@
         <v-card-actions class="pa-6 pt-0">
           <v-spacer />
           <v-btn variant="text" @click="editNameDialog = false">Cancel</v-btn>
-          <v-btn color="primary" variant="flat" rounded="lg" @click="saveEditName">Save</v-btn>
+          <v-btn color="primary" variant="flat" rounded="sm" @click="saveEditName">Save</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
 
     <!-- Remove Confirmation Dialog -->
-    <v-dialog v-model="removeDialog" max-width="400" rounded="xl">
-      <v-card rounded="xl">
+    <v-dialog v-model="removeDialog" max-width="400" rounded="sm">
+      <v-card rounded="sm">
         <v-card-title class="text-h6 pa-6 pb-2">Remove Account</v-card-title>
         <v-card-text class="pa-6 pt-2 text-body-2 text-medium-emphasis">
           Remove <strong>{{ pendingRemove?.ORG || 'this account' }}</strong> ending in

@@ -1,8 +1,8 @@
 <template>
   <v-container fluid class="pa-6">
-    <v-card class="mb-6" rounded="xl" elevation="0" border>
+    <v-card class="mb-6" rounded="sm" elevation="3" >
       <v-row no-gutters>
-        <v-col cols="12" sm="3" class="pa-6 text-center border-e border-opacity-25">
+        <v-col cols="12" sm="3" class="pa-6 text-center ">
           <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-2">
             Planned Payment
           </div>
@@ -10,13 +10,13 @@
             {{ formatCurrency(totalProjected) }}
           </div>
         </v-col>
-        <v-col cols="12" sm="3" class="pa-6 text-center border-e border-opacity-25">
+        <v-col cols="12" sm="3" class="pa-6 text-center ">
           <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-2">
             Paid
           </div>
           <div class="text-h4 font-weight-black text-white">{{ formatCurrency(totalActual) }}</div>
         </v-col>
-        <v-col cols="12" sm="3" class="pa-6 text-center border-e border-opacity-25">
+        <v-col cols="12" sm="3" class="pa-6 text-center ">
           <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-2">
             Balance
           </div>
@@ -40,7 +40,7 @@
 
     <v-row class="mb-4">
       <v-col cols="12" md="6">
-        <v-card class="pa-4 h-100" rounded="xl" elevation="0" border>
+        <v-card class="pa-4 h-100" rounded="sm" elevation="3" >
           <div class="d-flex align-center justify-space-between mb-2">
             <div class="font-weight-bold">Remaining Payment</div>
             <v-chip
@@ -60,7 +60,7 @@
         </v-card>
       </v-col>
       <v-col cols="12" md="6">
-        <v-card class="pa-4 h-100" rounded="xl" elevation="0" border>
+        <v-card class="pa-4 h-100" rounded="sm" elevation="3" >
           <div class="d-flex align-center justify-space-between mb-2">
             <div class="font-weight-bold">Highest Interest</div>
             <v-chip color="primary" variant="tonal" size="small">
@@ -75,7 +75,7 @@
     </v-row>
 
     <!-- Payoff Projection Panel -->
-    <v-card v-if="projectionRows.length > 0" rounded="xl" elevation="0" border class="mb-6">
+    <v-card v-if="projectionRows.length > 0" rounded="sm" elevation="3"  class="mb-6">
       <v-card-title
         class="pa-4 d-flex align-center justify-space-between cursor-pointer"
         @click="showProjections = !showProjections"

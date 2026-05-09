@@ -113,7 +113,7 @@
                 density="compact"
                 color="primary"
                 align-tabs="center"
-                class="border-b"
+                class="-b"
                 @update:model-value="onGranularityTab"
               >
                 <v-tab v-for="g in granularities" :key="g.value" :value="g.value">
@@ -264,12 +264,7 @@
     </v-alert>
 
     <!-- Empty State -->
-    <v-card
-      v-if="!store.loading && store.transactions.length === 0"
-      rounded="xl"
-      elevation="0"
-      border
-    >
+    <v-card v-if="!store.loading && store.transactions.length === 0" rounded="xl" elevation="3">
       <v-card-text class="pa-12 text-center">
         <v-icon size="60" class="mb-4 text-disabled">mdi-receipt-text-outline</v-icon>
         <div class="text-h6 font-weight-medium mb-2">No transactions found</div>
@@ -280,7 +275,7 @@
     </v-card>
 
     <!-- Data Table -->
-    <v-card v-else rounded="xl" elevation="0" border>
+    <v-card v-else rounded="xl" elevation="3">
       <v-data-table
         v-model:expanded="expandedRows"
         v-model:selected="selectedRows"

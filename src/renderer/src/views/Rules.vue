@@ -6,7 +6,7 @@
         <v-btn
           variant="tonal"
           color="secondary"
-          rounded="lg"
+          rounded="sm"
           prepend-icon="mdi-play-outline"
           :loading="store.loading"
           @click="applyToCurrentMonth"
@@ -14,7 +14,7 @@
           Apply to {{ settingsStore.selectedMonthLabel }}
         </v-btn>
 
-        <v-btn color="primary" rounded="lg" prepend-icon="mdi-plus" @click="openAddDialog">
+        <v-btn color="primary" rounded="sm" prepend-icon="mdi-plus" @click="openAddDialog">
           Add Rule
         </v-btn>
       </div>
@@ -26,7 +26,7 @@
         v-if="applyResult !== null"
         :type="applyResult.applied > 0 ? 'success' : 'info'"
         variant="tonal"
-        rounded="lg"
+        rounded="sm"
         closable
         class="mb-4"
         @click:close="applyResult = null"
@@ -40,7 +40,7 @@
       v-if="store.error"
       type="error"
       variant="tonal"
-      rounded="lg"
+      rounded="sm"
       closable
       class="mb-4"
       @click:close="store.clearError()"
@@ -49,21 +49,21 @@
     </v-alert>
 
     <!-- Empty State -->
-    <v-card v-if="!store.loading && store.rules.length === 0" rounded="xl" elevation="0" border>
+    <v-card v-if="!store.loading && store.rules.length === 0" rounded="sm" elevation="3" >
       <v-card-text class="pa-12 text-center">
         <v-icon size="60" class="mb-4 text-disabled">mdi-tag-multiple-outline</v-icon>
         <div class="text-h6 font-weight-medium mb-2">No rules yet</div>
         <div class="text-body-2 text-medium-emphasis mb-6">
           Add a rule to automatically categorize transactions when importing.
         </div>
-        <v-btn color="primary" rounded="lg" prepend-icon="mdi-plus" @click="openAddDialog">
+        <v-btn color="primary" rounded="sm" prepend-icon="mdi-plus" @click="openAddDialog">
           Add First Rule
         </v-btn>
       </v-card-text>
     </v-card>
 
     <!-- Rules Table -->
-    <v-card v-else rounded="xl" elevation="0" border>
+    <v-card v-else rounded="sm" elevation="3" >
       <v-data-table
         :headers="headers"
         :items="store.rules"
@@ -75,7 +75,7 @@
       >
         <!-- Field -->
         <template #item.field="{ item }">
-          <v-chip size="x-small" variant="tonal" color="primary" rounded="lg">
+          <v-chip size="x-small" variant="tonal" color="primary" rounded="sm">
             {{ item.field }}
           </v-chip>
         </template>
@@ -92,14 +92,14 @@
 
         <!-- Category -->
         <template #item.category="{ item }">
-          <v-chip size="x-small" variant="tonal" color="secondary" rounded="lg">
+          <v-chip size="x-small" variant="tonal" color="secondary" rounded="sm">
             {{ item.category }}
           </v-chip>
         </template>
 
         <!-- Type -->
         <template #item.type="{ item }">
-          <v-chip v-if="item.type" size="x-small" variant="tonal" color="info" rounded="lg">
+          <v-chip v-if="item.type" size="x-small" variant="tonal" color="info" rounded="sm">
             {{ item.type }}
           </v-chip>
           <span v-else class="text-disabled text-caption">—</span>
@@ -139,7 +139,7 @@
 
     <!-- Add / Edit Rule Dialog -->
     <v-dialog v-model="ruleDialog" max-width="520" persistent>
-      <v-card rounded="xl">
+      <v-card rounded="sm">
         <v-card-title class="pa-6 pb-4">
           <div class="d-flex align-center justify-space-between">
             <div class="d-flex align-center gap-3">
@@ -167,7 +167,7 @@
                 variant="solo"
                 inset
                 density="comfortable"
-                rounded="lg"
+                rounded="sm"
                 hide-details
               />
             </v-col>
@@ -183,7 +183,7 @@
                 variant="solo"
                 inset
                 density="comfortable"
-                rounded="lg"
+                rounded="sm"
                 hide-details
               />
             </v-col>
@@ -196,7 +196,7 @@
                 variant="solo"
                 inset
                 density="comfortable"
-                rounded="lg"
+                rounded="sm"
                 hide-details
                 autofocus
               />
@@ -211,7 +211,7 @@
                 variant="solo"
                 inset
                 density="comfortable"
-                rounded="lg"
+                rounded="sm"
                 hide-details
                 clearable
               />
@@ -226,7 +226,7 @@
                 variant="solo"
                 inset
                 density="comfortable"
-                rounded="lg"
+                rounded="sm"
                 hide-details
                 hint="Higher = runs first"
               />
@@ -243,7 +243,7 @@
                 variant="solo"
                 inset
                 density="comfortable"
-                rounded="lg"
+                rounded="sm"
                 hide-details
                 clearable
               />
@@ -257,7 +257,7 @@
           <v-btn
             color="primary"
             variant="flat"
-            rounded="lg"
+            rounded="sm"
             :loading="store.loading"
             :disabled="!form.field || !form.operator || !form.value || !form.category"
             @click="saveRule"
@@ -270,7 +270,7 @@
 
     <!-- Delete Confirmation -->
     <v-dialog v-model="deleteDialog" max-width="400">
-      <v-card rounded="xl">
+      <v-card rounded="sm">
         <v-card-title class="text-h6 pa-6 pb-2">Delete Rule</v-card-title>
         <v-card-text class="pa-6 pt-2 text-body-2 text-medium-emphasis">
           Delete the rule matching
