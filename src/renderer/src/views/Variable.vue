@@ -200,7 +200,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useUserCategoriesStore } from '../stores/userCategories'
 import { useUserBudgetsStore } from '../stores/userBudgets'
 import { useUserTransactionsStore } from '../stores/userTransactions'
@@ -276,28 +276,7 @@ const activePeriodMonths = computed(() => {
     curr.setMonth(curr.getMonth() + 1)
   }
 
-  // if end date is early in the next month, include it
-  const endYm = `${bounds.end.getFullYear()}${String(bounds.end.getMonth() + 1).padStart(2, '0')}`
-  if (!months.includes(endYm)) months.push(endYm)
-
   return months
-})
-
-// Single string to represent this period in the budget store (e.g. "202605" or "2026-W18")
-const currentPeriodId = computed(() => {
-  const bounds = periodBounds.value
-  if (!bounds) return ''
-  const sy = bounds.start.getFullYear()
-  const sm = String(bounds.start.getMonth() + 1).padStart(2, '0')
-  const sd = String(bounds.start.getDate()).padStart(2, '0')
-
-  if (granularity.value === 'week') return `${sy}-W${sy}${sm}${sd}` // rough week ID
-  if (granularity.value === 'biweek') return `${sy}-BW${sy}${sm}${sd}`
-  if (granularity.value === 'month') return `${sy}${sm}`
-  if (granularity.value === 'quarter')
-    return `${sy}-Q${Math.floor(bounds.start.getMonth() / 3) + 1}`
-  if (granularity.value === 'year') return `${sy}`
-  return ''
 })
 
 const pickerLabel = computed(() => {
@@ -332,12 +311,9 @@ function onPickerSelect(date) {
 }
 
 async function applyPeriod() {
-  const months = activePeriodMonths.value
   const available = transactionsStore.monthsWithData
-  const toFetch = months.filter((m) => available.includes(m))
-  for (const ym of toFetch) {
-    await transactionsStore.fetchTransactionsByMonth(ym)
-  }
+  const toFetch = activePeriodMonths.value.filter((m) => available.includes(m))
+  await Promise.all(toFetch.map((ym) => transactionsStore.fetchTransactionsByMonth(ym)))
 }
 
 // ── Categories Management ──────────────────────────────────────────────────────
@@ -367,9 +343,7 @@ async function saveCategoryEdit() {
 // ── Budgets Management ───────────────────────────────────────────────────────
 
 async function updateBudgetInline(categoryId, amount) {
-  if (currentPeriodId.value) {
-    await budgetsStore.upsertBudget(categoryId, currentPeriodId.value, Number(amount) || 0)
-  }
+  await budgetsStore.upsertBudget(categoryId, Number(amount) || 0)
 }
 
 // ── Data Aggregation ─────────────────────────────────────────────────────────
@@ -391,29 +365,22 @@ const currentTransactions = computed(() => {
 })
 
 const combinedCategories = computed(() => {
-  const periodId = currentPeriodId.value
+  const actuals = new Map()
+  for (const t of currentTransactions.value) {
+    const trnAmt = Number(t.TRNAMT)
+    if (t.category)
+      actuals.set(t.category, (actuals.get(t.category) || 0) + (trnAmt < 0 ? Math.abs(trnAmt) : 0))
+    if (t.splitCategory1 && t.splitCategory1 !== t.category && t.splitAmount1 > 0)
+      actuals.set(t.splitCategory1, (actuals.get(t.splitCategory1) || 0) + t.splitAmount1)
+    if (t.splitCategory2 && t.splitCategory2 !== t.category && t.splitAmount2 > 0)
+      actuals.set(t.splitCategory2, (actuals.get(t.splitCategory2) || 0) + t.splitAmount2)
+  }
 
-  return variableCategories.value.map((cat) => {
-    const projected = budgetsStore.getBudget(cat.id, periodId)?.amount || 0
-
-    // Calculate actual from transactions matching this category or its splits
-    const actual = currentTransactions.value.reduce((sum, t) => {
-      let tSum = 0
-      if (t.category === cat.name) {
-        tSum += Number(t.TRNAMT) < 0 ? Math.abs(Number(t.TRNAMT)) : 0
-      } else {
-        if (t.splitCategory1 === cat.name && t.splitAmount1 > 0) tSum += t.splitAmount1
-        if (t.splitCategory2 === cat.name && t.splitAmount2 > 0) tSum += t.splitAmount2
-      }
-      return sum + tSum
-    }, 0)
-
-    return {
-      ...cat,
-      projected,
-      actual
-    }
-  })
+  return variableCategories.value.map((cat) => ({
+    ...cat,
+    projected: budgetsStore.getBudget(cat.id)?.amount || 0,
+    actual: actuals.get(cat.name) || 0
+  }))
 })
 
 const totalProjected = computed(() => combinedCategories.value.reduce((s, c) => s + c.projected, 0))

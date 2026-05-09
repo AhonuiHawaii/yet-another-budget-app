@@ -17,11 +17,13 @@ export const useUserCategoriesStore = defineStore('userCategories', () => {
   const categories = ref([])
 
   async function fetchCategories() {
-    const income = await db.incomeCategories.toArray()
-    const savings = await db.savingsCategories.toArray()
-    const variable = await db.variableCategories.toArray()
-    const bills = await db.billsCategories.toArray()
-    const debt = await db.debtCategories.toArray()
+    const [income, savings, variable, bills, debt] = await Promise.all([
+      db.incomeCategories.toArray(),
+      db.savingsCategories.toArray(),
+      db.variableCategories.toArray(),
+      db.billsCategories.toArray(),
+      db.debtCategories.toArray()
+    ])
 
     categories.value = [
       ...income.map((c) => ({ ...c, type: 'income' })),
@@ -54,24 +56,21 @@ export const useUserCategoriesStore = defineStore('userCategories', () => {
 
   async function updateCategory(id, updates) {
     const cat = categories.value.find((c) => c.id === id)
-    if (!cat) return
-    const table = db[`${cat.type}Categories`]
-    if (table) {
-      const toUpdate = { ...updates }
-      delete toUpdate.type // Don't persist type to the DB since it's implied by the table
-      await table.update(id, toUpdate)
-      await fetchCategories()
-    }
+    if (!cat) throw new Error(`Category not found: ${id}`)
+    const toUpdate = { ...updates }
+    delete toUpdate.type
+    await db[`${cat.type}Categories`].update(id, toUpdate)
+    await fetchCategories()
   }
 
   async function deleteCategory(id) {
     const cat = categories.value.find((c) => c.id === id)
     if (!cat) return
-    const table = db[`${cat.type}Categories`]
-    if (table) {
-      await table.delete(id)
-      await fetchCategories()
-    }
+    await Promise.all([
+      db[`${cat.type}Categories`].delete(id),
+      db.budgets.where('categoryId').equals(id).delete()
+    ])
+    await fetchCategories()
   }
 
   // Initial load

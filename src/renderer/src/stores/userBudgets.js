@@ -10,7 +10,7 @@ db.version(1).stores({
   variableCategories: 'id, name, createdAt',
   billsCategories: 'id, name, createdAt',
   debtCategories: 'id, name, createdAt',
-  budgets: 'id, categoryId, period, amount, createdAt'
+  budgets: 'id, categoryId, amount, createdAt'
 })
 
 export const useUserBudgetsStore = defineStore('userBudgets', () => {
@@ -20,19 +20,18 @@ export const useUserBudgetsStore = defineStore('userBudgets', () => {
     budgets.value = await db.budgets.toArray()
   }
 
-  function getBudget(categoryId, period) {
-    return budgets.value.find((b) => b.categoryId === categoryId && b.period === period)
+  function getBudget(categoryId) {
+    return budgets.value.find((b) => b.categoryId === categoryId)
   }
 
-  async function upsertBudget(categoryId, period, amount) {
-    const existing = budgets.value.find((b) => b.categoryId === categoryId && b.period === period)
+  async function upsertBudget(categoryId, amount) {
+    const existing = await db.budgets.where('categoryId').equals(categoryId).first()
     if (existing) {
       await db.budgets.update(existing.id, { amount })
     } else {
       await db.budgets.add({
         id: crypto.randomUUID(),
         categoryId,
-        period,
         amount,
         createdAt: new Date().toISOString()
       })
@@ -41,6 +40,7 @@ export const useUserBudgetsStore = defineStore('userBudgets', () => {
   }
 
   async function deleteBudget(id) {
+    if (!budgets.value.some((b) => b.id === id)) return
     await db.budgets.delete(id)
     await fetchBudgets()
   }
