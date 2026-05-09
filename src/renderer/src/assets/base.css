@@ -87,23 +87,7 @@
   --transition-slow: 400ms ease;
 }
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  margin: 0;
-  font-weight: normal;
-}
-
-ul {
-  list-style: none;
-}
-
 body {
-  min-height: 100vh;
-  margin: 0;
-  padding: 0;
-
   /* Colors */
   color: var(--color-text-primary);
   background-color: var(--color-background);
@@ -119,7 +103,4 @@ body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-
-  /* Prevent horizontal overflow */
-  overflow-x: hidden;
 }
