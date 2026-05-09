@@ -3,8 +3,13 @@ import { ref } from 'vue'
 import Dexie from 'dexie'
 
 const db = new Dexie('BudgetAppFrontendDB')
+
 db.version(1).stores({
-  categories: 'id, name, type, createdAt',
+  incomeCategories: 'id, name, createdAt',
+  savingsCategories: 'id, name, createdAt',
+  variableCategories: 'id, name, createdAt',
+  billsCategories: 'id, name, createdAt',
+  debtCategories: 'id, name, createdAt',
   budgets: 'id, categoryId, period, amount, createdAt'
 })
 

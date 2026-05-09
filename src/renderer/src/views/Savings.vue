@@ -2,8 +2,8 @@
   <v-container fluid class="pa-6">
     <div class="d-flex align-center justify-space-between flex-wrap gap-3 mb-6">
       <div>
-        <h1 class="text-h4 font-weight-bold">Income</h1>
-        <p class="text-body-1 text-medium-emphasis mt-1">Track your projected vs actual income</p>
+        <h1 class="text-h4 font-weight-bold">Savings</h1>
+        <p class="text-body-1 text-medium-emphasis mt-1">Track your projected vs actual savings</p>
       </div>
       <div class="d-flex align-center gap-3">
         <v-btn icon="mdi-plus" variant="tonal" color="primary" size="small" @click="addNewRow" />
@@ -342,10 +342,10 @@ async function applyPeriod() {
 const editingCatId = ref(null)
 const editingCatName = ref('')
 
-const incomeCategories = computed(() => categoriesStore.getCategoriesByType('income'))
+const savingsCategories = computed(() => categoriesStore.getCategoriesByType('savings'))
 
 async function addNewRow() {
-  const newCat = await categoriesStore.addCategory({ name: 'New Category', type: 'income' })
+  const newCat = await categoriesStore.addCategory({ name: 'New Category', type: 'savings' })
   startCategoryEdit(newCat)
 }
 
@@ -391,14 +391,14 @@ const currentTransactions = computed(() => {
 const combinedCategories = computed(() => {
   const periodId = currentPeriodId.value
 
-  return incomeCategories.value.map((cat) => {
+  return savingsCategories.value.map((cat) => {
     const projected = budgetsStore.getBudget(cat.id, periodId)?.amount || 0
 
     // Calculate actual from transactions matching this category or its splits
     const actual = currentTransactions.value.reduce((sum, t) => {
       let tSum = 0
       if (t.category === cat.name) {
-        tSum += Number(t.TRNAMT) > 0 ? Number(t.TRNAMT) : 0
+        tSum += Number(t.TRNAMT) < 0 ? Math.abs(Number(t.TRNAMT)) : 0
       } else {
         if (t.splitCategory1 === cat.name && t.splitAmount1 > 0) tSum += t.splitAmount1
         if (t.splitCategory2 === cat.name && t.splitAmount2 > 0) tSum += t.splitAmount2

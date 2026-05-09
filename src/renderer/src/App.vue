@@ -8,7 +8,7 @@ import Transactions from './views/Transactions.vue'
 import Income from './views/Income.vue'
 import Variable from './views/Variable.vue'
 import Savings from './views/Savings.vue'
-import Debt from './views/Debt.vue'
+import Debts from './views/Debt.vue'
 import Bills from './views/Bills.vue'
 
 const views = {
@@ -19,7 +19,7 @@ const views = {
   Income,
   Variable,
   Savings,
-  Debt,
+  Debts,
   Bills
 }
 
