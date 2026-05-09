@@ -7,7 +7,7 @@
     <!-- Stat Cards -->
     <v-row class="mb-3">
       <v-col cols="12" sm="6" lg="3">
-        <v-card rounded="xl" elevation="3" class="h-100">
+        <v-card rounded elevation="3" class="h-100">
           <v-card-text class="pa-4">
             <div class="d-flex align-center justify-space-between mb-2">
               <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis"
@@ -25,7 +25,7 @@
         </v-card>
       </v-col>
       <v-col cols="12" sm="6" lg="3">
-        <v-card rounded="xl" elevation="3" class="h-100">
+        <v-card rounded elevation="3" class="h-100">
           <v-card-text class="pa-4">
             <div class="d-flex align-center justify-space-between mb-2">
               <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis"
@@ -43,7 +43,7 @@
         </v-card>
       </v-col>
       <v-col cols="12" sm="6" lg="3">
-        <v-card rounded="xl" elevation="3" class="h-100">
+        <v-card rounded elevation="3" class="h-100">
           <v-card-text class="pa-4">
             <div class="d-flex align-center justify-space-between mb-2">
               <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis"
@@ -64,7 +64,7 @@
         </v-card>
       </v-col>
       <v-col cols="12" sm="6" lg="3">
-        <v-card rounded="xl" elevation="3" class="h-100">
+        <v-card rounded elevation="3" class="h-100">
           <v-card-text class="pa-4">
             <div class="d-flex align-center justify-space-between mb-2">
               <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis"
@@ -91,7 +91,7 @@
     <v-row>
       <!-- Monthly Summary -->
       <v-col cols="12" lg="7">
-        <v-card rounded="xl" elevation="3" class="mb-3">
+        <v-card rounded elevation="3" class="mb-3">
           <v-card-item class="pa-4 pb-0">
             <template #prepend>
               <v-icon color="primary" size="20">mdi-view-dashboard-outline</v-icon>
@@ -117,7 +117,7 @@
             <tbody>
               <tr v-for="group in groupSummary" :key="group.type">
                 <td class="pl-5">
-                  <v-chip :color="group.color" variant="tonal" size="x-small" rounded="lg">{{
+                  <v-chip :color="group.color" variant="tonal" size="x-small" rounded>{{
                     group.label
                   }}</v-chip>
                 </td>
@@ -195,7 +195,7 @@
         </v-card>
 
         <!-- Recent Transactions -->
-        <v-card rounded="xl" elevation="3">
+        <v-card rounded elevation="3">
           <v-card-item class="pa-4 pb-0">
             <template #prepend>
               <v-icon color="primary" size="20">mdi-receipt-text-outline</v-icon>
@@ -236,7 +236,7 @@
       <!-- Right column -->
       <v-col cols="12" lg="5">
         <!-- Top Spending -->
-        <v-card rounded="xl" elevation="3" class="mb-3">
+        <v-card rounded elevation="3" class="mb-3">
           <v-card-item class="pa-4 pb-0">
             <template #prepend>
               <v-icon color="primary" size="20">mdi-chart-donut</v-icon>
@@ -272,7 +272,7 @@
         </v-card>
 
         <!-- Goals -->
-        <v-card rounded="xl" elevation="3">
+        <v-card rounded elevation="3">
           <v-card-item class="pa-4 pb-0">
             <template #prepend>
               <v-icon color="primary" size="20">mdi-flag-outline</v-icon>
