@@ -1,4 +1,6 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, session } from 'electron'
+
+app.commandLine.appendSwitch('disable-gpu-shader-disk-cache')
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
@@ -33,7 +35,8 @@ function createWindow() {
   }
 }
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
+  await session.defaultSession.clearCache()
   electronApp.setAppUserModelId('com.electron')
 
   app.on('browser-window-created', (_, window) => {

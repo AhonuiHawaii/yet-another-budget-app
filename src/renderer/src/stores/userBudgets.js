@@ -1,29 +1,6 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
-import Dexie from 'dexie'
-
-const db = new Dexie('BudgetAppFrontendDB')
-
-db.version(1).stores({
-  incomeCategories: 'id, name, createdAt',
-  savingsCategories: 'id, name, createdAt',
-  variableCategories: 'id, name, createdAt',
-  billsCategories: 'id, name, createdAt',
-  debtCategories: 'id, name, createdAt',
-  budgets: 'id, categoryId, amount, createdAt'
-})
-
-db.version(4).stores({
-  incomeCategories: 'id, name, createdAt',
-  savingsCategories: 'id, name, createdAt',
-  variableCategories: 'id, name, createdAt',
-  billsCategories: 'id, name, createdAt',
-  debtCategories: 'id, name, createdAt',
-  budgets: 'id, categoryId, amount, createdAt',
-  goals: 'id, name, targetDate, status, createdAt',
-  debtDetails: 'id, updatedAt',
-  budgetRollovers: 'id, categoryId, month, createdAt'
-})
+import db from './dexie'
 
 export const useUserBudgetsStore = defineStore('userBudgets', () => {
   const budgets = ref([])

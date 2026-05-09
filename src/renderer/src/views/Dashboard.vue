@@ -1,231 +1,239 @@
 <template>
   <v-container fluid class="pa-6">
 
-
-    <v-alert v-if="dashboardError" type="error" variant="tonal" class="mb-4">
+    <v-alert v-if="dashboardError" type="error" variant="tonal" class="mb-6">
       {{ dashboardError }}
     </v-alert>
 
+    <!-- Stat Cards -->
     <v-row class="mb-6">
       <v-col cols="12" sm="6" lg="3">
-        <v-card class="pa-4 h-100" rounded="xl" elevation="0" border>
-          <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-1">
-            Income
-          </div>
-          <div class="text-h5 font-weight-black text-success">
-            {{ formatCurrency(totalIncome) }}
-          </div>
-          <div class="text-caption text-medium-emphasis mt-1">
-            {{ incomeTransactions.length }} deposits
-          </div>
+        <v-card rounded="xl" elevation="0" border class="h-100">
+          <v-card-text class="pa-5">
+            <div class="d-flex align-center justify-space-between mb-4">
+              <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis tracking-widest">Income</span>
+              <v-icon color="success" size="18" opacity="70">mdi-arrow-down-circle-outline</v-icon>
+            </div>
+            <div class="text-h5 font-weight-black text-success mb-1">{{ formatCurrency(totalIncome) }}</div>
+            <div class="text-caption text-medium-emphasis">{{ incomeTransactions.length }} deposits</div>
+          </v-card-text>
         </v-card>
       </v-col>
       <v-col cols="12" sm="6" lg="3">
-        <v-card class="pa-4 h-100" rounded="xl" elevation="0" border>
-          <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-1">
-            Spending
-          </div>
-          <div class="text-h5 font-weight-black text-error">
-            {{ formatCurrency(totalSpending) }}
-          </div>
-          <div class="text-caption text-medium-emphasis mt-1">
-            {{ expenseTransactions.length }} payments
-          </div>
+        <v-card rounded="xl" elevation="0" border class="h-100">
+          <v-card-text class="pa-5">
+            <div class="d-flex align-center justify-space-between mb-4">
+              <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis">Spending</span>
+              <v-icon color="error" size="18" opacity="70">mdi-arrow-up-circle-outline</v-icon>
+            </div>
+            <div class="text-h5 font-weight-black text-error mb-1">{{ formatCurrency(totalSpending) }}</div>
+            <div class="text-caption text-medium-emphasis">{{ expenseTransactions.length }} payments</div>
+          </v-card-text>
         </v-card>
       </v-col>
       <v-col cols="12" sm="6" lg="3">
-        <v-card class="pa-4 h-100" rounded="xl" elevation="0" border>
-          <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-1">
-            Net
-          </div>
-          <div
-            class="text-h5 font-weight-black"
-            :class="netCashFlow >= 0 ? 'text-success' : 'text-error'"
-          >
-            {{ formatCurrency(netCashFlow) }}
-          </div>
-          <div class="text-caption text-medium-emphasis mt-1">Income minus spending</div>
+        <v-card rounded="xl" elevation="0" border class="h-100">
+          <v-card-text class="pa-5">
+            <div class="d-flex align-center justify-space-between mb-4">
+              <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis">Net</span>
+              <v-icon :color="netCashFlow >= 0 ? 'success' : 'error'" size="18" opacity="70">mdi-trending-up</v-icon>
+            </div>
+            <div class="text-h5 font-weight-black mb-1" :class="netCashFlow >= 0 ? 'text-success' : 'text-error'">
+              {{ formatCurrency(netCashFlow) }}
+            </div>
+            <div class="text-caption text-medium-emphasis">Income minus spending</div>
+          </v-card-text>
         </v-card>
       </v-col>
       <v-col cols="12" sm="6" lg="3">
-        <v-card class="pa-4 h-100" rounded="xl" elevation="0" border>
-          <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-1">
-            Remaining Budget
-          </div>
-          <div
-            class="text-h5 font-weight-black"
-            :class="budgetVariance >= 0 ? 'text-success' : 'text-error'"
-          >
-            {{ formatCurrency(budgetVariance) }}
-          </div>
-          <div class="text-caption text-medium-emphasis mt-1">
-            {{ attentionCount }} items need review
-          </div>
+        <v-card rounded="xl" elevation="0" border class="h-100">
+          <v-card-text class="pa-5">
+            <div class="d-flex align-center justify-space-between mb-4">
+              <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis">Remaining</span>
+              <v-icon :color="budgetVariance >= 0 ? 'success' : 'warning'" size="18" opacity="70">mdi-wallet-outline</v-icon>
+            </div>
+            <div class="text-h5 font-weight-black mb-1" :class="budgetVariance >= 0 ? 'text-success' : 'text-error'">
+              {{ formatCurrency(budgetVariance) }}
+            </div>
+            <div class="text-caption text-medium-emphasis">{{ attentionCount }} items need review</div>
+          </v-card-text>
         </v-card>
       </v-col>
     </v-row>
 
-    <v-row>
+    <v-row class="mb-6">
+      <!-- Monthly Summary -->
       <v-col cols="12" lg="7">
-        <div class="mb-6">
-          <div class="d-flex align-center gap-2 mb-4">
-            <v-icon color="primary" size="20">mdi-view-dashboard-outline</v-icon>
-            <h2 class="text-h6 font-weight-bold">Monthly Summary</h2>
-          </div>
-          <v-table density="comfortable">
+        <v-card rounded="xl" elevation="0" border class="mb-6">
+          <v-card-item class="pa-5 pb-0">
+            <template #prepend>
+              <v-icon color="primary" size="20">mdi-view-dashboard-outline</v-icon>
+            </template>
+            <v-card-title class="text-h6 font-weight-bold pl-2">Monthly Summary</v-card-title>
+          </v-card-item>
+
+          <v-table density="comfortable" class="mt-2">
             <thead>
               <tr>
-                <th class="text-start text-uppercase text-caption font-weight-bold pl-4">Group</th>
+                <th class="text-start text-uppercase text-caption font-weight-bold pl-6">Group</th>
                 <th class="text-center text-uppercase text-caption font-weight-bold">Budget</th>
                 <th class="text-center text-uppercase text-caption font-weight-bold">Actual</th>
-                <th class="text-center text-uppercase text-caption font-weight-bold">Progress</th>
-                <th class="text-center text-uppercase text-caption font-weight-bold">Left</th>
+                <th class="text-center text-uppercase text-caption font-weight-bold" style="min-width:140px">Progress</th>
+                <th class="text-center text-uppercase text-caption font-weight-bold pr-6">Left</th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="group in groupSummary" :key="group.type">
-                <td class="pl-4">
-                  <v-chip :color="group.color" variant="tonal" size="x-small" rounded="lg">
-                    {{ group.label }}
-                  </v-chip>
+                <td class="pl-6">
+                  <v-chip :color="group.color" variant="tonal" size="x-small" rounded="lg">{{ group.label }}</v-chip>
                 </td>
-                <td class="text-center">{{ formatCurrency(group.budget) }}</td>
-                <td class="text-center font-weight-bold">{{ formatCurrency(group.actual) }}</td>
+                <td class="text-center text-body-2">{{ formatCurrency(group.budget) }}</td>
+                <td class="text-center text-body-2 font-weight-medium">{{ formatCurrency(group.actual) }}</td>
                 <td class="text-center">
-                  <div class="d-flex align-center gap-2">
-                    <v-progress-linear
-                      :model-value="group.progress"
-                      :color="group.progressColor"
-                      height="8"
-                      rounded
-                    />
-                    <span class="text-caption">{{ group.progressLabel }}</span>
+                  <div class="d-flex align-center gap-2 px-2">
+                    <v-progress-linear :model-value="group.progress" :color="group.progressColor" height="6" rounded />
+                    <span class="text-caption text-medium-emphasis" style="min-width:32px">{{ group.progressLabel }}</span>
                   </div>
                 </td>
-                <td
-                  class="text-center font-weight-bold"
-                  :class="group.remaining >= 0 ? 'text-success' : 'text-error'"
-                >
+                <td class="text-center text-body-2 font-weight-bold pr-6" :class="group.remaining >= 0 ? 'text-success' : 'text-error'">
                   {{ formatCurrency(group.remaining) }}
                 </td>
               </tr>
             </tbody>
           </v-table>
-        </div>
 
-        <v-row>
-          <v-col cols="12" md="6">
-            <v-card class="pa-4 h-100" rounded="xl" elevation="0" border>
-              <div class="d-flex align-center justify-space-between mb-2">
-                <div class="font-weight-bold">Planned Net</div>
-                <v-chip variant="tonal" size="small">{{ formatCurrency(plannedNet) }}</v-chip>
-              </div>
-              <div class="text-body-2 text-medium-emphasis">
-                Budgeted income minus budgeted outflow.
-              </div>
-            </v-card>
-          </v-col>
-          <v-col cols="12" md="6">
-            <v-card class="pa-4 h-100" rounded="xl" elevation="0" border>
-              <div class="d-flex align-center justify-space-between mb-2">
-                <div class="font-weight-bold">Uncategorized</div>
-                <v-chip
-                  :color="transactionsStore.uncategorized.length ? 'warning' : 'success'"
-                  variant="tonal"
-                  size="small"
-                >
-                  {{ transactionsStore.uncategorized.length }}
-                </v-chip>
-              </div>
-              <div class="text-body-2 text-medium-emphasis">
-                {{
-                  transactionsStore.uncategorized.length
-                    ? 'Categorize these to keep the month accurate.'
-                    : 'Every transaction is categorized.'
-                }}
-              </div>
-            </v-card>
-          </v-col>
-        </v-row>
+          <v-divider class="mt-2" />
+
+          <v-row no-gutters>
+            <v-col cols="6">
+              <v-list-item class="py-4 px-6">
+                <v-list-item-title class="text-body-2 font-weight-medium mb-1">Planned Net</v-list-item-title>
+                <v-list-item-subtitle class="text-caption">Budgeted income minus outflow</v-list-item-subtitle>
+                <template #append>
+                  <v-chip variant="tonal" size="small" class="font-weight-bold">{{ formatCurrency(plannedNet) }}</v-chip>
+                </template>
+              </v-list-item>
+            </v-col>
+            <v-divider vertical />
+            <v-col cols="6">
+              <v-list-item class="py-4 px-6">
+                <v-list-item-title class="text-body-2 font-weight-medium mb-1">Uncategorized</v-list-item-title>
+                <v-list-item-subtitle class="text-caption">
+                  {{ transactionsStore.uncategorized.length ? 'Needs categorization' : 'All transactions categorized' }}
+                </v-list-item-subtitle>
+                <template #append>
+                  <v-chip
+                    :color="transactionsStore.uncategorized.length ? 'warning' : 'success'"
+                    variant="tonal"
+                    size="small"
+                    class="font-weight-bold"
+                  >
+                    {{ transactionsStore.uncategorized.length }}
+                  </v-chip>
+                </template>
+              </v-list-item>
+            </v-col>
+          </v-row>
+        </v-card>
+
+        <!-- Recent Transactions -->
+        <v-card rounded="xl" elevation="0" border>
+          <v-card-item class="pa-5 pb-0">
+            <template #prepend>
+              <v-icon color="primary" size="20">mdi-receipt-text-outline</v-icon>
+            </template>
+            <v-card-title class="text-h6 font-weight-bold pl-2">Recent Transactions</v-card-title>
+          </v-card-item>
+
+          <v-list lines="two" class="pt-2">
+            <v-list-item v-if="recentTransactions.length === 0" class="py-8 text-center text-medium-emphasis">
+              No transactions this month.
+            </v-list-item>
+            <template v-for="(transaction, i) in recentTransactions" :key="transaction.FITID">
+              <v-divider v-if="i > 0" />
+              <v-list-item class="px-6 py-3">
+                <v-list-item-title class="text-body-2 font-weight-medium">
+                  {{ transaction.NAME || transaction.MEMO || transaction.FITID }}
+                </v-list-item-title>
+                <v-list-item-subtitle class="text-caption">
+                  {{ formatTransactionDate(transaction.DTPOSTED) }}
+                </v-list-item-subtitle>
+                <template #append>
+                  <span class="text-body-2 font-weight-bold" :class="Number(transaction.TRNAMT) >= 0 ? 'text-success' : 'text-error'">
+                    {{ formatCurrency(Number(transaction.TRNAMT) || 0) }}
+                  </span>
+                </template>
+              </v-list-item>
+            </template>
+          </v-list>
+        </v-card>
       </v-col>
 
+      <!-- Right column -->
       <v-col cols="12" lg="5">
-        <div class="mb-6">
-          <div class="d-flex align-center gap-2 mb-4">
-            <v-icon color="primary" size="20">mdi-chart-donut</v-icon>
-            <h2 class="text-h6 font-weight-bold">Top Spending</h2>
-          </div>
-          <v-table density="comfortable">
-            <tbody>
-              <tr v-if="topSpendingCategories.length === 0">
-                <td class="text-center py-8 text-medium-emphasis">No categorized spending yet.</td>
-              </tr>
-              <tr v-for="category in topSpendingCategories" :key="category.name">
-                <td class="pl-4">{{ category.name }}</td>
-                <td class="text-right font-weight-bold">{{ formatCurrency(category.total) }}</td>
-              </tr>
-            </tbody>
-          </v-table>
-        </div>
+        <!-- Top Spending -->
+        <v-card rounded="xl" elevation="0" border class="mb-6">
+          <v-card-item class="pa-5 pb-0">
+            <template #prepend>
+              <v-icon color="primary" size="20">mdi-chart-donut</v-icon>
+            </template>
+            <v-card-title class="text-h6 font-weight-bold pl-2">Top Spending</v-card-title>
+          </v-card-item>
 
-        <div class="mb-6">
-          <div class="d-flex align-center gap-2 mb-4">
-            <v-icon color="primary" size="20">mdi-flag-outline</v-icon>
-            <h2 class="text-h6 font-weight-bold">Goals</h2>
-          </div>
-          <v-table density="comfortable">
-            <tbody>
-              <tr v-if="goalRows.length === 0">
-                <td class="text-center py-8 text-medium-emphasis">No goals configured.</td>
-              </tr>
-              <tr v-for="goal in goalRows" :key="goal.id">
-                <td class="pl-4">
-                  <div class="font-weight-medium">{{ goal.name }}</div>
-                  <v-progress-linear
-                    :model-value="goal.progress"
-                    :color="goal.status === 'completed' ? 'success' : 'primary'"
-                    height="7"
-                    rounded
-                    class="mt-2"
-                  />
-                </td>
-                <td class="text-right text-caption">{{ goal.progressLabel }}</td>
-              </tr>
-            </tbody>
-          </v-table>
-        </div>
+          <v-list lines="one" class="pt-2">
+            <v-list-item v-if="topSpendingCategories.length === 0" class="py-8 text-center text-medium-emphasis">
+              No categorized spending yet.
+            </v-list-item>
+            <template v-for="(category, i) in topSpendingCategories" :key="category.name">
+              <v-divider v-if="i > 0" />
+              <v-list-item class="px-6 py-3">
+                <template #prepend>
+                  <v-avatar size="28" :color="['error','warning','info','secondary','primary'][i % 5]" variant="tonal" class="text-caption font-weight-bold mr-3">
+                    {{ i + 1 }}
+                  </v-avatar>
+                </template>
+                <v-list-item-title class="text-body-2 font-weight-medium">{{ category.name }}</v-list-item-title>
+                <template #append>
+                  <span class="text-body-2 font-weight-bold">{{ formatCurrency(category.total) }}</span>
+                </template>
+              </v-list-item>
+            </template>
+          </v-list>
+        </v-card>
+
+        <!-- Goals -->
+        <v-card rounded="xl" elevation="0" border>
+          <v-card-item class="pa-5 pb-0">
+            <template #prepend>
+              <v-icon color="primary" size="20">mdi-flag-outline</v-icon>
+            </template>
+            <v-card-title class="text-h6 font-weight-bold pl-2">Goals</v-card-title>
+          </v-card-item>
+
+          <v-list class="pt-2">
+            <v-list-item v-if="goalRows.length === 0" class="py-8 text-center text-medium-emphasis">
+              No goals configured.
+            </v-list-item>
+            <template v-for="(goal, i) in goalRows" :key="goal.id">
+              <v-divider v-if="i > 0" />
+              <v-list-item class="px-6 py-3">
+                <v-list-item-title class="text-body-2 font-weight-medium mb-2">{{ goal.name }}</v-list-item-title>
+                <v-progress-linear
+                  :model-value="goal.progress"
+                  :color="goal.status === 'completed' ? 'success' : 'primary'"
+                  height="6"
+                  rounded
+                />
+                <template #append>
+                  <span class="text-caption text-medium-emphasis ml-4">{{ goal.progressLabel }}</span>
+                </template>
+              </v-list-item>
+            </template>
+          </v-list>
+        </v-card>
       </v-col>
     </v-row>
 
-    <div class="mb-6">
-      <div class="d-flex align-center gap-2 mb-4">
-        <v-icon color="primary" size="20">mdi-receipt-text-outline</v-icon>
-        <h2 class="text-h6 font-weight-bold">Recent Transactions</h2>
-      </div>
-      <v-table density="comfortable">
-        <tbody>
-          <tr v-if="recentTransactions.length === 0">
-            <td class="text-center py-8 text-medium-emphasis">No transactions this month.</td>
-          </tr>
-          <tr v-for="transaction in recentTransactions" :key="transaction.FITID">
-            <td class="pl-4">
-              <div class="font-weight-medium">
-                {{ transaction.NAME || transaction.MEMO || transaction.FITID }}
-              </div>
-              <div class="text-caption text-medium-emphasis">
-                {{ formatTransactionDate(transaction.DTPOSTED) }}
-              </div>
-            </td>
-            <td
-              class="text-right font-weight-bold"
-              :class="Number(transaction.TRNAMT) >= 0 ? 'text-success' : 'text-error'"
-            >
-              {{ formatCurrency(Number(transaction.TRNAMT) || 0) }}
-            </td>
-          </tr>
-        </tbody>
-      </v-table>
-    </div>
   </v-container>
 </template>
 
