@@ -19,6 +19,26 @@
       {{ reportError }}
     </v-alert>
 
+    <!-- Spending Trends Chart -->
+    <v-card
+      v-if="transactionsStore.monthlyTotals.length > 0"
+      rounded="xl"
+      elevation="0"
+      border
+      class="mb-6 pa-5"
+    >
+      <div class="d-flex align-center gap-2 mb-4">
+        <v-icon color="primary" size="20">mdi-chart-line</v-icon>
+        <h2 class="text-h6 font-weight-bold">Spending Trends</h2>
+        <v-chip size="x-small" variant="tonal" color="primary" class="ml-1">
+          All time
+        </v-chip>
+      </div>
+      <div style="height: 260px">
+        <Line :data="chartData" :options="chartOptions" />
+      </div>
+    </v-card>
+
     <v-row class="mb-6" dense>
       <v-col cols="12" sm="6" lg="3">
         <v-card class="pa-4 h-100" rounded="xl" elevation="0" border>
@@ -243,7 +263,21 @@
 
 <script setup>
 import { computed, onMounted, ref, watch } from 'vue'
+import { Line } from 'vue-chartjs'
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+} from 'chart.js'
 import { useUserAccountsStore } from '../stores/userAccounts'
+
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler)
 import { useUserBudgetsStore } from '../stores/userBudgets'
 import { useUserCategoriesStore } from '../stores/userCategories'
 import { useUserGoalsStore } from '../stores/userGoals'
@@ -368,6 +402,67 @@ function formatCurrency(value) {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value || 0)
 }
 
+const chartData = computed(() => {
+  const rows = transactionsStore.monthlyTotals
+  return {
+    labels: rows.map((r) => {
+      const y = r.month.slice(0, 4)
+      const m = parseInt(r.month.slice(4, 6)) - 1
+      return new Date(y, m, 1).toLocaleDateString('en-US', { month: 'short', year: '2-digit' })
+    }),
+    datasets: [
+      {
+        label: 'Income',
+        data: rows.map((r) => r.income),
+        borderColor: '#4caf50',
+        backgroundColor: 'rgba(76,175,80,0.08)',
+        fill: true,
+        tension: 0.3,
+        pointRadius: 4,
+        pointHoverRadius: 6
+      },
+      {
+        label: 'Spending',
+        data: rows.map((r) => r.spending),
+        borderColor: '#f44336',
+        backgroundColor: 'rgba(244,67,54,0.08)',
+        fill: true,
+        tension: 0.3,
+        pointRadius: 4,
+        pointHoverRadius: 6
+      }
+    ]
+  }
+})
+
+const chartOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  interaction: { mode: 'index', intersect: false },
+  plugins: {
+    legend: { position: 'top', labels: { usePointStyle: true, padding: 16 } },
+    tooltip: {
+      callbacks: {
+        label: (ctx) =>
+          ` ${ctx.dataset.label}: ${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(ctx.parsed.y)}`
+      }
+    }
+  },
+  scales: {
+    x: { grid: { display: false } },
+    y: {
+      ticks: {
+        callback: (v) =>
+          new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD',
+            notation: 'compact'
+          }).format(v)
+      }
+    }
+  }
+}
+
 async function loadReport() {
   reportError.value = null
   try {
@@ -375,6 +470,7 @@ async function loadReport() {
       transactionsStore.fetchTransactionsByMonth(selectedMonth.value),
       transactionsStore.fetchReports(selectedMonth.value),
       transactionsStore.fetchAccountSummary(),
+      transactionsStore.fetchMonthlyTotals(),
       accountsStore.fetchAccounts(),
       categoriesStore.fetchCategories(),
       budgetsStore.fetchBudgets(),

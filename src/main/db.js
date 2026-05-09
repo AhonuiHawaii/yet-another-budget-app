@@ -559,6 +559,27 @@ function getUncategorized(yyyymm) {
 }
 
 /**
+ * All-time monthly income vs spending totals, ordered ascending.
+ * @returns {{ month: string, income: number, spending: number }[]}
+ */
+function getMonthlyTotals() {
+  return db
+    .prepare(
+      `
+    SELECT
+      SUBSTR(DTPOSTED, 1, 6) AS month,
+      SUM(CASE WHEN TRNAMT > 0 THEN TRNAMT ELSE 0 END) AS income,
+      SUM(CASE WHEN TRNAMT < 0 THEN ABS(TRNAMT) ELSE 0 END) AS spending
+    FROM Transactions
+    WHERE DTPOSTED IS NOT NULL
+    GROUP BY month
+    ORDER BY month
+  `
+    )
+    .all()
+}
+
+/**
  * @returns {{ ACCTID: string, count: number, total: number }[]}
  */
 function getAccountSummary() {
@@ -610,6 +631,8 @@ export {
   getUncategorized,
   getAccountSummary,
   getMonthsWithData,
+  // Reporting (cont.)
+  getMonthlyTotals,
   // Rules
   getRules,
   createRule,

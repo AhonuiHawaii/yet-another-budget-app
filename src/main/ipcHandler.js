@@ -15,6 +15,7 @@ import {
   fetchUncategorized,
   fetchAccountSummary,
   fetchMonthsWithData,
+  fetchMonthlyTotals,
   fetchRules,
   addRule,
   editRule,
@@ -41,6 +42,7 @@ export const setupIpcHandlers = () => {
   ipcMain.handle('reports:uncategorized', (_, yyyymm) => fetchUncategorized(yyyymm))
   ipcMain.handle('reports:accountSummary', () => fetchAccountSummary())
   ipcMain.handle('reports:monthsWithData', () => fetchMonthsWithData())
+  ipcMain.handle('reports:monthlyTotals', () => fetchMonthlyTotals())
 
   ipcMain.handle('rules:fetch', () => fetchRules())
   ipcMain.handle('rules:create', (_, rule) => addRule(rule))

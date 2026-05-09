@@ -25,13 +25,15 @@
     "@primno/dpapi": "^2.0.1",
     "better-sqlite3": "^12.9.0",
     "better-sqlite3-multiple-ciphers": "^12.9.0",
+    "chart.js": "^4.5.1",
     "dexie": "^4.4.2",
     "electron-updater": "^6.3.9",
     "material-icons": "^1.13.14",
     "material-symbols": "^0.44.6",
     "node-dpapi-prebuilt": "^1.0.4",
     "ofx-js": "^0.2.0",
-    "pinia": "^3.0.4"
+    "pinia": "^3.0.4",
+    "vue-chartjs": "^5.3.3"
   },
   "devDependencies": {
     "@electron-toolkit/eslint-config": "^2.1.0",

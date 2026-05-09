@@ -14,6 +14,7 @@ import {
   getUncategorized,
   getAccountSummary,
   getMonthsWithData,
+  getMonthlyTotals,
   getRules,
   createRule as dbCreateRule,
   updateRule as dbUpdateRule,
@@ -192,6 +193,14 @@ export const fetchAccountSummary = () => {
 export const fetchMonthsWithData = () => {
   try {
     return ok(getMonthsWithData())
+  } catch (e) {
+    return fail(e)
+  }
+}
+
+export const fetchMonthlyTotals = () => {
+  try {
+    return ok(getMonthlyTotals())
   } catch (e) {
     return fail(e)
   }
