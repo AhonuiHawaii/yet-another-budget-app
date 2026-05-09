@@ -124,6 +124,15 @@
                 {{ formatCurrency(cat.actual) }}
               </td>
               <td class="text-center">
+                <v-chip
+                  v-if="budgetsStore.getRolloverAmount(cat.id, settingsStore.selectedMonth) > 0"
+                  size="x-small"
+                  color="info"
+                  variant="tonal"
+                  class="mb-1"
+                >
+                  +{{ formatCurrency(budgetsStore.getRolloverAmount(cat.id, settingsStore.selectedMonth)) }} rollover
+                </v-chip>
                 <div class="d-flex justify-center">
                   <v-text-field
                     :model-value="cat.projected"
@@ -145,6 +154,16 @@
                 {{ formatCurrency(cat.actual - cat.projected) }}
               </td>
               <td class="text-center px-0">
+                <v-btn
+                  :icon="budgetsStore.getBudget(cat.id)?.rolloverEnabled ? 'mdi-reload' : 'mdi-reload'"
+                  :color="budgetsStore.getBudget(cat.id)?.rolloverEnabled ? 'info' : 'default'"
+                  variant="text"
+                  size="small"
+                  density="compact"
+                  class="opacity-70 mr-1"
+                  title="Toggle rollover"
+                  @click="budgetsStore.toggleRolloverEnabled(cat.id, !budgetsStore.getBudget(cat.id)?.rolloverEnabled)"
+                />
                 <v-btn
                   icon="mdi-delete"
                   variant="text"
@@ -252,7 +271,7 @@ const combinedCategories = computed(() => {
 
   return incomeCategories.value.map((cat) => ({
     ...cat,
-    projected: budgetsStore.getBudget(cat.id)?.amount || 0,
+    projected: budgetsStore.getEffectiveBudget(cat.id, settingsStore.selectedMonth),
     actual: actuals.get(cat.name) || 0
   }))
 })

@@ -34,6 +34,18 @@ db.version(3).stores({
   debtDetails: 'id, updatedAt'
 })
 
+db.version(4).stores({
+  incomeCategories: 'id, name, createdAt',
+  savingsCategories: 'id, name, createdAt',
+  variableCategories: 'id, name, createdAt',
+  billsCategories: 'id, name, createdAt',
+  debtCategories: 'id, name, createdAt',
+  budgets: 'id, categoryId, amount, createdAt',
+  goals: 'id, name, targetDate, status, createdAt',
+  debtDetails: 'id, updatedAt',
+  budgetRollovers: 'id, categoryId, month, createdAt'
+})
+
 const DEFAULT_DETAIL = {
   currentBalance: 0,
   startingBalance: 0,

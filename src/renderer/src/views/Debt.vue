@@ -91,6 +91,107 @@
       </v-col>
     </v-row>
 
+    <!-- Payoff Projection Panel -->
+    <v-card v-if="projectionRows.length > 0" rounded="xl" elevation="0" border class="mb-6">
+      <v-card-title
+        class="pa-4 d-flex align-center justify-space-between cursor-pointer"
+        @click="showProjections = !showProjections"
+      >
+        <div class="d-flex align-center gap-2">
+          <v-icon color="primary" size="20">mdi-calculator-variant-outline</v-icon>
+          <span class="text-h6 font-weight-bold">Payoff Projection</span>
+        </div>
+        <v-icon>{{ showProjections ? 'mdi-chevron-up' : 'mdi-chevron-down' }}</v-icon>
+      </v-card-title>
+
+      <v-expand-transition>
+        <div v-if="showProjections">
+          <v-divider />
+          <v-card-text class="pa-5">
+            <v-row dense class="mb-4">
+              <!-- Per-debt payoff table -->
+              <v-col cols="12" lg="7">
+                <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-3">
+                  Payoff timeline (current payment)
+                </div>
+                <v-table density="compact">
+                  <thead>
+                    <tr>
+                      <th class="text-left text-caption">Debt</th>
+                      <th class="text-right text-caption">Balance</th>
+                      <th class="text-right text-caption">Payment</th>
+                      <th class="text-right text-caption">Payoff</th>
+                      <th class="text-right text-caption">Interest</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="row in projectionRows" :key="row.id">
+                      <td class="text-body-2">{{ row.name }}</td>
+                      <td class="text-right text-body-2">{{ formatCurrency(row.currentBalance) }}</td>
+                      <td class="text-right text-body-2">{{ formatCurrency(row.payment) }}</td>
+                      <td class="text-right text-body-2">
+                        <span v-if="row.payoff" class="text-success font-weight-medium">{{ row.payoffLabel }}</span>
+                        <span v-else class="text-error text-caption">Payment too low</span>
+                      </td>
+                      <td class="text-right text-body-2 text-warning">
+                        {{ row.payoff ? formatCurrency(row.payoff.interest) : '—' }}
+                      </td>
+                    </tr>
+                  </tbody>
+                </v-table>
+              </v-col>
+
+              <!-- Avalanche vs Snowball -->
+              <v-col cols="12" lg="5">
+                <v-row dense>
+                  <v-col cols="6">
+                    <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-2">
+                      Avalanche order
+                      <v-tooltip text="Highest APR first — minimizes total interest">
+                        <template #activator="{ props }">
+                          <v-icon v-bind="props" size="14" class="ml-1">mdi-information-outline</v-icon>
+                        </template>
+                      </v-tooltip>
+                    </div>
+                    <ol class="pl-4">
+                      <li
+                        v-for="(row, i) in avalancheOrder"
+                        :key="row.id"
+                        class="text-body-2 mb-1"
+                      >
+                        {{ row.name }}
+                        <span class="text-caption text-medium-emphasis ml-1">{{ formatPercent(row.interestRate) }}</span>
+                      </li>
+                    </ol>
+                  </v-col>
+                  <v-col cols="6">
+                    <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-2">
+                      Snowball order
+                      <v-tooltip text="Lowest balance first — fastest psychological wins">
+                        <template #activator="{ props }">
+                          <v-icon v-bind="props" size="14" class="ml-1">mdi-information-outline</v-icon>
+                        </template>
+                      </v-tooltip>
+                    </div>
+                    <ol class="pl-4">
+                      <li
+                        v-for="row in snowballOrder"
+                        :key="row.id"
+                        class="text-body-2 mb-1"
+                      >
+                        {{ row.name }}
+                        <span class="text-caption text-medium-emphasis ml-1">{{ formatCurrency(row.currentBalance) }}</span>
+                      </li>
+                    </ol>
+                  </v-col>
+                </v-row>
+              </v-col>
+            </v-row>
+          </v-card-text>
+        </div>
+      </v-expand-transition>
+    </v-card>
+
     <v-card class="bg-transparent" rounded="0" elevation="0">
       <div>
         <v-table density="comfortable" class="bg-transparent text-white" theme="dark">
@@ -301,7 +402,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useUserAccountsStore } from '../stores/userAccounts'
 import { useUserBudgetsStore } from '../stores/userBudgets'
 import { useUserDebtsStore } from '../stores/userDebts'
@@ -428,6 +529,54 @@ const paymentCoverage = computed(() => {
   return Math.min(Math.round((totalActual.value / totalProjected.value) * 100), 100)
 })
 const highestInterestDebt = computed(() => debtRows.value[0] || null)
+
+// ── Payoff Projections ────────────────────────────────────────────────────────
+
+function calculatePayoff(balance, apr, monthlyPayment) {
+  if (!monthlyPayment || !balance) return null
+  const monthlyRate = apr / 100 / 12
+  if (monthlyRate === 0) {
+    return { months: Math.ceil(balance / monthlyPayment), interest: 0 }
+  }
+  // Payment must exceed interest accrual or debt never clears
+  if (monthlyPayment <= balance * monthlyRate) return null
+  const months = Math.ceil(
+    -Math.log(1 - (monthlyRate * balance) / monthlyPayment) / Math.log(1 + monthlyRate)
+  )
+  const interest = monthlyPayment * months - balance
+  return { months, interest: Math.max(interest, 0) }
+}
+
+const projectionRows = computed(() =>
+  debtRows.value
+    .filter((d) => d.currentBalance > 0)
+    .map((d) => {
+      const payment = d.projected || d.minimumPayment || 0
+      const payoff = calculatePayoff(d.currentBalance, d.interestRate, payment)
+      if (!payoff) return { id: d.id, name: d.name, currentBalance: d.currentBalance, interestRate: d.interestRate, payment, payoff: null }
+      const payoffDate = new Date()
+      payoffDate.setMonth(payoffDate.getMonth() + payoff.months)
+      return {
+        id: d.id,
+        name: d.name,
+        currentBalance: d.currentBalance,
+        interestRate: d.interestRate,
+        payment,
+        payoff,
+        payoffLabel: `${payoff.months} mo · ${payoffDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}`
+      }
+    })
+)
+
+const avalancheOrder = computed(() =>
+  [...projectionRows.value].sort((a, b) => b.interestRate - a.interestRate)
+)
+
+const snowballOrder = computed(() =>
+  [...projectionRows.value].sort((a, b) => a.currentBalance - b.currentBalance)
+)
+
+const showProjections = ref(false)
 
 function formatCurrency(val) {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(val || 0)
