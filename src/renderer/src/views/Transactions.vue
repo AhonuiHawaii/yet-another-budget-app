@@ -191,34 +191,6 @@
       </v-col>
     </v-row>
 
-    <!-- Summary chips -->
-    <v-row class="mb-4" no-gutters>
-      <v-col cols="auto" class="mr-3 mb-2">
-        <v-chip color="primary" variant="tonal" prepend-icon="mdi-swap-horizontal" size="small">
-          {{ filteredTransactions.length }} transactions
-        </v-chip>
-      </v-col>
-      <v-col cols="auto" class="mr-3 mb-2">
-        <v-chip
-          color="success"
-          variant="tonal"
-          prepend-icon="mdi-arrow-down-circle-outline"
-          size="small"
-        >
-          +{{ formatCurrency(totalCredit) }}
-        </v-chip>
-      </v-col>
-      <v-col cols="auto" class="mb-2">
-        <v-chip
-          color="error"
-          variant="tonal"
-          prepend-icon="mdi-arrow-up-circle-outline"
-          size="small"
-        >
-          −{{ formatCurrency(totalDebit) }}
-        </v-chip>
-      </v-col>
-    </v-row>
 
     <!-- Bulk Action Toolbar -->
     <v-slide-y-transition>

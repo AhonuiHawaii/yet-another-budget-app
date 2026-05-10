@@ -81,18 +81,7 @@
     <!-- Accounts List -->
     <div>
       <div class="d-flex align-center justify-space-between mb-4">
-        <h2 class="text-h6 font-weight-semibold">
-          Linked Accounts
-          <v-chip
-            v-if="store.accountCount > 0"
-            size="x-small"
-            color="primary"
-            variant="tonal"
-            class="ml-2"
-          >
-            {{ store.accountCount }}
-          </v-chip>
-        </h2>
+        <h2 class="text-h6 font-weight-semibold">Linked Accounts</h2>
       </div>
 
       <!-- Empty State -->
