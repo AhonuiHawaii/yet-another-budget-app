@@ -116,10 +116,8 @@
             </thead>
             <tbody>
               <tr v-for="group in groupSummary" :key="group.type">
-                <td class="pl-5">
-                  <v-chip :color="group.color" variant="tonal" size="x-small" rounded="lg">{{
-                    group.label
-                  }}</v-chip>
+                <td class="pl-5 text-body-2 font-weight-medium" :class="`text-${group.color}`">
+                  {{ group.label }}
                 </td>
                 <td class="text-center text-body-2">{{ formatCurrency(group.budget) }}</td>
                 <td class="text-center text-body-2 font-weight-medium">
@@ -160,9 +158,7 @@
                   >Budgeted income minus outflow</v-list-item-subtitle
                 >
                 <template #append>
-                  <v-chip variant="tonal" size="small" class="font-weight-bold">{{
-                    formatCurrency(plannedNet)
-                  }}</v-chip>
+                  <span class="text-body-2 font-weight-bold">{{ formatCurrency(plannedNet) }}</span>
                 </template>
               </v-list-item>
             </v-col>
@@ -180,14 +176,10 @@
                   }}
                 </v-list-item-subtitle>
                 <template #append>
-                  <v-chip
-                    :color="transactionsStore.uncategorized.length ? 'warning' : 'success'"
-                    variant="tonal"
-                    size="small"
-                    class="font-weight-bold"
-                  >
-                    {{ transactionsStore.uncategorized.length }}
-                  </v-chip>
+                  <span
+                    class="text-body-2 font-weight-bold"
+                    :class="transactionsStore.uncategorized.length ? 'text-warning' : 'text-success'"
+                  >{{ transactionsStore.uncategorized.length }}</span>
                 </template>
               </v-list-item>
             </v-col>

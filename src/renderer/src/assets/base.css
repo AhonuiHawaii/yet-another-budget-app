@@ -1,22 +1,22 @@
 :root {
-  /* --- Surfaces (bridged from Vuetify theme) --- */
+  /* --- Surfaces --- */
   --color-background: rgb(var(--v-theme-background));
   --color-surface: rgb(var(--v-theme-surface));
   --color-surface-bright: rgb(var(--v-theme-surface-bright));
   --color-surface-light: rgb(var(--v-theme-surface-light));
   --color-surface-variant: rgb(var(--v-theme-surface-variant));
-  --color-surface-elevated: #252530;
 
-  /* --- Dynamic theme colors (updated by Vuetify per active theme) --- */
+  /* --- Brand colors --- */
   --color-primary: rgb(var(--v-theme-primary));
   --color-primary-darken: rgb(var(--v-theme-primary-darken-1));
   --color-secondary: rgb(var(--v-theme-secondary));
+  --color-secondary-darken: rgb(var(--v-theme-secondary-darken-1));
   --color-error: rgb(var(--v-theme-error));
   --color-info: rgb(var(--v-theme-info));
   --color-success: rgb(var(--v-theme-success));
   --color-warning: rgb(var(--v-theme-warning));
 
-  /* --- On-colors (contrast text from Vuetify theme) --- */
+  /* --- On-colors --- */
   --color-on-background: rgb(var(--v-theme-on-background));
   --color-on-surface: rgb(var(--v-theme-on-surface));
   --color-on-surface-variant: rgb(var(--v-theme-on-surface-variant));
@@ -27,20 +27,20 @@
   --color-on-success: rgb(var(--v-theme-on-success));
   --color-on-warning: rgb(var(--v-theme-on-warning));
 
-  /* --- Text --- */
-  --color-text-primary: rgba(255, 255, 255, 0.87);
-  --color-text-secondary: rgba(255, 255, 255, 0.6);
-  --color-text-disabled: rgba(255, 255, 255, 0.38);
-  --color-text-hint: rgba(255, 255, 255, 0.24);
+  /* --- Text — derived from on-surface, flips with theme --- */
+  --color-text-primary: color-mix(in srgb, rgb(var(--v-theme-on-surface)) 87%, transparent);
+  --color-text-secondary: color-mix(in srgb, rgb(var(--v-theme-on-surface)) 60%, transparent);
+  --color-text-disabled: color-mix(in srgb, rgb(var(--v-theme-on-surface)) 38%, transparent);
+  --color-text-hint: color-mix(in srgb, rgb(var(--v-theme-on-surface)) 24%, transparent);
 
-  /* --- Borders & dividers --- */
-  --color-border: rgba(255, 255, 255, 0.12);
-  --color-border-strong: rgba(255, 255, 255, 0.24);
+  /* --- Borders & dividers (prefer elevation over borders) --- */
+  --color-border: color-mix(in srgb, rgb(var(--v-theme-on-surface)) 12%, transparent);
+  --color-border-strong: color-mix(in srgb, rgb(var(--v-theme-on-surface)) 24%, transparent);
 
   /* --- Overlays --- */
-  --color-overlay-hover: rgba(255, 255, 255, 0.04);
-  --color-overlay-focus: rgba(255, 255, 255, 0.08);
-  --color-overlay-pressed: rgba(255, 255, 255, 0.12);
+  --color-overlay-hover: color-mix(in srgb, rgb(var(--v-theme-on-surface)) 4%, transparent);
+  --color-overlay-focus: color-mix(in srgb, rgb(var(--v-theme-on-surface)) 8%, transparent);
+  --color-overlay-pressed: color-mix(in srgb, rgb(var(--v-theme-on-surface)) 12%, transparent);
 
   /* --- Typography --- */
   --font-family:
@@ -57,7 +57,7 @@
   --line-height-normal: 1.6;
   --line-height-loose: 2;
 
-  /* --- Border radius: generic scale (fallbacks) --- */
+  /* --- Border radius: generic scale --- */
   --radius-sm: 4px;
   --radius-md: 8px;
   --radius-lg: 12px;
@@ -65,21 +65,21 @@
   --radius-full: 9999px;
 
   /* --- Border radius: per-component (bridged from Vuetify theme variables) --- */
-  --radius-btn: var(--v-radius-btn, var(--radius-md));
-  --radius-btn-icon: var(--v-radius-btn-icon, var(--radius-md));
-  --radius-btn-fab: var(--v-radius-btn-fab, var(--radius-xl));
-  --radius-card: var(--v-radius-card, var(--radius-lg));
-  --radius-chip: var(--v-radius-chip, var(--radius-md));
-  --radius-dialog: var(--v-radius-dialog, 28px);
+  --radius-btn: var(--v-radius-btn, var(--radius-sm));
+  --radius-btn-icon: var(--v-radius-btn-icon, var(--radius-sm));
+  --radius-btn-fab: var(--v-radius-btn-fab, var(--radius-full));
+  --radius-card: var(--v-radius-card, var(--radius-md));
+  --radius-chip: var(--v-radius-chip, 6px);
+  --radius-dialog: var(--v-radius-dialog, var(--radius-lg));
   --radius-input: var(--v-radius-input, var(--radius-sm));
   --radius-menu: var(--v-radius-menu, var(--radius-sm));
   --radius-snackbar: var(--v-radius-snackbar, var(--radius-sm));
   --radius-tooltip: var(--v-radius-tooltip, var(--radius-sm));
 
-  /* --- Shadows (dark-optimised) --- */
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.5);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.6);
-  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.7);
+  /* --- Shadows --- */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.15);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.3);
 
   /* --- Transitions --- */
   --transition-fast: 150ms ease;
@@ -88,18 +88,13 @@
 }
 
 body {
-  /* Colors */
   color: var(--color-text-primary);
   background-color: var(--color-background);
-
-  /* Typography */
   font-family: var(--font-family);
   font-size: var(--font-size-base);
   font-weight: 400;
   line-height: var(--line-height-normal);
   letter-spacing: 0.00938em;
-
-  /* Rendering */
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
