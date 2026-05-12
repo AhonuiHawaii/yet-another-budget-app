@@ -1,5 +1,5 @@
 <script setup>
-import { shallowRef, ref, onMounted, onErrorCaptured } from 'vue'
+import { computed, shallowRef, ref, onMounted, onErrorCaptured } from 'vue'
 import { useUserTransactionsStore } from './stores/userTransactions'
 import { useUserSettingsStore } from './stores/userSettings'
 import Drawer from './components/Drawer.vue'
@@ -33,7 +33,8 @@ const views = {
   Rules
 }
 
-const currentComponent = shallowRef(views.Dashboard)
+const currentView = ref('Dashboard')
+const currentComponent = computed(() => views[currentView.value] ?? views.Dashboard)
 
 const transactionsStore = useUserTransactionsStore()
 const settingsStore = useUserSettingsStore()
@@ -50,7 +51,7 @@ const changeView = (viewName) => {
     console.warn(`[App] Unknown view: "${viewName}"`)
     return
   }
-  currentComponent.value = views[viewName]
+  currentView.value = viewName
 }
 
 // 2.4: Top-level error boundary so a crashing child view shows a recovery UI
@@ -63,7 +64,7 @@ onErrorCaptured((err) => {
 
 <template>
   <v-app>
-    <Drawer @change-view="changeView" />
+    <Drawer :current-view="currentView" @change-view="changeView" />
     <v-main>
       <v-alert v-if="appError" type="error" class="ma-4" closable @click:close="appError = null">
         {{ appError }}

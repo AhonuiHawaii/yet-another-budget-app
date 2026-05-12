@@ -33,6 +33,16 @@ const fail = (error) => ({ success: false, error: error?.message ?? String(error
 
 const maskAcctid = (id) => String(id || '').slice(-4)
 
+// Accepts either the real ACCTID or a masked (last-4) value and returns the real stored ACCTID.
+// Needed because the renderer only holds the masked value.
+function resolveAcctid(maskedOrReal) {
+  const all = getAccounts()
+  return (
+    all.find((a) => a.ACCTID === maskedOrReal || maskAcctid(a.ACCTID) === maskedOrReal)?.ACCTID ??
+    null
+  )
+}
+
 // ─── OFX Import ─────────────────────────────────────────────────────────────
 
 export const importAccount = async (ofxData) => {
@@ -128,7 +138,9 @@ export const fetchAccounts = () => {
 
 export const fetchAccount = (acctid) => {
   try {
-    const account = getAccount(acctid)
+    const realAcctid = resolveAcctid(acctid)
+    if (!realAcctid) return fail(new Error(`No account found with ACCTID: ${acctid}`))
+    const account = getAccount(realAcctid)
     if (!account) return fail(new Error(`No account found with ACCTID: ${acctid}`))
     return ok({ ...account, ACCTID: maskAcctid(account.ACCTID) })
   } catch (e) {
@@ -138,7 +150,9 @@ export const fetchAccount = (acctid) => {
 
 export const editAccount = (acctid, updates) => {
   try {
-    const changes = updateAccount(acctid, updates)
+    const realAcctid = resolveAcctid(acctid)
+    if (!realAcctid) return fail(new Error(`No account found with ACCTID: ${acctid}`))
+    const changes = updateAccount(realAcctid, updates)
     if (!changes) return fail(new Error(`No account found with ACCTID: ${acctid}`))
     return ok({ acctid, changes })
   } catch (e) {
@@ -148,7 +162,9 @@ export const editAccount = (acctid, updates) => {
 
 export const removeAccount = (acctid) => {
   try {
-    const changes = deleteAccount(acctid)
+    const realAcctid = resolveAcctid(acctid)
+    if (!realAcctid) return fail(new Error(`No account found with ACCTID: ${acctid}`))
+    const changes = deleteAccount(realAcctid)
     if (!changes) return fail(new Error(`No account found with ACCTID: ${acctid}`))
     return ok({ acctid, changes })
   } catch (e) {

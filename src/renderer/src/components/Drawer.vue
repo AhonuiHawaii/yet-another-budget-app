@@ -17,6 +17,7 @@ const navItems = [
   { title: 'Auto-Rules', value: 'Rules', icon: 'mdi-tag-multiple-outline' }
 ]
 
+defineProps({ currentView: { type: String, default: 'Dashboard' } })
 const emit = defineEmits(['change-view'])
 
 const settingsStore = useUserSettingsStore()
@@ -111,6 +112,7 @@ watch(monthMenu, (isOpen) => {
         link
         :title="item.title"
         :prepend-icon="item.icon"
+        :active="item.value === currentView"
         @click="emit('change-view', item.value)"
       />
     </v-list>

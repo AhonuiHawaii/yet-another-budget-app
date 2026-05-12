@@ -191,7 +191,6 @@
       </v-col>
     </v-row>
 
-
     <!-- Bulk Action Toolbar -->
     <v-slide-y-transition>
       <div v-if="selectedRows.length > 0" class="mb-3">
