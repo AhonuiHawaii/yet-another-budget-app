@@ -7,49 +7,45 @@
     <!-- Stat Cards -->
     <v-row class="mb-3">
       <v-col cols="12" sm="6" lg="3">
-        <v-card rounded elevation="3" class="h-100">
+        <v-card rounded elevation="2" class="h-100">
           <v-card-text class="pa-4">
-            <div class="d-flex align-center justify-space-between mb-2">
+            <div class="d-flex align-start justify-space-between mb-3">
               <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis"
                 >Income</span
               >
-              <v-icon color="success" size="18" opacity="70">mdi-arrow-down-circle-outline</v-icon>
+              <v-icon color="success" size="18" :opacity="0.4"
+                >mdi-arrow-down-circle-outline</v-icon
+              >
             </div>
-            <div class="text-h5 font-weight-black text-success mb-1">
+            <div class="text-h5 font-weight-black text-success">
               {{ formatCurrency(totalIncome) }}
             </div>
-            <div class="text-caption text-medium-emphasis">
-              {{ incomeTransactions.length }} deposits
-            </div>
           </v-card-text>
         </v-card>
       </v-col>
       <v-col cols="12" sm="6" lg="3">
-        <v-card rounded elevation="3" class="h-100">
+        <v-card rounded elevation="2" class="h-100">
           <v-card-text class="pa-4">
-            <div class="d-flex align-center justify-space-between mb-2">
+            <div class="d-flex align-start justify-space-between mb-3">
               <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis"
                 >Spending</span
-              >``
-              <v-icon color="error" size="18" opacity="70">mdi-arrow-up-circle-outline</v-icon>
+              >
+              <v-icon color="error" size="18" :opacity="0.4">mdi-arrow-up-circle-outline</v-icon>
             </div>
-            <div class="text-h5 font-weight-black text-error mb-1">
+            <div class="text-h5 font-weight-black text-error">
               {{ formatCurrency(totalSpending) }}
-            </div>
-            <div class="text-caption text-medium-emphasis">
-              {{ expenseTransactions.length }} payments
             </div>
           </v-card-text>
         </v-card>
       </v-col>
       <v-col cols="12" sm="6" lg="3">
-        <v-card rounded elevation="3" class="h-100">
+        <v-card rounded elevation="2" class="h-100">
           <v-card-text class="pa-4">
-            <div class="d-flex align-center justify-space-between mb-2">
+            <div class="d-flex align-start justify-space-between mb-3">
               <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis"
                 >Net</span
               >
-              <v-icon :color="netCashFlow >= 0 ? 'success' : 'error'" size="18" opacity="70"
+              <v-icon :color="netCashFlow >= 0 ? 'success' : 'error'" size="18" :opacity="0.4"
                 >mdi-trending-up</v-icon
               >
             </div>
@@ -59,18 +55,17 @@
             >
               {{ formatCurrency(netCashFlow) }}
             </div>
-            <div class="text-caption text-medium-emphasis">Income minus spending</div>
           </v-card-text>
         </v-card>
       </v-col>
       <v-col cols="12" sm="6" lg="3">
-        <v-card rounded elevation="3" class="h-100">
+        <v-card rounded elevation="2" class="h-100">
           <v-card-text class="pa-4">
-            <div class="d-flex align-center justify-space-between mb-2">
+            <div class="d-flex align-start justify-space-between mb-3">
               <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis"
                 >Remaining</span
               >
-              <v-icon :color="budgetVariance >= 0 ? 'success' : 'warning'" size="18" opacity="70"
+              <v-icon :color="budgetVariance >= 0 ? 'success' : 'warning'" size="18" :opacity="0.4"
                 >mdi-wallet-outline</v-icon
               >
             </div>
@@ -80,38 +75,31 @@
             >
               {{ formatCurrency(budgetVariance) }}
             </div>
-            <div class="text-caption text-medium-emphasis">
-              {{ attentionCount }} items need review
-            </div>
           </v-card-text>
         </v-card>
       </v-col>
     </v-row>
 
     <v-row>
-      <!-- Monthly Summary -->
-      <v-col cols="12" lg="7">
-        <v-card rounded elevation="3" class="mb-3">
+      <v-col cols="12" lg="9">
+        <v-card rounded elevation="2" class="mb-3">
           <v-card-item class="pa-4 pb-0">
             <template #prepend>
-              <v-icon color="primary" size="20">mdi-view-dashboard-outline</v-icon>
+              <v-icon color="primary" size="20" :opacity="0.7">mdi-view-dashboard-outline</v-icon>
             </template>
             <v-card-title class="text-h6 font-weight-bold pl-2">Monthly Summary</v-card-title>
           </v-card-item>
 
-          <v-table density="compact" class="mt-1">
+          <v-table density="compact" class="mt-2">
             <thead>
               <tr>
-                <th class="text-start text-uppercase text-caption font-weight-bold pl-5">Group</th>
-                <th class="text-center text-uppercase text-caption font-weight-bold">Budget</th>
-                <th class="text-center text-uppercase text-caption font-weight-bold">Actual</th>
-                <th
-                  class="text-center text-uppercase text-caption font-weight-bold"
-                  style="min-width: 140px"
-                >
+                <th class="text-start text-caption text-medium-emphasis pl-5">Group</th>
+                <th class="text-center text-caption text-medium-emphasis">Budget</th>
+                <th class="text-center text-caption text-medium-emphasis">Actual</th>
+                <th class="text-center text-caption text-medium-emphasis" style="min-width: 140px">
                   Progress
                 </th>
-                <th class="text-center text-uppercase text-caption font-weight-bold pr-5">Left</th>
+                <th class="text-center text-caption text-medium-emphasis pr-5">Left</th>
               </tr>
             </thead>
             <tbody>
@@ -128,7 +116,7 @@
                     <v-progress-linear
                       :model-value="group.progress"
                       :color="group.progressColor"
-                      height="6"
+                      height="4"
                       rounded
                     />
                     <span class="text-caption text-medium-emphasis" style="min-width: 32px">{{
@@ -146,40 +134,30 @@
             </tbody>
           </v-table>
 
-          <v-divider class="mt-1" />
-
-          <v-row no-gutters>
+          <v-row no-gutters class="mt-1">
             <v-col cols="6">
-              <v-list-item class="py-2 px-5">
-                <v-list-item-title class="text-body-2 font-weight-medium mb-1"
+              <v-list-item class="py-3 px-5">
+                <v-list-item-title class="text-body-2 font-weight-medium"
                   >Planned Net</v-list-item-title
-                >
-                <v-list-item-subtitle class="text-caption"
-                  >Budgeted income minus outflow</v-list-item-subtitle
                 >
                 <template #append>
                   <span class="text-body-2 font-weight-bold">{{ formatCurrency(plannedNet) }}</span>
                 </template>
               </v-list-item>
             </v-col>
-            <v-divider vertical />
             <v-col cols="6">
-              <v-list-item class="py-2 px-5">
-                <v-list-item-title class="text-body-2 font-weight-medium mb-1"
+              <v-list-item class="py-3 px-5">
+                <v-list-item-title class="text-body-2 font-weight-medium"
                   >Uncategorized</v-list-item-title
                 >
-                <v-list-item-subtitle class="text-caption">
-                  {{
-                    transactionsStore.uncategorized.length
-                      ? 'Needs categorization'
-                      : 'All transactions categorized'
-                  }}
-                </v-list-item-subtitle>
                 <template #append>
                   <span
                     class="text-body-2 font-weight-bold"
-                    :class="transactionsStore.uncategorized.length ? 'text-warning' : 'text-success'"
-                  >{{ transactionsStore.uncategorized.length }}</span>
+                    :class="
+                      transactionsStore.uncategorized.length ? 'text-warning' : 'text-success'
+                    "
+                    >{{ transactionsStore.uncategorized.length }}</span
+                  >
                 </template>
               </v-list-item>
             </v-col>
@@ -187,10 +165,10 @@
         </v-card>
 
         <!-- Recent Transactions -->
-        <v-card rounded elevation="3">
+        <v-card rounded elevation="2">
           <v-card-item class="pa-4 pb-0">
             <template #prepend>
-              <v-icon color="primary" size="20">mdi-receipt-text-outline</v-icon>
+              <v-icon color="primary" size="20" :opacity="0.7">mdi-receipt-text-outline</v-icon>
             </template>
             <v-card-title class="text-h6 font-weight-bold pl-2">Recent Transactions</v-card-title>
           </v-card-item>
@@ -198,13 +176,12 @@
           <div class="py-1">
             <div
               v-if="recentTransactions.length === 0"
-              class="py-2 text-center text-medium-emphasis text-body-2"
+              class="py-4 text-center text-medium-emphasis text-body-2"
             >
               No transactions this month.
             </div>
-            <template v-for="(transaction, i) in recentTransactions" :key="transaction.FITID">
-              <v-divider v-if="i > 0" />
-              <div class="d-flex align-center justify-space-between px-5 py-2">
+            <template v-for="transaction in recentTransactions" :key="transaction.FITID">
+              <div class="d-flex align-center justify-space-between px-5 py-3">
                 <div>
                   <div class="text-body-2 font-weight-medium">
                     {{ transaction.NAME || transaction.MEMO || transaction.FITID }}
@@ -226,12 +203,12 @@
       </v-col>
 
       <!-- Right column -->
-      <v-col cols="12" lg="5">
+      <v-col cols="12" lg="3">
         <!-- Top Spending -->
-        <v-card rounded elevation="3" class="mb-3">
+        <v-card rounded elevation="2" class="mb-3">
           <v-card-item class="pa-4 pb-0">
             <template #prepend>
-              <v-icon color="primary" size="20">mdi-chart-donut</v-icon>
+              <v-icon color="primary" size="20" :opacity="0.7">mdi-chart-donut</v-icon>
             </template>
             <v-card-title class="text-h6 font-weight-bold pl-2">Top Spending</v-card-title>
           </v-card-item>
@@ -239,13 +216,12 @@
           <div class="py-1">
             <div
               v-if="topSpendingCategories.length === 0"
-              class="py-2 text-center text-medium-emphasis text-body-2"
+              class="py-4 text-center text-medium-emphasis text-body-2"
             >
               No categorized spending yet.
             </div>
             <template v-for="(category, i) in topSpendingCategories" :key="category.name">
-              <v-divider v-if="i > 0" />
-              <div class="d-flex align-center px-5 py-2">
+              <div class="d-flex align-center px-5 py-3">
                 <v-avatar
                   size="26"
                   :color="['error', 'warning', 'info', 'secondary', 'primary'][i % 5]"
@@ -255,19 +231,17 @@
                   {{ i + 1 }}
                 </v-avatar>
                 <span class="text-body-2 font-weight-medium flex-grow-1">{{ category.name }}</span>
-                <span class="text-body-2 font-weight-bold">{{
-                  formatCurrency(category.total)
-                }}</span>
+                <span class="text-body-2 font-weight-bold">{{ formatCurrency(category.total) }}</span>
               </div>
             </template>
           </div>
         </v-card>
 
         <!-- Goals -->
-        <v-card rounded elevation="3">
+        <v-card rounded elevation="2">
           <v-card-item class="pa-4 pb-0">
             <template #prepend>
-              <v-icon color="primary" size="20">mdi-flag-outline</v-icon>
+              <v-icon color="primary" size="20" :opacity="0.7">mdi-flag-outline</v-icon>
             </template>
             <v-card-title class="text-h6 font-weight-bold pl-2">Goals</v-card-title>
           </v-card-item>
@@ -275,19 +249,18 @@
           <div class="py-1">
             <div
               v-if="goalRows.length === 0"
-              class="py-2 text-center text-medium-emphasis text-body-2"
+              class="py-4 text-center text-medium-emphasis text-body-2"
             >
               No goals configured.
             </div>
-            <template v-for="(goal, i) in goalRows" :key="goal.id">
-              <v-divider v-if="i > 0" />
-              <div class="d-flex align-center px-5 py-2">
+            <template v-for="goal in goalRows" :key="goal.id">
+              <div class="d-flex align-center px-5 py-3">
                 <div class="flex-grow-1">
                   <div class="text-body-2 font-weight-medium mb-1">{{ goal.name }}</div>
                   <v-progress-linear
                     :model-value="goal.progress"
                     :color="goal.status === 'completed' ? 'success' : 'primary'"
-                    height="6"
+                    height="4"
                     rounded
                   />
                 </div>

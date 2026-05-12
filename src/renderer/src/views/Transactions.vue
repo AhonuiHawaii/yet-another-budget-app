@@ -1,34 +1,8 @@
 <template>
-  <v-container fluid class="pa-6">
-    <!-- Page Header -->
-    <div class="d-flex align-center justify-space-between flex-wrap gap-3 mb-6">
-      <div class="d-flex align-center gap-3">
-        <v-btn
-          color="primary"
-          rounded="lg"
-          prepend-icon="mdi-file-import-outline"
-          @click="importDialog = true"
-        >
-          Import Transactions
-        </v-btn>
-
-        <v-slide-x-transition>
-          <v-chip
-            v-if="lastImported"
-            color="success"
-            variant="tonal"
-            prepend-icon="mdi-check-circle-outline"
-            size="small"
-          >
-            {{ lastImported }}
-          </v-chip>
-        </v-slide-x-transition>
-      </div>
-    </div>
-
+  <v-container fluid class="pa-3">
     <!-- Import Transactions Dialog -->
     <v-dialog v-model="importDialog" max-width="500">
-      <v-card rounded="xl">
+      <v-card rounded>
         <v-card-title class="pa-6 pb-4">
           <div class="d-flex align-center justify-space-between">
             <div class="d-flex align-center gap-3">
@@ -60,7 +34,6 @@
             variant="solo"
             inset
             density="comfortable"
-            rounded="lg"
             hide-details="auto"
             :error-messages="store.error ? [store.error] : []"
             @update:model-value="store.clearError()"
@@ -73,7 +46,6 @@
           <v-btn
             color="primary"
             variant="flat"
-            rounded="lg"
             :loading="store.loading"
             :disabled="!selectedFile"
             prepend-icon="mdi-import"
@@ -85,18 +57,15 @@
       </v-card>
     </v-dialog>
 
-    <!-- Top Toolbar: period picker + search + account filter -->
-    <v-row class="mb-4" align="center" no-gutters>
-      <!-- Integrated period picker -->
-      <v-col cols="12" class="mb-3">
-        <div class="d-flex align-center gap-3 flex-wrap">
-          <!-- Single menu button — granularity switcher + date picker inside -->
+    <!-- Toolbar -->
+    <v-card rounded elevation="2" class="mb-3">
+      <v-card-text class="pa-3">
+        <div class="d-flex align-center gap-2 flex-wrap mb-2">
           <v-menu v-model="pickerMenu" :close-on-content-click="false" location="bottom start">
             <template #activator="{ props }">
               <v-btn
                 v-bind="props"
                 variant="tonal"
-                rounded="lg"
                 color="primary"
                 prepend-icon="mdi-calendar-month-outline"
                 size="small"
@@ -106,21 +75,18 @@
                 <v-icon end size="16">mdi-chevron-down</v-icon>
               </v-btn>
             </template>
-
-            <v-card rounded="xl" elevation="6" min-width="340">
+            <v-card rounded elevation="6" min-width="340">
               <v-tabs
                 v-model="granularity"
                 density="compact"
                 color="primary"
                 align-tabs="center"
-                class="-b"
                 @update:model-value="onGranularityTab"
               >
                 <v-tab v-for="g in granularities" :key="g.value" :value="g.value">
                   {{ g.label }}
                 </v-tab>
               </v-tabs>
-
               <v-date-picker
                 v-model="pickerDate"
                 :view-mode="pickerViewMode"
@@ -133,7 +99,6 @@
             </v-card>
           </v-menu>
 
-          <!-- No data state -->
           <v-chip
             v-if="store.monthsWithData.length === 0 && !store.loading"
             variant="outlined"
@@ -141,60 +106,75 @@
           >
             No data yet
           </v-chip>
+
+          <v-spacer />
+
+          <v-slide-x-transition>
+            <v-chip
+              v-if="lastImported"
+              color="success"
+              variant="tonal"
+              prepend-icon="mdi-check-circle-outline"
+              size="small"
+            >
+              {{ lastImported }}
+            </v-chip>
+          </v-slide-x-transition>
+
+          <v-btn
+            color="primary"
+            variant="flat"
+            size="small"
+            prepend-icon="mdi-file-import-outline"
+            @click="importDialog = true"
+          >
+            Import
+          </v-btn>
         </div>
-      </v-col>
 
-      <!-- Search + Account filter -->
-      <v-col cols="12" sm="5" class="pr-sm-2 mb-2 mb-sm-0">
-        <v-text-field
-          v-model="search"
-          prepend-inner-icon="mdi-magnify"
-          variant="solo"
-          inset
-          density="comfortable"
-          rounded="lg"
-          hide-details
-          clearable
-        />
-      </v-col>
-
-      <v-col cols="12" sm="4" class="pr-sm-2 mb-2 mb-sm-0">
-        <v-select
-          v-model="filterAccount"
-          :items="accountOptions"
-          item-title="label"
-          item-value="value"
-          label="Account"
-          variant="solo"
-          inset
-          density="comfortable"
-          rounded="lg"
-          hide-details
-          clearable
-        />
-      </v-col>
-
-      <v-col cols="12" sm="3">
-        <v-select
-          v-model="filterType"
-          :items="typeOptions"
-          item-title="label"
-          item-value="value"
-          label="Type"
-          variant="solo"
-          inset
-          density="comfortable"
-          rounded="lg"
-          hide-details
-          clearable
-        />
-      </v-col>
-    </v-row>
+        <div class="d-flex gap-2">
+          <v-text-field
+            v-model="search"
+            prepend-inner-icon="mdi-magnify"
+            placeholder="Search"
+            variant="solo"
+            density="compact"
+            hide-details
+            clearable
+            style="flex: 2"
+          />
+          <v-select
+            v-model="filterAccount"
+            :items="accountOptions"
+            item-title="label"
+            item-value="value"
+            label="Account"
+            variant="solo"
+            density="compact"
+            hide-details
+            clearable
+            style="flex: 1"
+          />
+          <v-select
+            v-model="filterType"
+            :items="typeOptions"
+            item-title="label"
+            item-value="value"
+            label="Type"
+            variant="solo"
+            density="compact"
+            hide-details
+            clearable
+            style="flex: 1"
+          />
+        </div>
+      </v-card-text>
+    </v-card>
 
     <!-- Bulk Action Toolbar -->
     <v-slide-y-transition>
       <div v-if="selectedRows.length > 0" class="mb-3">
-        <v-sheet rounded="sm" color="primary" class="pa-3 d-flex align-center gap-3">
+        <v-sheet rounded color="primary" class="pa-3 d-flex align-center gap-3">
           <v-chip color="white" variant="flat" size="small" class="font-weight-bold">
             {{ selectedRows.length }} selected
           </v-chip>
@@ -202,7 +182,6 @@
             size="small"
             variant="flat"
             color="white"
-            rounded="lg"
             prepend-icon="mdi-tag-multiple-outline"
             @click="openBulkCategoryDialog"
           >
@@ -226,16 +205,15 @@
       v-if="store.error"
       type="error"
       variant="tonal"
-      rounded="lg"
       closable
-      class="mb-4"
+      class="mb-3"
       @click:close="store.clearError()"
     >
       {{ store.error }}
     </v-alert>
 
     <!-- Empty State -->
-    <v-card v-if="!store.loading && store.transactions.length === 0" rounded="xl" elevation="3">
+    <v-card v-if="!store.loading && store.transactions.length === 0" rounded elevation="2">
       <v-card-text class="pa-12 text-center">
         <v-icon size="60" class="mb-4 text-disabled">mdi-receipt-text-outline</v-icon>
         <div class="text-h6 font-weight-medium mb-2">No transactions found</div>
@@ -246,7 +224,7 @@
     </v-card>
 
     <!-- Data Table -->
-    <v-card v-else rounded="sm" elevation="3">
+    <v-card v-else rounded elevation="2">
       <v-data-table
         v-model:expanded="expandedRows"
         v-model:selected="selectedRows"
@@ -293,7 +271,6 @@
             :color="typeColor(item.transactionType)"
             variant="tonal"
             size="x-small"
-            rounded="lg"
           >
             {{ item.transactionType || item.TRNTYPE || '—' }}
           </v-chip>
@@ -307,7 +284,6 @@
               color="info"
               variant="tonal"
               size="x-small"
-              rounded="lg"
             >
               Split
             </v-chip>
@@ -316,7 +292,6 @@
               color="secondary"
               variant="tonal"
               size="x-small"
-              rounded="lg"
             >
               {{ item.category }}
             </v-chip>
@@ -382,7 +357,7 @@
                 <tbody>
                   <tr v-if="item.splitCategory1 || item.splitAmount1">
                     <td class="pl-0 text-body-2">
-                      <v-chip color="secondary" variant="tonal" size="x-small" rounded="lg">
+                      <v-chip color="secondary" variant="tonal" size="x-small">
                         {{ item.splitCategory1 || 'Uncategorized' }}
                       </v-chip>
                     </td>
@@ -392,7 +367,7 @@
                   </tr>
                   <tr v-if="item.splitCategory2 || item.splitAmount2">
                     <td class="pl-0 text-body-2">
-                      <v-chip color="secondary" variant="tonal" size="x-small" rounded="lg">
+                      <v-chip color="secondary" variant="tonal" size="x-small">
                         {{ item.splitCategory2 || 'Uncategorized' }}
                       </v-chip>
                     </td>
@@ -415,7 +390,7 @@
 
     <!-- Edit Category Dialog -->
     <v-dialog v-model="editCategoryDialog" max-width="420">
-      <v-card rounded="xl">
+      <v-card rounded>
         <v-card-title class="pa-6 pb-4">
           <div class="d-flex align-center justify-space-between">
             <div class="d-flex align-center gap-3">
@@ -443,7 +418,6 @@
             variant="solo"
             inset
             density="comfortable"
-            rounded="lg"
             hide-details
             autofocus
             clearable
@@ -457,7 +431,6 @@
           <v-btn
             color="primary"
             variant="flat"
-            rounded="lg"
             :loading="store.loading"
             @click="saveCategory"
           >
@@ -469,7 +442,7 @@
 
     <!-- Split Transaction Dialog -->
     <v-dialog v-model="splitDialog" max-width="500" persistent>
-      <v-card rounded="xl">
+      <v-card rounded>
         <v-card-title class="pa-6 pb-4">
           <div class="d-flex align-center justify-space-between">
             <div class="d-flex align-center gap-3">
@@ -517,7 +490,6 @@
               variant="solo"
               inset
               density="compact"
-              rounded="lg"
               hide-details
               class="flex-grow-1"
             />
@@ -528,7 +500,6 @@
               variant="solo"
               inset
               density="compact"
-              rounded="lg"
               hide-details
               prefix="$"
             />
@@ -542,7 +513,6 @@
               variant="solo"
               inset
               density="compact"
-              rounded="lg"
               hide-details
               class="flex-grow-1"
             />
@@ -553,7 +523,6 @@
               variant="solo"
               inset
               density="compact"
-              rounded="lg"
               hide-details
               prefix="$"
             />
@@ -566,7 +535,6 @@
           <v-btn
             color="primary"
             variant="flat"
-            rounded="lg"
             :loading="store.loading"
             :disabled="!isSplitValid"
             @click="saveSplits"
@@ -579,7 +547,7 @@
 
     <!-- Notes Dialog -->
     <v-dialog v-model="notesDialog" max-width="460">
-      <v-card rounded="xl">
+      <v-card rounded>
         <v-card-title class="pa-6 pb-4">
           <div class="d-flex align-center justify-space-between">
             <div class="d-flex align-center gap-3">
@@ -601,7 +569,6 @@
             label="Add a note…"
             variant="solo"
             inset
-            rounded="lg"
             rows="4"
             hide-details
             autofocus
@@ -615,7 +582,6 @@
           <v-btn
             color="primary"
             variant="flat"
-            rounded="lg"
             :loading="store.loading"
             @click="saveNotes"
           >
@@ -627,7 +593,7 @@
 
     <!-- Bulk Category Dialog -->
     <v-dialog v-model="bulkCategoryDialog" max-width="420">
-      <v-card rounded="xl">
+      <v-card rounded>
         <v-card-title class="pa-6 pb-4">
           <div class="d-flex align-center justify-space-between">
             <div class="d-flex align-center gap-3">
@@ -658,7 +624,6 @@
             variant="solo"
             inset
             density="comfortable"
-            rounded="lg"
             hide-details
             autofocus
             clearable
@@ -671,7 +636,6 @@
           <v-btn
             color="primary"
             variant="flat"
-            rounded="lg"
             :loading="store.loading"
             @click="saveBulkCategory"
           >
@@ -683,7 +647,7 @@
 
     <!-- Delete Confirmation Dialog -->
     <v-dialog v-model="deleteDialog" max-width="400">
-      <v-card rounded="xl">
+      <v-card rounded>
         <v-card-title class="text-h6 pa-6 pb-2">Delete Transaction</v-card-title>
         <v-card-text class="pa-6 pt-2 text-body-2 text-medium-emphasis">
           Permanently delete
@@ -743,11 +707,16 @@ const lastImported = ref('')
 async function handleImport() {
   if (!selectedFile.value) return
   const text = await selectedFile.value.text()
+
+  await accountsStore.importAccountFromOfx(text)
+  if (accountsStore.error) return
+
   const result = await store.importTransactionsFromOfx(text)
   if (result) {
     lastImported.value = `${result.inserted} new · ${result.skipped} skipped`
     selectedFile.value = null
     importDialog.value = false
+    await Promise.all([accountsStore.fetchAccounts(), store.fetchMonthsWithData()])
     setTimeout(() => {
       lastImported.value = ''
     }, 5000)
@@ -756,7 +725,7 @@ async function handleImport() {
 
 // ── On mount ──────────────────────────────────────────────────────────────────
 onMounted(async () => {
-  await accountsStore.fetchAccounts()
+  await Promise.all([accountsStore.fetchAccounts(), store.fetchMonthsWithData()])
   const selectedMonth = settingsStore.selectedMonth
   const y = parseInt(selectedMonth.slice(0, 4))
   const m = parseInt(selectedMonth.slice(4, 6)) - 1
