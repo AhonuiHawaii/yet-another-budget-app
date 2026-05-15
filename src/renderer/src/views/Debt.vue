@@ -503,6 +503,7 @@ function runSimulation(debts, extra, strategy) {
   const rates = sorted.map((d) => d.interestRate / 100 / 12)
   const interestAccum = new Array(n).fill(0)
   const payoffMonth = new Array(n).fill(null)
+  const paymentAtPayoff = new Array(n).fill(0)
 
   let month = 0
   while (balances.some((b) => b > 0.01) && month < 600) {
@@ -518,6 +519,7 @@ function runSimulation(debts, extra, strategy) {
     for (let i = 0; i < n; i++) {
       if (balances[i] > 0) pool += minimums[i]
     }
+    const monthPool = pool
     const focusIdx = balances.findIndex((b) => b > 0.01)
     for (let i = 0; i < n; i++) {
       if (i === focusIdx || balances[i] <= 0.01) continue
@@ -527,6 +529,7 @@ function runSimulation(debts, extra, strategy) {
       if (balances[i] <= 0.01) {
         balances[i] = 0
         payoffMonth[i] = month
+        paymentAtPayoff[i] = monthPool
       }
     }
     if (focusIdx >= 0) {
@@ -534,6 +537,7 @@ function runSimulation(debts, extra, strategy) {
       if (balances[focusIdx] <= 0.01) {
         balances[focusIdx] = 0
         payoffMonth[focusIdx] = month
+        paymentAtPayoff[focusIdx] = monthPool
       }
     }
   }
@@ -551,7 +555,8 @@ function runSimulation(debts, extra, strategy) {
       interestRate: d.interestRate,
       minimumPayment: d.minimumPayment,
       payoffMonth: payoffMonth[i] ?? totalMonths,
-      totalInterest: interestAccum[i]
+      totalInterest: interestAccum[i],
+      paymentAtPayoff: paymentAtPayoff[i]
     })),
     totalMonths,
     totalInterest,
@@ -592,6 +597,82 @@ const debtFreeIn = computed(() => {
   if (y === 0) return `${mo}mo`
   return mo ? `${y}y ${mo}mo` : `${y}y`
 })
+
+const minimumsSimulation = computed(() =>
+  runSimulation(
+    debtRows.value.filter((d) => d.currentBalance > 0),
+    0,
+    debtsStore.strategy
+  )
+)
+
+const avalancheSimulation = computed(() =>
+  runSimulation(
+    debtRows.value.filter((d) => d.currentBalance > 0),
+    debtsStore.extraPayment,
+    'avalanche'
+  )
+)
+
+const snowballSimulation = computed(() =>
+  runSimulation(
+    debtRows.value.filter((d) => d.currentBalance > 0),
+    debtsStore.extraPayment,
+    'snowball'
+  )
+)
+
+const strategyRows = computed(() =>
+  activeSimulation.value.results.map((r) => {
+    const debt = debtRows.value.find((d) => d.id === r.id)
+    return {
+      ...r,
+      projected: debt?.projected ?? 0,
+      actual: debt?.actual ?? 0,
+      creditLimit: debt?.creditLimit ?? 0,
+      utilization: debt?.utilization ?? 0
+    }
+  })
+)
+
+const timelineRows = computed(() => {
+  const base = new Date()
+  return activeSimulation.value.results.map((r) => {
+    const d = new Date(base)
+    d.setMonth(base.getMonth() + r.payoffMonth)
+    return {
+      ...r,
+      payoffDate: d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
+      isFocus: r.priority === 1
+    }
+  })
+})
+
+const chartBars = computed(() => {
+  const base = new Date()
+  return [...activeSimulation.value.results]
+    .sort((a, b) => a.payoffMonth - b.payoffMonth)
+    .map((r) => {
+      const d = new Date(base)
+      d.setMonth(base.getMonth() + r.payoffMonth)
+      return {
+        id: r.id,
+        label: r.name,
+        month: r.payoffMonth,
+        monthLabel: d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
+        amount: r.paymentAtPayoff,
+        isFocus: r.priority === 1
+      }
+    })
+})
+
+const interestSaved = computed(() =>
+  Math.max(0, minimumsSimulation.value.totalInterest - activeSimulation.value.totalInterest)
+)
+
+const monthsSaved = computed(() =>
+  Math.max(0, minimumsSimulation.value.totalMonths - activeSimulation.value.totalMonths)
+)
 
 // ── Payoff Projections ────────────────────────────────────────────────────────
 
