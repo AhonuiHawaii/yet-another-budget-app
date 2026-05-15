@@ -372,7 +372,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, watch } from 'vue'
 import { useUserAccountsStore } from '../stores/userAccounts'
 import { useUserBudgetsStore } from '../stores/userBudgets'
 import { useUserDebtsStore } from '../stores/userDebts'
@@ -673,61 +673,40 @@ const monthsSaved = computed(() =>
   Math.max(0, minimumsSimulation.value.totalMonths - activeSimulation.value.totalMonths)
 )
 
-// ── Payoff Projections ────────────────────────────────────────────────────────
-
-function calculatePayoff(balance, apr, monthlyPayment) {
-  if (!monthlyPayment || !balance) return null
-  const monthlyRate = apr / 100 / 12
-  if (monthlyRate === 0) {
-    return { months: Math.ceil(balance / monthlyPayment), interest: 0 }
-  }
-  // Payment must exceed interest accrual or debt never clears
-  if (monthlyPayment <= balance * monthlyRate) return null
-  const months = Math.ceil(
-    -Math.log(1 - (monthlyRate * balance) / monthlyPayment) / Math.log(1 + monthlyRate)
-  )
-  const interest = monthlyPayment * months - balance
-  return { months, interest: Math.max(interest, 0) }
+function aprColor(rate) {
+  if (rate >= 20) return 'error'
+  if (rate >= 12) return 'warning'
+  return 'success'
 }
 
-const projectionRows = computed(() =>
-  debtRows.value
-    .filter((d) => d.currentBalance > 0)
-    .map((d) => {
-      const payment = d.projected || d.minimumPayment || 0
-      const payoff = calculatePayoff(d.currentBalance, d.interestRate, payment)
-      if (!payoff)
-        return {
-          id: d.id,
-          name: d.name,
-          currentBalance: d.currentBalance,
-          interestRate: d.interestRate,
-          payment,
-          payoff: null
-        }
-      const payoffDate = new Date()
-      payoffDate.setMonth(payoffDate.getMonth() + payoff.months)
-      return {
-        id: d.id,
-        name: d.name,
-        currentBalance: d.currentBalance,
-        interestRate: d.interestRate,
-        payment,
-        payoff,
-        payoffLabel: `${payoff.months} mo · ${payoffDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}`
-      }
-    })
-)
-
-const avalancheOrder = computed(() =>
-  [...projectionRows.value].sort((a, b) => b.interestRate - a.interestRate)
-)
-
-const snowballOrder = computed(() =>
-  [...projectionRows.value].sort((a, b) => a.currentBalance - b.currentBalance)
-)
-
-const showProjections = ref(false)
+const howItWorks = [
+  {
+    icon: 'mdi-cash-plus',
+    color: 'primary',
+    title: 'Set your extra payment',
+    description: 'Enter any amount above your minimums to accelerate payoff.'
+  },
+  {
+    icon: 'mdi-sort-variant',
+    color: 'primary',
+    title: 'Choose a strategy',
+    description:
+      'Avalanche targets the highest APR to minimize total interest. Snowball targets the smallest balance for fast wins.'
+  },
+  {
+    icon: 'mdi-transfer-right',
+    color: 'primary',
+    title: 'Payments roll over',
+    description:
+      'When a debt clears, its full payment redirects to the next focus debt automatically.'
+  },
+  {
+    icon: 'mdi-trending-up',
+    color: 'success',
+    title: 'Watch the snowball grow',
+    description: 'Your monthly payment power compounds with every debt you eliminate.'
+  }
+]
 
 function formatCurrency(val) {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(val || 0)
