@@ -157,7 +157,7 @@
         </v-card>
       </v-col>
 
-      <v-col cols="12" lg="5">
+      <v-col cols="12" lg="6">
         <v-card rounded elevation="2" class="h-100">
           <v-card-item class="pa-4 pb-0">
             <template #prepend>
