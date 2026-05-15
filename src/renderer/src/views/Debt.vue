@@ -1,78 +1,121 @@
 <template>
   <v-container fluid class="pa-6">
+    <!-- Control Bar -->
     <v-card class="mb-6" rounded elevation="2">
-      <v-row no-gutters>
-        <v-col cols="12" sm="3" class="pa-6 text-center">
-          <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-2">
-            Planned Payment
-          </div>
-          <div class="text-h4 font-weight-black text-white">
-            {{ formatCurrency(totalProjected) }}
-          </div>
-        </v-col>
-        <v-col cols="12" sm="3" class="pa-6 text-center">
-          <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-2">
-            Paid
-          </div>
-          <div class="text-h4 font-weight-black text-white">{{ formatCurrency(totalActual) }}</div>
-        </v-col>
-        <v-col cols="12" sm="3" class="pa-6 text-center">
-          <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-2">
-            Balance
-          </div>
-          <div class="text-h4 font-weight-black text-white">
-            {{ formatCurrency(totalCurrentBalance) }}
-          </div>
-        </v-col>
-        <v-col cols="12" sm="3" class="pa-6 text-center">
-          <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-2">
-            Utilization
-          </div>
-          <div
-            class="text-h4 font-weight-black"
-            :class="totalUtilization >= 70 ? 'text-warning' : 'text-white'"
+      <v-card-text class="pa-5">
+        <v-row align="stretch">
+          <!-- Inputs: Extra Payment + Strategy -->
+          <v-col
+            cols="12"
+            md="4"
+            class="d-flex flex-column gap-4 pe-6"
+            style="border-right: 1px solid rgba(255, 255, 255, 0.12)"
           >
-            {{ totalUtilization }}%
-          </div>
-        </v-col>
-      </v-row>
-    </v-card>
+            <div>
+              <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-2">
+                Extra Monthly Payment
+              </div>
+              <v-text-field
+                :model-value="debtsStore.extraPayment"
+                type="number"
+                prefix="$"
+                variant="outlined"
+                density="compact"
+                hide-details
+                style="max-width: 200px"
+                @update:model-value="debtsStore.setExtraPayment"
+              />
+            </div>
+            <div>
+              <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-2">
+                Strategy
+              </div>
+              <v-btn-toggle
+                :model-value="debtsStore.strategy"
+                mandatory
+                divided
+                variant="outlined"
+                density="compact"
+                color="primary"
+                @update:model-value="debtsStore.setStrategy"
+              >
+                <v-btn value="avalanche" size="small" prepend-icon="mdi-fire">Avalanche</v-btn>
+                <v-btn value="snowball" size="small" prepend-icon="mdi-snowflake">Snowball</v-btn>
+              </v-btn-toggle>
+            </div>
+          </v-col>
 
-    <v-row class="mb-4">
-      <v-col cols="12" md="6">
-        <v-card class="pa-4 h-100" rounded elevation="2">
-          <div class="d-flex align-center justify-space-between mb-2">
-            <div class="font-weight-bold">Remaining Payment</div>
-            <v-chip
-              :color="remainingThisPeriod <= 0 ? 'success' : 'warning'"
-              variant="tonal"
-              size="small"
-            >
-              {{ formatCurrency(remainingThisPeriod) }}
-            </v-chip>
-          </div>
-          <v-progress-linear
-            :model-value="paymentCoverage"
-            :color="paymentCoverage >= 100 ? 'success' : 'primary'"
-            height="8"
-            rounded
-          />
-        </v-card>
-      </v-col>
-      <v-col cols="12" md="6">
-        <v-card class="pa-4 h-100" rounded elevation="2">
-          <div class="d-flex align-center justify-space-between mb-2">
-            <div class="font-weight-bold">Highest Interest</div>
-            <v-chip color="primary" variant="tonal" size="small">
-              {{ highestInterestDebt?.name || 'None' }}
-            </v-chip>
-          </div>
-          <div class="text-body-2 text-medium-emphasis">
-            {{ formatPercent(highestInterestDebt?.interestRate || 0) }} APR
-          </div>
-        </v-card>
-      </v-col>
-    </v-row>
+          <!-- Current Focus Debt -->
+          <v-col
+            cols="12"
+            md="3"
+            class="px-6 d-flex flex-column justify-center"
+            style="border-right: 1px solid rgba(255, 255, 255, 0.12)"
+          >
+            <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-3">
+              Current Focus Debt
+            </div>
+            <template v-if="focusDebt">
+              <div class="text-subtitle-1 font-weight-bold mb-2">{{ focusDebt.name }}</div>
+              <div class="d-flex align-center gap-2 flex-wrap">
+                <v-chip color="error" variant="tonal" size="small">
+                  {{ formatPercent(focusDebt.interestRate) }} APR
+                </v-chip>
+                <v-chip variant="tonal" size="small">
+                  {{ formatCurrency(focusDebt.currentBalance) }}
+                </v-chip>
+                <v-chip color="primary" variant="tonal" size="small">
+                  {{ formatCurrency(focusPayment) }}/mo
+                </v-chip>
+              </div>
+            </template>
+            <div v-else class="text-medium-emphasis text-body-2">No active debts</div>
+          </v-col>
+
+          <!-- Summary Stats -->
+          <v-col cols="12" md="5" class="ps-6">
+            <v-row dense>
+              <v-col cols="6" class="pb-4">
+                <div
+                  class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-1"
+                >
+                  Estimated Payoff
+                </div>
+                <div class="text-h6 font-weight-black">{{ estimatedPayoffDate }}</div>
+              </v-col>
+              <v-col cols="6" class="pb-4">
+                <div
+                  class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-1"
+                >
+                  Total Interest Paid
+                </div>
+                <div class="text-h6 font-weight-black text-warning">
+                  {{ formatCurrency(activeSimulation.totalInterest) }}
+                </div>
+              </v-col>
+              <v-col cols="6">
+                <div
+                  class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-1"
+                >
+                  Debt Free In
+                </div>
+                <div class="text-h6 font-weight-black">{{ debtFreeIn }}</div>
+              </v-col>
+              <v-col cols="6">
+                <div
+                  class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-1"
+                >
+                  Total Paid
+                </div>
+                <div class="text-h6 font-weight-black">
+                  {{ formatCurrency(activeSimulation.totalPaid) }}
+                </div>
+              </v-col>
+            </v-row>
+          </v-col>
+        </v-row>
+      </v-card-text>
+    </v-card>
 
     <!-- Payoff Projection Panel -->
     <v-card v-if="projectionRows.length > 0" rounded elevation="2" class="mb-6">
@@ -443,20 +486,112 @@ const debtRows = computed(() => {
     .sort((a, b) => b.interestRate - a.interestRate || b.currentBalance - a.currentBalance)
 })
 
-const totalProjected = computed(() => debtRows.value.reduce((s, c) => s + c.projected, 0))
-const totalActual = computed(() => debtRows.value.reduce((s, c) => s + c.actual, 0))
-const totalCurrentBalance = computed(() => debtRows.value.reduce((s, c) => s + c.currentBalance, 0))
-const totalCreditLimit = computed(() => debtRows.value.reduce((s, c) => s + c.creditLimit, 0))
-const totalUtilization = computed(() => {
-  if (!totalCreditLimit.value) return 0
-  return Math.round((totalCurrentBalance.value / totalCreditLimit.value) * 100)
+// ── Rollover Simulation Engine ────────────────────────────────────────────────
+
+function runSimulation(debts, extra, strategy) {
+  if (!debts.length) return { results: [], totalMonths: 0, totalInterest: 0, totalPaid: 0 }
+
+  const sorted = [...debts].sort((a, b) =>
+    strategy === 'avalanche'
+      ? b.interestRate - a.interestRate || b.currentBalance - a.currentBalance
+      : a.currentBalance - b.currentBalance || b.interestRate - a.interestRate
+  )
+
+  const n = sorted.length
+  const balances = sorted.map((d) => d.currentBalance)
+  const minimums = sorted.map((d) => d.minimumPayment)
+  const rates = sorted.map((d) => d.interestRate / 100 / 12)
+  const interestAccum = new Array(n).fill(0)
+  const payoffMonth = new Array(n).fill(null)
+
+  let month = 0
+  while (balances.some((b) => b > 0.01) && month < 600) {
+    month++
+    for (let i = 0; i < n; i++) {
+      if (balances[i] > 0) {
+        const interest = balances[i] * rates[i]
+        balances[i] += interest
+        interestAccum[i] += interest
+      }
+    }
+    let pool = extra
+    for (let i = 0; i < n; i++) {
+      if (balances[i] > 0) pool += minimums[i]
+    }
+    const focusIdx = balances.findIndex((b) => b > 0.01)
+    for (let i = 0; i < n; i++) {
+      if (i === focusIdx || balances[i] <= 0.01) continue
+      const pay = Math.min(minimums[i], balances[i])
+      balances[i] = Math.max(0, balances[i] - pay)
+      pool -= pay
+      if (balances[i] <= 0.01) {
+        balances[i] = 0
+        payoffMonth[i] = month
+      }
+    }
+    if (focusIdx >= 0) {
+      balances[focusIdx] = Math.max(0, balances[focusIdx] - Math.min(pool, balances[focusIdx]))
+      if (balances[focusIdx] <= 0.01) {
+        balances[focusIdx] = 0
+        payoffMonth[focusIdx] = month
+      }
+    }
+  }
+
+  const totalMonths = Math.max(0, ...payoffMonth.map((m) => m ?? month))
+  const totalInterest = interestAccum.reduce((s, v) => s + v, 0)
+  const totalPaid = sorted.reduce((s, d) => s + d.currentBalance, 0) + totalInterest
+
+  return {
+    results: sorted.map((d, i) => ({
+      id: d.id,
+      name: d.name,
+      priority: i + 1,
+      currentBalance: d.currentBalance,
+      interestRate: d.interestRate,
+      minimumPayment: d.minimumPayment,
+      payoffMonth: payoffMonth[i] ?? totalMonths,
+      totalInterest: interestAccum[i]
+    })),
+    totalMonths,
+    totalInterest,
+    totalPaid
+  }
+}
+
+const activeSimulation = computed(() =>
+  runSimulation(
+    debtRows.value.filter((d) => d.currentBalance > 0),
+    debtsStore.extraPayment,
+    debtsStore.strategy
+  )
+)
+
+const focusDebt = computed(() => {
+  const first = activeSimulation.value.results[0]
+  return first ? (debtRows.value.find((d) => d.id === first.id) ?? null) : null
 })
-const remainingThisPeriod = computed(() => Math.max(totalProjected.value - totalActual.value, 0))
-const paymentCoverage = computed(() => {
-  if (!totalProjected.value) return 0
-  return Math.min(Math.round((totalActual.value / totalProjected.value) * 100), 100)
+
+const focusPayment = computed(() =>
+  focusDebt.value ? (focusDebt.value.minimumPayment || 0) + debtsStore.extraPayment : 0
+)
+
+const estimatedPayoffDate = computed(() => {
+  const m = activeSimulation.value.totalMonths
+  if (!m) return 'N/A'
+  const d = new Date()
+  d.setMonth(d.getMonth() + m)
+  return d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
 })
-const highestInterestDebt = computed(() => debtRows.value[0] || null)
+
+const debtFreeIn = computed(() => {
+  const m = activeSimulation.value.totalMonths
+  if (!m) return 'N/A'
+  const y = Math.floor(m / 12)
+  const mo = m % 12
+  if (y === 0) return `${mo}mo`
+  return mo ? `${y}y ${mo}mo` : `${y}y`
+})
 
 // ── Payoff Projections ────────────────────────────────────────────────────────
 
