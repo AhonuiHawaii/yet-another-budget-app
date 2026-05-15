@@ -99,7 +99,6 @@
             </v-card>
           </v-menu>
 
-
           <v-spacer />
 
           <v-slide-x-transition>
@@ -260,11 +259,7 @@
 
         <!-- Type column -->
         <template #item.transactionType="{ item }">
-          <v-chip
-            :color="typeColor(item.transactionType)"
-            variant="tonal"
-            size="x-small"
-          >
+          <v-chip :color="typeColor(item.transactionType)" variant="tonal" size="x-small">
             {{ item.transactionType || item.TRNTYPE || '—' }}
           </v-chip>
         </template>
@@ -280,12 +275,7 @@
             >
               Split
             </v-chip>
-            <v-chip
-              v-else-if="item.category"
-              color="secondary"
-              variant="tonal"
-              size="x-small"
-            >
+            <v-chip v-else-if="item.category" color="secondary" variant="tonal" size="x-small">
               {{ item.category }}
             </v-chip>
             <span v-else class="text-disabled text-caption">Uncategorized</span>
@@ -421,12 +411,7 @@
         <v-card-actions class="pa-6 pt-0">
           <v-spacer />
           <v-btn variant="text" @click="editCategoryDialog = false">Cancel</v-btn>
-          <v-btn
-            color="primary"
-            variant="flat"
-            :loading="store.loading"
-            @click="saveCategory"
-          >
+          <v-btn color="primary" variant="flat" :loading="store.loading" @click="saveCategory">
             Save
           </v-btn>
         </v-card-actions>
@@ -572,12 +557,7 @@
         <v-card-actions class="pa-6 pt-0">
           <v-spacer />
           <v-btn variant="text" @click="notesDialog = false">Cancel</v-btn>
-          <v-btn
-            color="primary"
-            variant="flat"
-            :loading="store.loading"
-            @click="saveNotes"
-          >
+          <v-btn color="primary" variant="flat" :loading="store.loading" @click="saveNotes">
             Save
           </v-btn>
         </v-card-actions>
@@ -626,12 +606,7 @@
         <v-card-actions class="pa-6 pt-0">
           <v-spacer />
           <v-btn variant="text" @click="bulkCategoryDialog = false">Cancel</v-btn>
-          <v-btn
-            color="primary"
-            variant="flat"
-            :loading="store.loading"
-            @click="saveBulkCategory"
-          >
+          <v-btn color="primary" variant="flat" :loading="store.loading" @click="saveBulkCategory">
             Apply
           </v-btn>
         </v-card-actions>

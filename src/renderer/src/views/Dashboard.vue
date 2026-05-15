@@ -231,7 +231,9 @@
                   {{ i + 1 }}
                 </v-avatar>
                 <span class="text-body-2 font-weight-medium flex-grow-1">{{ category.name }}</span>
-                <span class="text-body-2 font-weight-bold">{{ formatCurrency(category.total) }}</span>
+                <span class="text-body-2 font-weight-bold">{{
+                  formatCurrency(category.total)
+                }}</span>
               </div>
             </template>
           </div>

@@ -5,11 +5,15 @@
         <v-card class="h-100" rounded elevation="2">
           <v-card-text class="pa-4">
             <div class="d-flex align-start justify-space-between mb-3">
-              <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis">Planned Income</span>
+              <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis"
+                >Planned Income</span
+              >
               <v-icon color="success" size="18" :opacity="0.4">mdi-trending-up</v-icon>
             </div>
             <div class="text-h5 font-weight-black">{{ formatCurrency(plannedIncome) }}</div>
-            <div class="text-caption text-medium-emphasis mt-1">Actual {{ formatCurrency(actualIncome) }}</div>
+            <div class="text-caption text-medium-emphasis mt-1">
+              Actual {{ formatCurrency(actualIncome) }}
+            </div>
           </v-card-text>
         </v-card>
       </v-col>
@@ -17,11 +21,15 @@
         <v-card class="h-100" rounded elevation="2">
           <v-card-text class="pa-4">
             <div class="d-flex align-start justify-space-between mb-3">
-              <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis">Planned Outflow</span>
+              <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis"
+                >Planned Outflow</span
+              >
               <v-icon color="error" size="18" :opacity="0.4">mdi-arrow-up-circle-outline</v-icon>
             </div>
             <div class="text-h5 font-weight-black">{{ formatCurrency(plannedOutflow) }}</div>
-            <div class="text-caption text-medium-emphasis mt-1">Actual {{ formatCurrency(actualOutflow) }}</div>
+            <div class="text-caption text-medium-emphasis mt-1">
+              Actual {{ formatCurrency(actualOutflow) }}
+            </div>
           </v-card-text>
         </v-card>
       </v-col>
@@ -29,13 +37,22 @@
         <v-card class="h-100" rounded elevation="2">
           <v-card-text class="pa-4">
             <div class="d-flex align-start justify-space-between mb-3">
-              <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis">Planned Net</span>
-              <v-icon :color="plannedNet >= 0 ? 'success' : 'error'" size="18" :opacity="0.4">mdi-trending-up</v-icon>
+              <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis"
+                >Planned Net</span
+              >
+              <v-icon :color="plannedNet >= 0 ? 'success' : 'error'" size="18" :opacity="0.4"
+                >mdi-trending-up</v-icon
+              >
             </div>
-            <div class="text-h5 font-weight-black" :class="plannedNet >= 0 ? 'text-success' : 'text-error'">
+            <div
+              class="text-h5 font-weight-black"
+              :class="plannedNet >= 0 ? 'text-success' : 'text-error'"
+            >
               {{ formatCurrency(plannedNet) }}
             </div>
-            <div class="text-caption text-medium-emphasis mt-1">Actual {{ formatCurrency(actualNet) }}</div>
+            <div class="text-caption text-medium-emphasis mt-1">
+              Actual {{ formatCurrency(actualNet) }}
+            </div>
           </v-card-text>
         </v-card>
       </v-col>
@@ -43,10 +60,17 @@
         <v-card class="h-100" rounded elevation="2">
           <v-card-text class="pa-4">
             <div class="d-flex align-start justify-space-between mb-3">
-              <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis">Budget Variance</span>
-              <v-icon :color="budgetVariance >= 0 ? 'success' : 'warning'" size="18" :opacity="0.4">mdi-wallet-outline</v-icon>
+              <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis"
+                >Budget Variance</span
+              >
+              <v-icon :color="budgetVariance >= 0 ? 'success' : 'warning'" size="18" :opacity="0.4"
+                >mdi-wallet-outline</v-icon
+              >
             </div>
-            <div class="text-h5 font-weight-black" :class="budgetVariance >= 0 ? 'text-success' : 'text-error'">
+            <div
+              class="text-h5 font-weight-black"
+              :class="budgetVariance >= 0 ? 'text-success' : 'text-error'"
+            >
               {{ formatCurrency(budgetVariance) }}
             </div>
             <div class="text-caption text-medium-emphasis mt-1">Actual net vs planned net</div>
@@ -96,7 +120,9 @@
                 <td class="pl-5 text-body-2 font-weight-medium">
                   <span>{{ row.name }}</span>
                 </td>
-                <td class="text-center text-body-2 font-weight-bold">{{ formatCurrency(row.actual) }}</td>
+                <td class="text-center text-body-2 font-weight-bold">
+                  {{ formatCurrency(row.actual) }}
+                </td>
                 <td>
                   <v-text-field
                     :model-value="row.planned"
@@ -123,7 +149,9 @@
                       height="4"
                       rounded
                     />
-                    <span class="text-caption text-medium-emphasis" style="min-width: 32px">{{ row.percentLabel }}</span>
+                    <span class="text-caption text-medium-emphasis" style="min-width: 32px">{{
+                      row.percentLabel
+                    }}</span>
                   </div>
                 </td>
               </tr>

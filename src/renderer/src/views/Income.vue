@@ -108,7 +108,9 @@
                 class="mb-1"
               >
                 +{{
-                  formatCurrency(budgetsStore.getRolloverAmount(cat.id, settingsStore.selectedMonth))
+                  formatCurrency(
+                    budgetsStore.getRolloverAmount(cat.id, settingsStore.selectedMonth)
+                  )
                 }}
                 rollover
               </v-chip>
@@ -132,7 +134,9 @@
             </td>
             <td class="text-center px-0">
               <v-btn
-                :icon="budgetsStore.getBudget(cat.id)?.rolloverEnabled ? 'mdi-reload' : 'mdi-reload'"
+                :icon="
+                  budgetsStore.getBudget(cat.id)?.rolloverEnabled ? 'mdi-reload' : 'mdi-reload'
+                "
                 :color="budgetsStore.getBudget(cat.id)?.rolloverEnabled ? 'info' : 'default'"
                 variant="text"
                 size="small"

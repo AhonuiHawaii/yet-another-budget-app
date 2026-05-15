@@ -5,7 +5,9 @@
         <v-card class="h-100" rounded elevation="2">
           <v-card-text class="pa-4">
             <div class="d-flex align-start justify-space-between mb-3">
-              <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis">Total Target</span>
+              <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis"
+                >Total Target</span
+              >
               <v-icon color="primary" size="18" :opacity="0.4">mdi-flag-outline</v-icon>
             </div>
             <div class="text-h5 font-weight-black">{{ formatCurrency(store.totalTarget) }}</div>
@@ -16,10 +18,14 @@
         <v-card class="h-100" rounded elevation="2">
           <v-card-text class="pa-4">
             <div class="d-flex align-start justify-space-between mb-3">
-              <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis">Saved</span>
+              <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis"
+                >Saved</span
+              >
               <v-icon color="success" size="18" :opacity="0.4">mdi-piggy-bank</v-icon>
             </div>
-            <div class="text-h5 font-weight-black text-success">{{ formatCurrency(store.totalSaved) }}</div>
+            <div class="text-h5 font-weight-black text-success">
+              {{ formatCurrency(store.totalSaved) }}
+            </div>
           </v-card-text>
         </v-card>
       </v-col>
@@ -27,7 +33,9 @@
         <v-card class="h-100" rounded elevation="2">
           <v-card-text class="pa-4">
             <div class="d-flex align-start justify-space-between mb-3">
-              <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis">Remaining</span>
+              <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis"
+                >Remaining</span
+              >
               <v-icon color="warning" size="18" :opacity="0.4">mdi-wallet-outline</v-icon>
             </div>
             <div class="text-h5 font-weight-black">{{ formatCurrency(store.totalRemaining) }}</div>
@@ -38,7 +46,9 @@
         <v-card class="h-100" rounded elevation="2">
           <v-card-text class="pa-4">
             <div class="d-flex align-start justify-space-between mb-3">
-              <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis">Completed</span>
+              <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis"
+                >Completed</span
+              >
               <v-icon color="success" size="18" :opacity="0.4">mdi-check-circle-outline</v-icon>
             </div>
             <div class="text-h5 font-weight-black">{{ store.completedGoals.length }}</div>
@@ -58,7 +68,13 @@
         </template>
         <v-card-title class="text-h6 font-weight-bold pl-2">Goals</v-card-title>
         <template #append>
-          <v-btn prepend-icon="mdi-plus" variant="tonal" color="primary" size="small" @click="openNewGoal">
+          <v-btn
+            prepend-icon="mdi-plus"
+            variant="tonal"
+            color="primary"
+            size="small"
+            @click="openNewGoal"
+          >
             Add Goal
           </v-btn>
         </template>
@@ -107,7 +123,9 @@
                 @update:model-value="(value) => updateCurrentAmount(goal.id, value)"
               />
             </td>
-            <td class="text-center text-body-2 font-weight-bold">{{ formatCurrency(goal.targetAmount) }}</td>
+            <td class="text-center text-body-2 font-weight-bold">
+              {{ formatCurrency(goal.targetAmount) }}
+            </td>
             <td
               class="text-center text-body-2 font-weight-bold"
               :class="goal.remaining <= 0 ? 'text-success' : 'text-medium-emphasis'"
@@ -122,13 +140,28 @@
                   height="4"
                   rounded
                 />
-                <span class="text-caption text-medium-emphasis" style="min-width: 32px">{{ goal.progressLabel }}</span>
+                <span class="text-caption text-medium-emphasis" style="min-width: 32px">{{
+                  goal.progressLabel
+                }}</span>
               </div>
             </td>
             <td class="text-center text-body-2">{{ formatDate(goal.targetDate) }}</td>
             <td class="text-right">
-              <v-btn icon="mdi-pencil-outline" variant="text" size="small" density="compact" @click="openEditGoal(goal)" />
-              <v-btn icon="mdi-delete-outline" variant="text" size="small" density="compact" color="error" @click="store.deleteGoal(goal.id)" />
+              <v-btn
+                icon="mdi-pencil-outline"
+                variant="text"
+                size="small"
+                density="compact"
+                @click="openEditGoal(goal)"
+              />
+              <v-btn
+                icon="mdi-delete-outline"
+                variant="text"
+                size="small"
+                density="compact"
+                color="error"
+                @click="store.deleteGoal(goal.id)"
+              />
             </td>
           </tr>
         </tbody>

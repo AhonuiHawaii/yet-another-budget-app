@@ -1,19 +1,28 @@
 <template>
   <v-container fluid class="pa-6">
-
     <!-- Summary Header — shows active tab's totals -->
     <v-card class="mb-6" rounded elevation="2">
       <v-row no-gutters>
         <v-col cols="4" class="pa-6 text-center">
-          <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-2">Projected</div>
-          <div class="text-h4 font-weight-black text-white">{{ formatCurrency(activeTotalProjected) }}</div>
+          <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-2">
+            Projected
+          </div>
+          <div class="text-h4 font-weight-black text-white">
+            {{ formatCurrency(activeTotalProjected) }}
+          </div>
         </v-col>
         <v-col cols="4" class="pa-6 text-center">
-          <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-2">Actual</div>
-          <div class="text-h4 font-weight-black text-white">{{ formatCurrency(activeTotalActual) }}</div>
+          <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-2">
+            Actual
+          </div>
+          <div class="text-h4 font-weight-black text-white">
+            {{ formatCurrency(activeTotalActual) }}
+          </div>
         </v-col>
         <v-col cols="4" class="pa-6 text-center">
-          <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-2">Difference</div>
+          <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-2">
+            Difference
+          </div>
           <div
             class="text-h4 font-weight-black"
             :class="activeTotalActual - activeTotalProjected >= 0 ? 'text-success' : 'text-error'"
@@ -34,7 +43,6 @@
       <v-divider />
 
       <v-window v-model="activeTab">
-
         <!-- ── Variable Tab ──────────────────────────────────────────────── -->
         <v-window-item value="variable">
           <v-card-item class="pa-4 pb-0">
@@ -43,7 +51,13 @@
             </template>
             <v-card-title class="text-h6 font-weight-bold pl-2">Categories</v-card-title>
             <template #append>
-              <v-btn prepend-icon="mdi-plus" variant="tonal" color="primary" size="small" @click="addNewRow('variable')">
+              <v-btn
+                prepend-icon="mdi-plus"
+                variant="tonal"
+                color="primary"
+                size="small"
+                @click="addNewRow('variable')"
+              >
                 Add Category
               </v-btn>
             </template>
@@ -52,18 +66,26 @@
           <v-table density="comfortable" class="mt-2">
             <thead>
               <tr>
-                <th class="text-start font-weight-bold text-uppercase text-caption pl-4">Category</th>
+                <th class="text-start font-weight-bold text-uppercase text-caption pl-4">
+                  Category
+                </th>
                 <th class="text-center font-weight-bold text-uppercase text-caption">
                   Actual
-                  <div class="text-body-2 font-weight-bold">{{ formatCurrency(variableTotalActual) }}</div>
+                  <div class="text-body-2 font-weight-bold">
+                    {{ formatCurrency(variableTotalActual) }}
+                  </div>
                 </th>
                 <th class="text-center font-weight-bold text-uppercase text-caption">
                   Projected
-                  <div class="text-body-2 font-weight-bold">{{ formatCurrency(variableTotalProjected) }}</div>
+                  <div class="text-body-2 font-weight-bold">
+                    {{ formatCurrency(variableTotalProjected) }}
+                  </div>
                 </th>
                 <th class="text-center font-weight-bold text-uppercase text-caption">
                   Diff
-                  <div class="text-body-2 font-weight-bold">{{ formatCurrency(variableTotalActual - variableTotalProjected) }}</div>
+                  <div class="text-body-2 font-weight-bold">
+                    {{ formatCurrency(variableTotalActual - variableTotalProjected) }}
+                  </div>
                 </th>
                 <th></th>
               </tr>
@@ -72,7 +94,9 @@
               <tr v-for="(cat, idx) in variableCombined" :key="cat.id">
                 <td class="font-weight-medium text-body-2 text-uppercase pl-4">
                   <div class="d-flex align-center position-relative w-100">
-                    <span class="position-absolute left-0 text-medium-emphasis text-caption">{{ idx + 1 }}</span>
+                    <span class="position-absolute left-0 text-medium-emphasis text-caption">{{
+                      idx + 1
+                    }}</span>
                     <div v-if="editingCatId === cat.id" class="w-100">
                       <v-text-field
                         v-model="editingCatName"
@@ -87,7 +111,9 @@
                       />
                     </div>
                     <div v-else>
-                      <span class="cursor-pointer" @click="startCategoryEdit(cat)">{{ cat.name }}</span>
+                      <span class="cursor-pointer" @click="startCategoryEdit(cat)">{{
+                        cat.name
+                      }}</span>
                     </div>
                   </div>
                 </td>
@@ -100,7 +126,12 @@
                     variant="tonal"
                     class="mb-1"
                   >
-                    +{{ formatCurrency(budgetsStore.getRolloverAmount(cat.id, settingsStore.selectedMonth)) }} rollover
+                    +{{
+                      formatCurrency(
+                        budgetsStore.getRolloverAmount(cat.id, settingsStore.selectedMonth)
+                      )
+                    }}
+                    rollover
                   </v-chip>
                   <v-text-field
                     :model-value="cat.projected"
@@ -129,7 +160,12 @@
                     density="compact"
                     class="opacity-70 mr-1"
                     title="Toggle rollover"
-                    @click="budgetsStore.toggleRolloverEnabled(cat.id, !budgetsStore.getBudget(cat.id)?.rolloverEnabled)"
+                    @click="
+                      budgetsStore.toggleRolloverEnabled(
+                        cat.id,
+                        !budgetsStore.getBudget(cat.id)?.rolloverEnabled
+                      )
+                    "
                   />
                   <v-btn
                     icon="mdi-delete"
@@ -153,7 +189,13 @@
             </template>
             <v-card-title class="text-h6 font-weight-bold pl-2">Categories</v-card-title>
             <template #append>
-              <v-btn prepend-icon="mdi-plus" variant="tonal" color="primary" size="small" @click="addNewRow('bills')">
+              <v-btn
+                prepend-icon="mdi-plus"
+                variant="tonal"
+                color="primary"
+                size="small"
+                @click="addNewRow('bills')"
+              >
                 Add Category
               </v-btn>
             </template>
@@ -162,18 +204,26 @@
           <v-table density="comfortable" class="mt-2">
             <thead>
               <tr>
-                <th class="text-start font-weight-bold text-uppercase text-caption pl-4">Category</th>
+                <th class="text-start font-weight-bold text-uppercase text-caption pl-4">
+                  Category
+                </th>
                 <th class="text-center font-weight-bold text-uppercase text-caption">
                   Actual
-                  <div class="text-body-2 font-weight-bold">{{ formatCurrency(billsTotalActual) }}</div>
+                  <div class="text-body-2 font-weight-bold">
+                    {{ formatCurrency(billsTotalActual) }}
+                  </div>
                 </th>
                 <th class="text-center font-weight-bold text-uppercase text-caption">
                   Projected
-                  <div class="text-body-2 font-weight-bold">{{ formatCurrency(billsTotalProjected) }}</div>
+                  <div class="text-body-2 font-weight-bold">
+                    {{ formatCurrency(billsTotalProjected) }}
+                  </div>
                 </th>
                 <th class="text-center font-weight-bold text-uppercase text-caption">
                   Diff
-                  <div class="text-body-2 font-weight-bold">{{ formatCurrency(billsTotalActual - billsTotalProjected) }}</div>
+                  <div class="text-body-2 font-weight-bold">
+                    {{ formatCurrency(billsTotalActual - billsTotalProjected) }}
+                  </div>
                 </th>
                 <th></th>
               </tr>
@@ -182,7 +232,9 @@
               <tr v-for="(cat, idx) in billsCombined" :key="cat.id">
                 <td class="font-weight-medium text-body-2 text-uppercase pl-4">
                   <div class="d-flex align-center position-relative w-100">
-                    <span class="position-absolute left-0 text-medium-emphasis text-caption">{{ idx + 1 }}</span>
+                    <span class="position-absolute left-0 text-medium-emphasis text-caption">{{
+                      idx + 1
+                    }}</span>
                     <div v-if="editingCatId === cat.id" class="w-100">
                       <v-text-field
                         v-model="editingCatName"
@@ -197,7 +249,9 @@
                       />
                     </div>
                     <div v-else>
-                      <span class="cursor-pointer" @click="startCategoryEdit(cat)">{{ cat.name }}</span>
+                      <span class="cursor-pointer" @click="startCategoryEdit(cat)">{{
+                        cat.name
+                      }}</span>
                     </div>
                   </div>
                 </td>
@@ -210,7 +264,12 @@
                     variant="tonal"
                     class="mb-1"
                   >
-                    +{{ formatCurrency(budgetsStore.getRolloverAmount(cat.id, settingsStore.selectedMonth)) }} rollover
+                    +{{
+                      formatCurrency(
+                        budgetsStore.getRolloverAmount(cat.id, settingsStore.selectedMonth)
+                      )
+                    }}
+                    rollover
                   </v-chip>
                   <v-text-field
                     :model-value="cat.projected"
@@ -239,7 +298,12 @@
                     density="compact"
                     class="opacity-70 mr-1"
                     title="Toggle rollover"
-                    @click="budgetsStore.toggleRolloverEnabled(cat.id, !budgetsStore.getBudget(cat.id)?.rolloverEnabled)"
+                    @click="
+                      budgetsStore.toggleRolloverEnabled(
+                        cat.id,
+                        !budgetsStore.getBudget(cat.id)?.rolloverEnabled
+                      )
+                    "
                   />
                   <v-btn
                     icon="mdi-delete"
@@ -254,10 +318,8 @@
             </tbody>
           </v-table>
         </v-window-item>
-
       </v-window>
     </v-card>
-
   </v-container>
 </template>
 
@@ -355,7 +417,9 @@ function buildActualsMap(catList) {
 const variableCombined = computed(() => buildActualsMap(variableCategories.value))
 const billsCombined = computed(() => buildActualsMap(billsCategories.value))
 
-const variableTotalProjected = computed(() => variableCombined.value.reduce((s, c) => s + c.projected, 0))
+const variableTotalProjected = computed(() =>
+  variableCombined.value.reduce((s, c) => s + c.projected, 0)
+)
 const variableTotalActual = computed(() => variableCombined.value.reduce((s, c) => s + c.actual, 0))
 const billsTotalProjected = computed(() => billsCombined.value.reduce((s, c) => s + c.projected, 0))
 const billsTotalActual = computed(() => billsCombined.value.reduce((s, c) => s + c.actual, 0))

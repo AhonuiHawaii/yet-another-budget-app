@@ -11,12 +11,7 @@
     </v-alert>
 
     <!-- Spending Trends Chart -->
-    <v-card
-      v-if="transactionsStore.monthlyTotals.length > 0"
-      rounded
-      elevation="2"
-      class="mb-6"
-    >
+    <v-card v-if="transactionsStore.monthlyTotals.length > 0" rounded elevation="2" class="mb-6">
       <v-card-item class="pa-4 pb-0">
         <template #prepend>
           <v-icon color="primary" size="20" :opacity="0.7">mdi-chart-line</v-icon>
@@ -36,11 +31,19 @@
         <v-card class="h-100" rounded elevation="2">
           <v-card-text class="pa-4">
             <div class="d-flex align-start justify-space-between mb-3">
-              <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis">Income</span>
-              <v-icon color="success" size="18" :opacity="0.4">mdi-arrow-down-circle-outline</v-icon>
+              <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis"
+                >Income</span
+              >
+              <v-icon color="success" size="18" :opacity="0.4"
+                >mdi-arrow-down-circle-outline</v-icon
+              >
             </div>
-            <div class="text-h5 font-weight-black text-success">{{ formatCurrency(totalIncome) }}</div>
-            <div class="text-caption text-medium-emphasis mt-1">{{ incomeTransactions.length }} credits</div>
+            <div class="text-h5 font-weight-black text-success">
+              {{ formatCurrency(totalIncome) }}
+            </div>
+            <div class="text-caption text-medium-emphasis mt-1">
+              {{ incomeTransactions.length }} credits
+            </div>
           </v-card-text>
         </v-card>
       </v-col>
@@ -48,11 +51,17 @@
         <v-card class="h-100" rounded elevation="2">
           <v-card-text class="pa-4">
             <div class="d-flex align-start justify-space-between mb-3">
-              <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis">Spending</span>
+              <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis"
+                >Spending</span
+              >
               <v-icon color="error" size="18" :opacity="0.4">mdi-arrow-up-circle-outline</v-icon>
             </div>
-            <div class="text-h5 font-weight-black text-error">{{ formatCurrency(totalSpending) }}</div>
-            <div class="text-caption text-medium-emphasis mt-1">{{ expenseTransactions.length }} debits</div>
+            <div class="text-h5 font-weight-black text-error">
+              {{ formatCurrency(totalSpending) }}
+            </div>
+            <div class="text-caption text-medium-emphasis mt-1">
+              {{ expenseTransactions.length }} debits
+            </div>
           </v-card-text>
         </v-card>
       </v-col>
@@ -60,10 +69,19 @@
         <v-card class="h-100" rounded elevation="2">
           <v-card-text class="pa-4">
             <div class="d-flex align-start justify-space-between mb-3">
-              <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis">Net Cash Flow</span>
-              <v-icon :color="netCashFlow >= 0 ? 'success' : 'error'" size="18" :opacity="0.4">mdi-trending-up</v-icon>
+              <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis"
+                >Net Cash Flow</span
+              >
+              <v-icon :color="netCashFlow >= 0 ? 'success' : 'error'" size="18" :opacity="0.4"
+                >mdi-trending-up</v-icon
+              >
             </div>
-            <div class="text-h5 font-weight-black" :class="netCashFlow >= 0 ? 'text-success' : 'text-error'">{{ formatCurrency(netCashFlow) }}</div>
+            <div
+              class="text-h5 font-weight-black"
+              :class="netCashFlow >= 0 ? 'text-success' : 'text-error'"
+            >
+              {{ formatCurrency(netCashFlow) }}
+            </div>
             <div class="text-caption text-medium-emphasis mt-1">Income minus spending</div>
           </v-card-text>
         </v-card>
@@ -72,10 +90,19 @@
         <v-card class="h-100" rounded elevation="2">
           <v-card-text class="pa-4">
             <div class="d-flex align-start justify-space-between mb-3">
-              <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis">Budget Variance</span>
-              <v-icon :color="budgetVariance >= 0 ? 'success' : 'warning'" size="18" :opacity="0.4">mdi-wallet-outline</v-icon>
+              <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis"
+                >Budget Variance</span
+              >
+              <v-icon :color="budgetVariance >= 0 ? 'success' : 'warning'" size="18" :opacity="0.4"
+                >mdi-wallet-outline</v-icon
+              >
             </div>
-            <div class="text-h5 font-weight-black" :class="budgetVariance >= 0 ? 'text-success' : 'text-error'">{{ formatCurrency(budgetVariance) }}</div>
+            <div
+              class="text-h5 font-weight-black"
+              :class="budgetVariance >= 0 ? 'text-success' : 'text-error'"
+            >
+              {{ formatCurrency(budgetVariance) }}
+            </div>
             <div class="text-caption text-medium-emphasis mt-1">Actual net vs planned net</div>
           </v-card-text>
         </v-card>
@@ -114,7 +141,9 @@
                     {{ row.typeLabel }}
                   </v-chip>
                 </td>
-                <td class="text-center text-body-2 font-weight-bold">{{ formatCurrency(row.actual) }}</td>
+                <td class="text-center text-body-2 font-weight-bold">
+                  {{ formatCurrency(row.actual) }}
+                </td>
                 <td class="text-center text-body-2">{{ formatCurrency(row.budget) }}</td>
                 <td
                   class="text-center text-body-2 font-weight-bold pr-5"
@@ -204,7 +233,9 @@
                       height="4"
                       rounded
                     />
-                    <span class="text-caption text-medium-emphasis" style="min-width: 32px">{{ goal.progressLabel }}</span>
+                    <span class="text-caption text-medium-emphasis" style="min-width: 32px">{{
+                      goal.progressLabel
+                    }}</span>
                   </div>
                 </td>
               </tr>
@@ -235,7 +266,9 @@
                 </td>
               </tr>
               <tr v-for="row in uncategorizedRows" :key="row.FITID">
-                <td class="pl-5 text-body-2 font-weight-medium">{{ row.NAME || row.MEMO || row.FITID }}</td>
+                <td class="pl-5 text-body-2 font-weight-medium">
+                  {{ row.NAME || row.MEMO || row.FITID }}
+                </td>
                 <td
                   class="text-center text-body-2 font-weight-bold pr-5"
                   :class="Number(row.TRNAMT) >= 0 ? 'text-success' : 'text-error'"

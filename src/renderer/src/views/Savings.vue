@@ -1,21 +1,30 @@
 <template>
   <v-container fluid class="pa-6">
-
     <!-- Adaptive Summary Header -->
     <v-card class="mb-6" rounded elevation="2">
       <v-row no-gutters>
         <!-- Monthly tab header -->
         <template v-if="activeTab === 'monthly'">
           <v-col cols="4" class="pa-6 text-center">
-            <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-2">Projected</div>
-            <div class="text-h4 font-weight-black text-white">{{ formatCurrency(totalProjected) }}</div>
+            <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-2">
+              Projected
+            </div>
+            <div class="text-h4 font-weight-black text-white">
+              {{ formatCurrency(totalProjected) }}
+            </div>
           </v-col>
           <v-col cols="4" class="pa-6 text-center">
-            <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-2">Actual</div>
-            <div class="text-h4 font-weight-black text-white">{{ formatCurrency(totalActual) }}</div>
+            <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-2">
+              Actual
+            </div>
+            <div class="text-h4 font-weight-black text-white">
+              {{ formatCurrency(totalActual) }}
+            </div>
           </v-col>
           <v-col cols="4" class="pa-6 text-center">
-            <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-2">Difference</div>
+            <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-2">
+              Difference
+            </div>
             <div
               class="text-h4 font-weight-black"
               :class="totalActual - totalProjected >= 0 ? 'text-success' : 'text-error'"
@@ -28,20 +37,36 @@
         <!-- Goals tab header -->
         <template v-else>
           <v-col cols="3" class="pa-6 text-center">
-            <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-2">Total Target</div>
-            <div class="text-h4 font-weight-black text-white">{{ formatCurrency(goalsStore.totalTarget) }}</div>
+            <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-2">
+              Total Target
+            </div>
+            <div class="text-h4 font-weight-black text-white">
+              {{ formatCurrency(goalsStore.totalTarget) }}
+            </div>
           </v-col>
           <v-col cols="3" class="pa-6 text-center">
-            <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-2">Saved</div>
-            <div class="text-h4 font-weight-black text-success">{{ formatCurrency(goalsStore.totalSaved) }}</div>
+            <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-2">
+              Saved
+            </div>
+            <div class="text-h4 font-weight-black text-success">
+              {{ formatCurrency(goalsStore.totalSaved) }}
+            </div>
           </v-col>
           <v-col cols="3" class="pa-6 text-center">
-            <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-2">Remaining</div>
-            <div class="text-h4 font-weight-black text-white">{{ formatCurrency(goalsStore.totalRemaining) }}</div>
+            <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-2">
+              Remaining
+            </div>
+            <div class="text-h4 font-weight-black text-white">
+              {{ formatCurrency(goalsStore.totalRemaining) }}
+            </div>
           </v-col>
           <v-col cols="3" class="pa-6 text-center">
-            <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-2">Completed</div>
-            <div class="text-h4 font-weight-black text-white">{{ goalsStore.completedGoals.length }}</div>
+            <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-2">
+              Completed
+            </div>
+            <div class="text-h4 font-weight-black text-white">
+              {{ goalsStore.completedGoals.length }}
+            </div>
           </v-col>
         </template>
       </v-row>
@@ -57,7 +82,6 @@
       <v-divider />
 
       <v-window v-model="activeTab">
-
         <!-- ── Monthly Tab ───────────────────────────────────────────────── -->
         <v-window-item value="monthly">
           <v-card-item class="pa-4 pb-0">
@@ -66,7 +90,13 @@
             </template>
             <v-card-title class="text-h6 font-weight-bold pl-2">Categories</v-card-title>
             <template #append>
-              <v-btn prepend-icon="mdi-plus" variant="tonal" color="primary" size="small" @click="addNewRow">
+              <v-btn
+                prepend-icon="mdi-plus"
+                variant="tonal"
+                color="primary"
+                size="small"
+                @click="addNewRow"
+              >
                 Add Category
               </v-btn>
             </template>
@@ -75,18 +105,24 @@
           <v-table density="comfortable" class="mt-2">
             <thead>
               <tr>
-                <th class="text-start font-weight-bold text-uppercase text-caption pl-4">Category</th>
+                <th class="text-start font-weight-bold text-uppercase text-caption pl-4">
+                  Category
+                </th>
                 <th class="text-center font-weight-bold text-uppercase text-caption">
                   Actual
                   <div class="text-body-2 font-weight-bold">{{ formatCurrency(totalActual) }}</div>
                 </th>
                 <th class="text-center font-weight-bold text-uppercase text-caption">
                   Projected
-                  <div class="text-body-2 font-weight-bold">{{ formatCurrency(totalProjected) }}</div>
+                  <div class="text-body-2 font-weight-bold">
+                    {{ formatCurrency(totalProjected) }}
+                  </div>
                 </th>
                 <th class="text-center font-weight-bold text-uppercase text-caption">
                   Diff
-                  <div class="text-body-2 font-weight-bold">{{ formatCurrency(totalActual - totalProjected) }}</div>
+                  <div class="text-body-2 font-weight-bold">
+                    {{ formatCurrency(totalActual - totalProjected) }}
+                  </div>
                 </th>
                 <th></th>
               </tr>
@@ -95,7 +131,9 @@
               <tr v-for="(cat, idx) in combinedCategories" :key="cat.id">
                 <td class="font-weight-medium text-body-2 text-uppercase pl-4">
                   <div class="d-flex align-center position-relative w-100">
-                    <span class="position-absolute left-0 text-medium-emphasis text-caption">{{ idx + 1 }}</span>
+                    <span class="position-absolute left-0 text-medium-emphasis text-caption">{{
+                      idx + 1
+                    }}</span>
                     <div v-if="editingCatId === cat.id" class="w-100">
                       <v-text-field
                         v-model="editingCatName"
@@ -110,7 +148,9 @@
                       />
                     </div>
                     <div v-else>
-                      <span class="cursor-pointer" @click="startCategoryEdit(cat)">{{ cat.name }}</span>
+                      <span class="cursor-pointer" @click="startCategoryEdit(cat)">{{
+                        cat.name
+                      }}</span>
                     </div>
                   </div>
                 </td>
@@ -123,7 +163,12 @@
                     variant="tonal"
                     class="mb-1"
                   >
-                    +{{ formatCurrency(budgetsStore.getRolloverAmount(cat.id, settingsStore.selectedMonth)) }} rollover
+                    +{{
+                      formatCurrency(
+                        budgetsStore.getRolloverAmount(cat.id, settingsStore.selectedMonth)
+                      )
+                    }}
+                    rollover
                   </v-chip>
                   <v-text-field
                     :model-value="cat.projected"
@@ -152,7 +197,12 @@
                     density="compact"
                     class="opacity-70 mr-1"
                     title="Toggle rollover"
-                    @click="budgetsStore.toggleRolloverEnabled(cat.id, !budgetsStore.getBudget(cat.id)?.rolloverEnabled)"
+                    @click="
+                      budgetsStore.toggleRolloverEnabled(
+                        cat.id,
+                        !budgetsStore.getBudget(cat.id)?.rolloverEnabled
+                      )
+                    "
                   />
                   <v-btn
                     icon="mdi-delete"
@@ -176,7 +226,13 @@
             </template>
             <v-card-title class="text-h6 font-weight-bold pl-2">Goals</v-card-title>
             <template #append>
-              <v-btn prepend-icon="mdi-plus" variant="tonal" color="primary" size="small" @click="openNewGoal">
+              <v-btn
+                prepend-icon="mdi-plus"
+                variant="tonal"
+                color="primary"
+                size="small"
+                @click="openNewGoal"
+              >
                 Add Goal
               </v-btn>
             </template>
@@ -195,7 +251,9 @@
                 <th class="text-center text-uppercase text-caption font-weight-bold">Target</th>
                 <th class="text-center text-uppercase text-caption font-weight-bold">Remaining</th>
                 <th class="text-center text-uppercase text-caption font-weight-bold">Progress</th>
-                <th class="text-center text-uppercase text-caption font-weight-bold">Target Date</th>
+                <th class="text-center text-uppercase text-caption font-weight-bold">
+                  Target Date
+                </th>
                 <th></th>
               </tr>
             </thead>
@@ -213,7 +271,9 @@
               >
                 <td class="pl-4 font-weight-medium text-body-2">{{ goal.name }}</td>
                 <td class="text-center">
-                  <v-chip color="primary" variant="tonal" size="x-small" rounded>{{ goal.priority }}</v-chip>
+                  <v-chip color="primary" variant="tonal" size="x-small" rounded>{{
+                    goal.priority
+                  }}</v-chip>
                 </td>
                 <td>
                   <v-text-field
@@ -227,7 +287,9 @@
                     @update:model-value="(value) => updateCurrentAmount(goal.id, value)"
                   />
                 </td>
-                <td class="text-center text-body-2 font-weight-bold">{{ formatCurrency(goal.targetAmount) }}</td>
+                <td class="text-center text-body-2 font-weight-bold">
+                  {{ formatCurrency(goal.targetAmount) }}
+                </td>
                 <td
                   class="text-center text-body-2 font-weight-bold"
                   :class="goal.remaining <= 0 ? 'text-success' : 'text-medium-emphasis'"
@@ -242,19 +304,33 @@
                       height="4"
                       rounded
                     />
-                    <span class="text-caption text-medium-emphasis" style="min-width: 32px">{{ goal.progressLabel }}</span>
+                    <span class="text-caption text-medium-emphasis" style="min-width: 32px">{{
+                      goal.progressLabel
+                    }}</span>
                   </div>
                 </td>
                 <td class="text-center text-body-2">{{ formatDate(goal.targetDate) }}</td>
                 <td class="text-right">
-                  <v-btn icon="mdi-pencil-outline" variant="text" size="small" density="compact" @click="openEditGoal(goal)" />
-                  <v-btn icon="mdi-delete-outline" variant="text" size="small" density="compact" color="error" @click="goalsStore.deleteGoal(goal.id)" />
+                  <v-btn
+                    icon="mdi-pencil-outline"
+                    variant="text"
+                    size="small"
+                    density="compact"
+                    @click="openEditGoal(goal)"
+                  />
+                  <v-btn
+                    icon="mdi-delete-outline"
+                    variant="text"
+                    size="small"
+                    density="compact"
+                    color="error"
+                    @click="goalsStore.deleteGoal(goal.id)"
+                  />
                 </td>
               </tr>
             </tbody>
           </v-table>
         </v-window-item>
-
       </v-window>
     </v-card>
 
@@ -262,23 +338,51 @@
     <v-dialog v-model="goalDialog" max-width="520">
       <v-card rounded="sm">
         <v-card-title class="d-flex align-center justify-space-between pa-6">
-          <span class="text-h6 font-weight-bold">{{ editingGoalId ? 'Edit Goal' : 'Add Goal' }}</span>
+          <span class="text-h6 font-weight-bold">{{
+            editingGoalId ? 'Edit Goal' : 'Add Goal'
+          }}</span>
           <v-btn icon="mdi-close" variant="text" density="compact" @click="closeGoalDialog" />
         </v-card-title>
         <v-card-text class="px-6 pt-0">
-          <v-text-field v-model="goalForm.name" label="Goal name" variant="outlined" density="comfortable" />
-          <v-text-field v-model.number="goalForm.targetAmount" label="Target amount" type="number" prefix="$" variant="outlined" density="comfortable" />
-          <v-text-field v-model.number="goalForm.currentAmount" label="Saved so far" type="number" prefix="$" variant="outlined" density="comfortable" />
-          <v-text-field v-model="goalForm.targetDate" label="Target date" type="date" variant="outlined" density="comfortable" />
+          <v-text-field
+            v-model="goalForm.name"
+            label="Goal name"
+            variant="outlined"
+            density="comfortable"
+          />
+          <v-text-field
+            v-model.number="goalForm.targetAmount"
+            label="Target amount"
+            type="number"
+            prefix="$"
+            variant="outlined"
+            density="comfortable"
+          />
+          <v-text-field
+            v-model.number="goalForm.currentAmount"
+            label="Saved so far"
+            type="number"
+            prefix="$"
+            variant="outlined"
+            density="comfortable"
+          />
+          <v-text-field
+            v-model="goalForm.targetDate"
+            label="Target date"
+            type="date"
+            variant="outlined"
+            density="comfortable"
+          />
         </v-card-text>
         <v-card-actions class="pa-6 pt-0">
           <v-spacer />
           <v-btn variant="text" @click="closeGoalDialog">Cancel</v-btn>
-          <v-btn color="primary" variant="tonal" :loading="goalsStore.loading" @click="saveGoal">Save</v-btn>
+          <v-btn color="primary" variant="tonal" :loading="goalsStore.loading" @click="saveGoal"
+            >Save</v-btn
+          >
         </v-card-actions>
       </v-card>
     </v-dialog>
-
   </v-container>
 </template>
 

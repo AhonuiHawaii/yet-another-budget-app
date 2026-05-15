@@ -15,6 +15,21 @@ export const useUserDebtsStore = defineStore('userDebts', () => {
   const loadingCount = ref(0)
   const loading = computed(() => loadingCount.value > 0)
 
+  // ── Planner Settings (localStorage) ─────────────────────────────────────────
+  const extraPayment = ref(Number(localStorage.getItem('debt_extra_payment') ?? 500))
+  const strategy = ref(localStorage.getItem('debt_strategy') ?? 'avalanche')
+
+  function setExtraPayment(val) {
+    extraPayment.value = Number(val) || 0
+    localStorage.setItem('debt_extra_payment', extraPayment.value)
+  }
+
+  function setStrategy(val) {
+    strategy.value = val
+    localStorage.setItem('debt_strategy', val)
+  }
+
+  // ── Debt Details CRUD ────────────────────────────────────────────────────────
   async function fetchDebtDetails() {
     loadingCount.value++
     try {
@@ -62,6 +77,10 @@ export const useUserDebtsStore = defineStore('userDebts', () => {
   return {
     details,
     loading,
+    extraPayment,
+    strategy,
+    setExtraPayment,
+    setStrategy,
     fetchDebtDetails,
     getDetail,
     upsertDebtDetail,

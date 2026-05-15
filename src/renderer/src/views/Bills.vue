@@ -38,7 +38,13 @@
         </template>
         <v-card-title class="text-h6 font-weight-bold pl-2">Categories</v-card-title>
         <template #append>
-          <v-btn prepend-icon="mdi-plus" variant="tonal" color="primary" size="small" @click="addNewRow">
+          <v-btn
+            prepend-icon="mdi-plus"
+            variant="tonal"
+            color="primary"
+            size="small"
+            @click="addNewRow"
+          >
             Add Category
           </v-btn>
         </template>
@@ -69,9 +75,21 @@
           <tr v-for="(cat, idx) in combinedCategories" :key="cat.id">
             <td class="font-weight-medium text-body-2 text-uppercase pl-4">
               <div class="d-flex align-center position-relative w-100">
-                <span class="position-absolute left-0 text-medium-emphasis text-caption">{{ idx + 1 }}</span>
+                <span class="position-absolute left-0 text-medium-emphasis text-caption">{{
+                  idx + 1
+                }}</span>
                 <div v-if="editingCatId === cat.id" class="w-100">
-                  <v-text-field v-model="editingCatName" variant="solo-filled" flat density="compact" hide-details @keyup.enter="saveCategoryEdit" @blur="saveCategoryEdit" autofocus class="text-start" />
+                  <v-text-field
+                    v-model="editingCatName"
+                    variant="solo-filled"
+                    flat
+                    density="compact"
+                    hide-details
+                    @keyup.enter="saveCategoryEdit"
+                    @blur="saveCategoryEdit"
+                    autofocus
+                    class="text-start"
+                  />
                 </div>
                 <div v-else>
                   <span class="cursor-pointer" @click="startCategoryEdit(cat)">{{ cat.name }}</span>
@@ -80,17 +98,62 @@
             </td>
             <td class="text-center font-weight-bold">{{ formatCurrency(cat.actual) }}</td>
             <td class="text-center">
-              <v-chip v-if="budgetsStore.getRolloverAmount(cat.id, settingsStore.selectedMonth) > 0" size="x-small" color="info" variant="tonal" class="mb-1">
-                +{{ formatCurrency(budgetsStore.getRolloverAmount(cat.id, settingsStore.selectedMonth)) }} rollover
+              <v-chip
+                v-if="budgetsStore.getRolloverAmount(cat.id, settingsStore.selectedMonth) > 0"
+                size="x-small"
+                color="info"
+                variant="tonal"
+                class="mb-1"
+              >
+                +{{
+                  formatCurrency(
+                    budgetsStore.getRolloverAmount(cat.id, settingsStore.selectedMonth)
+                  )
+                }}
+                rollover
               </v-chip>
-              <v-text-field :model-value="cat.projected" @update:model-value="(val) => updateBudgetInline(cat.id, val)" type="number" prefix="$" variant="solo" flat density="compact" hide-details class="text-center font-weight-bold" />
+              <v-text-field
+                :model-value="cat.projected"
+                @update:model-value="(val) => updateBudgetInline(cat.id, val)"
+                type="number"
+                prefix="$"
+                variant="solo"
+                flat
+                density="compact"
+                hide-details
+                class="text-center font-weight-bold"
+              />
             </td>
-            <td class="text-center font-weight-bold" :class="cat.actual - cat.projected >= 0 ? 'text-success' : 'text-error'">
+            <td
+              class="text-center font-weight-bold"
+              :class="cat.actual - cat.projected >= 0 ? 'text-success' : 'text-error'"
+            >
               {{ formatCurrency(cat.actual - cat.projected) }}
             </td>
             <td class="text-center px-0">
-              <v-btn :color="budgetsStore.getBudget(cat.id)?.rolloverEnabled ? 'info' : 'default'" icon="mdi-reload" variant="text" size="small" density="compact" class="opacity-70 mr-1" title="Toggle rollover" @click="budgetsStore.toggleRolloverEnabled(cat.id, !budgetsStore.getBudget(cat.id)?.rolloverEnabled)" />
-              <v-btn icon="mdi-delete" variant="text" size="small" color="error" class="opacity-50" @click="categoriesStore.deleteCategory(cat.id)" />
+              <v-btn
+                :color="budgetsStore.getBudget(cat.id)?.rolloverEnabled ? 'info' : 'default'"
+                icon="mdi-reload"
+                variant="text"
+                size="small"
+                density="compact"
+                class="opacity-70 mr-1"
+                title="Toggle rollover"
+                @click="
+                  budgetsStore.toggleRolloverEnabled(
+                    cat.id,
+                    !budgetsStore.getBudget(cat.id)?.rolloverEnabled
+                  )
+                "
+              />
+              <v-btn
+                icon="mdi-delete"
+                variant="text"
+                size="small"
+                color="error"
+                class="opacity-50"
+                @click="categoriesStore.deleteCategory(cat.id)"
+              />
             </td>
           </tr>
         </tbody>

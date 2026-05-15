@@ -196,15 +196,23 @@
           <tr>
             <th class="text-start font-weight-bold text-uppercase text-caption pl-4">Priority</th>
             <th class="text-center font-weight-bold text-uppercase text-caption">Debt</th>
-            <th class="text-center font-weight-bold text-uppercase text-caption">Current Balance</th>
-            <th class="text-center font-weight-bold text-uppercase text-caption">Starting Balance</th>
+            <th class="text-center font-weight-bold text-uppercase text-caption">
+              Current Balance
+            </th>
+            <th class="text-center font-weight-bold text-uppercase text-caption">
+              Starting Balance
+            </th>
             <th class="text-center font-weight-bold text-uppercase text-caption">APR</th>
             <th class="text-center font-weight-bold text-uppercase text-caption">Min Payment</th>
-            <th class="text-center font-weight-bold text-uppercase text-caption">Planned Payment</th>
+            <th class="text-center font-weight-bold text-uppercase text-caption">
+              Planned Payment
+            </th>
             <th class="text-center font-weight-bold text-uppercase text-caption">Paid</th>
             <th class="text-center font-weight-bold text-uppercase text-caption">Credit Limit</th>
             <th class="text-center font-weight-bold text-uppercase text-caption">Utilization</th>
-            <th class="text-center font-weight-bold text-uppercase text-caption">Payoff Progress</th>
+            <th class="text-center font-weight-bold text-uppercase text-caption">
+              Payoff Progress
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -218,41 +226,100 @@
               {{ idx + 1 }}
             </td>
             <td class="font-weight-medium text-body-2 text-uppercase pl-4">
-              <div>
-                {{ debt.name }}
-                <div class="text-caption text-medium-emphasis text-none">
-                  {{ debt.accountType }}
-                </div>
-              </div>
+              {{ debt.name }}
             </td>
             <td>
-              <v-text-field :model-value="debt.currentBalance" type="number" prefix="$" variant="solo" flat density="compact" hide-details @update:model-value="(val) => updateDebtDetail(debt.id, { currentBalance: val })" />
+              <v-text-field
+                :model-value="debt.currentBalance"
+                type="number"
+                prefix="$"
+                variant="solo"
+                flat
+                density="compact"
+                hide-details
+                @update:model-value="(val) => updateDebtDetail(debt.id, { currentBalance: val })"
+              />
             </td>
             <td>
-              <v-text-field :model-value="debt.startingBalance" type="number" prefix="$" variant="solo" flat density="compact" hide-details @update:model-value="(val) => updateDebtDetail(debt.id, { startingBalance: val })" />
+              <v-text-field
+                :model-value="debt.startingBalance"
+                type="number"
+                prefix="$"
+                variant="solo"
+                flat
+                density="compact"
+                hide-details
+                @update:model-value="(val) => updateDebtDetail(debt.id, { startingBalance: val })"
+              />
             </td>
             <td>
-              <v-text-field :model-value="debt.interestRate" type="number" suffix="%" variant="solo" flat density="compact" hide-details @update:model-value="(val) => updateDebtDetail(debt.id, { interestRate: val })" />
+              <v-text-field
+                :model-value="debt.interestRate"
+                type="number"
+                suffix="%"
+                variant="solo"
+                flat
+                density="compact"
+                hide-details
+                @update:model-value="(val) => updateDebtDetail(debt.id, { interestRate: val })"
+              />
             </td>
             <td>
-              <v-text-field :model-value="debt.minimumPayment" type="number" prefix="$" variant="solo" flat density="compact" hide-details @update:model-value="(val) => updateDebtDetail(debt.id, { minimumPayment: val })" />
+              <v-text-field
+                :model-value="debt.minimumPayment"
+                type="number"
+                prefix="$"
+                variant="solo"
+                flat
+                density="compact"
+                hide-details
+                @update:model-value="(val) => updateDebtDetail(debt.id, { minimumPayment: val })"
+              />
             </td>
             <td>
-              <v-text-field :model-value="debt.projected" type="number" prefix="$" variant="solo" flat density="compact" hide-details class="text-center font-weight-bold" @update:model-value="(val) => updateBudgetInline(debt.id, val)" />
+              <v-text-field
+                :model-value="debt.projected"
+                type="number"
+                prefix="$"
+                variant="solo"
+                flat
+                density="compact"
+                hide-details
+                class="text-center font-weight-bold"
+                @update:model-value="(val) => updateBudgetInline(debt.id, val)"
+              />
             </td>
             <td class="text-center font-weight-bold">
               {{ formatCurrency(debt.actual) }}
             </td>
             <td>
-              <v-text-field :model-value="debt.creditLimit" type="number" prefix="$" variant="solo" flat density="compact" hide-details @update:model-value="(val) => updateDebtDetail(debt.id, { creditLimit: val })" />
+              <v-text-field
+                :model-value="debt.creditLimit"
+                type="number"
+                prefix="$"
+                variant="solo"
+                flat
+                density="compact"
+                hide-details
+                @update:model-value="(val) => updateDebtDetail(debt.id, { creditLimit: val })"
+              />
             </td>
             <td class="text-center font-weight-bold">
-              <span :class="debt.utilization >= 70 ? 'text-warning' : 'text-medium-emphasis'">{{ debt.utilization }}%</span>
+              <span :class="debt.utilization >= 70 ? 'text-warning' : 'text-medium-emphasis'"
+                >{{ debt.utilization }}%</span
+              >
             </td>
             <td class="text-center">
               <div class="d-flex align-center gap-2">
-                <v-progress-linear :model-value="debt.progress" :color="debt.progress >= 100 ? 'success' : 'primary'" height="4" rounded />
-                <span class="text-caption text-medium-emphasis" style="min-width: 32px">{{ debt.progressLabel }}</span>
+                <v-progress-linear
+                  :model-value="debt.progress"
+                  :color="debt.progress >= 100 ? 'success' : 'primary'"
+                  height="4"
+                  rounded
+                />
+                <span class="text-caption text-medium-emphasis" style="min-width: 32px">{{
+                  debt.progressLabel
+                }}</span>
               </div>
             </td>
           </tr>

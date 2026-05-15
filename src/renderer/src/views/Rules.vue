@@ -13,9 +13,7 @@
           Apply to {{ settingsStore.selectedMonthLabel }}
         </v-btn>
 
-        <v-btn color="primary" prepend-icon="mdi-plus" @click="openAddDialog">
-          Add Rule
-        </v-btn>
+        <v-btn color="primary" prepend-icon="mdi-plus" @click="openAddDialog"> Add Rule </v-btn>
       </div>
     </div>
 
