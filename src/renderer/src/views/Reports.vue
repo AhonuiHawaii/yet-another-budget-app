@@ -13,94 +13,92 @@
     <!-- Spending Trends Chart -->
     <v-card
       v-if="transactionsStore.monthlyTotals.length > 0"
-      rounded="sm"
-      elevation="3"
-      class="mb-6 pa-5"
+      rounded
+      elevation="2"
+      class="mb-6"
     >
-      <div class="d-flex align-center gap-2 mb-4">
-        <v-icon color="primary" size="20">mdi-chart-line</v-icon>
-        <h2 class="text-h6 font-weight-bold">Spending Trends</h2>
-        <v-chip size="x-small" variant="tonal" color="primary" class="ml-1"> All time </v-chip>
-      </div>
-      <div>
+      <v-card-item class="pa-4 pb-0">
+        <template #prepend>
+          <v-icon color="primary" size="20" :opacity="0.7">mdi-chart-line</v-icon>
+        </template>
+        <v-card-title class="text-h6 font-weight-bold pl-2">
+          Spending Trends
+          <v-chip size="x-small" variant="tonal" color="primary" class="ml-2">All time</v-chip>
+        </v-card-title>
+      </v-card-item>
+      <div class="pa-4 pt-2">
         <Line :data="chartData" :options="chartOptions" />
       </div>
     </v-card>
 
     <v-row class="mb-6">
       <v-col cols="12" sm="6" lg="3">
-        <v-card class="pa-4 h-100" rounded="sm" elevation="3">
-          <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-1">
-            Income
-          </div>
-          <div class="text-h5 font-weight-black text-success">
-            {{ formatCurrency(totalIncome) }}
-          </div>
-          <div class="text-caption text-medium-emphasis mt-1">
-            {{ incomeTransactions.length }} credits
-          </div>
+        <v-card class="h-100" rounded elevation="2">
+          <v-card-text class="pa-4">
+            <div class="d-flex align-start justify-space-between mb-3">
+              <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis">Income</span>
+              <v-icon color="success" size="18" :opacity="0.4">mdi-arrow-down-circle-outline</v-icon>
+            </div>
+            <div class="text-h5 font-weight-black text-success">{{ formatCurrency(totalIncome) }}</div>
+            <div class="text-caption text-medium-emphasis mt-1">{{ incomeTransactions.length }} credits</div>
+          </v-card-text>
         </v-card>
       </v-col>
       <v-col cols="12" sm="6" lg="3">
-        <v-card class="pa-4 h-100" rounded="sm" elevation="3">
-          <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-1">
-            Spending
-          </div>
-          <div class="text-h5 font-weight-black text-error">
-            {{ formatCurrency(totalSpending) }}
-          </div>
-          <div class="text-caption text-medium-emphasis mt-1">
-            {{ expenseTransactions.length }} debits
-          </div>
+        <v-card class="h-100" rounded elevation="2">
+          <v-card-text class="pa-4">
+            <div class="d-flex align-start justify-space-between mb-3">
+              <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis">Spending</span>
+              <v-icon color="error" size="18" :opacity="0.4">mdi-arrow-up-circle-outline</v-icon>
+            </div>
+            <div class="text-h5 font-weight-black text-error">{{ formatCurrency(totalSpending) }}</div>
+            <div class="text-caption text-medium-emphasis mt-1">{{ expenseTransactions.length }} debits</div>
+          </v-card-text>
         </v-card>
       </v-col>
       <v-col cols="12" sm="6" lg="3">
-        <v-card class="pa-4 h-100" rounded="sm" elevation="3">
-          <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-1">
-            Net Cash Flow
-          </div>
-          <div
-            class="text-h5 font-weight-black"
-            :class="netCashFlow >= 0 ? 'text-success' : 'text-error'"
-          >
-            {{ formatCurrency(netCashFlow) }}
-          </div>
-          <div class="text-caption text-medium-emphasis mt-1">Income minus spending</div>
+        <v-card class="h-100" rounded elevation="2">
+          <v-card-text class="pa-4">
+            <div class="d-flex align-start justify-space-between mb-3">
+              <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis">Net Cash Flow</span>
+              <v-icon :color="netCashFlow >= 0 ? 'success' : 'error'" size="18" :opacity="0.4">mdi-trending-up</v-icon>
+            </div>
+            <div class="text-h5 font-weight-black" :class="netCashFlow >= 0 ? 'text-success' : 'text-error'">{{ formatCurrency(netCashFlow) }}</div>
+            <div class="text-caption text-medium-emphasis mt-1">Income minus spending</div>
+          </v-card-text>
         </v-card>
       </v-col>
       <v-col cols="12" sm="6" lg="3">
-        <v-card class="pa-4 h-100" rounded="sm" elevation="3">
-          <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-1">
-            Budget Variance
-          </div>
-          <div
-            class="text-h5 font-weight-black"
-            :class="budgetVariance >= 0 ? 'text-success' : 'text-error'"
-          >
-            {{ formatCurrency(budgetVariance) }}
-          </div>
-          <div class="text-caption text-medium-emphasis mt-1">Actual net vs planned net</div>
+        <v-card class="h-100" rounded elevation="2">
+          <v-card-text class="pa-4">
+            <div class="d-flex align-start justify-space-between mb-3">
+              <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis">Budget Variance</span>
+              <v-icon :color="budgetVariance >= 0 ? 'success' : 'warning'" size="18" :opacity="0.4">mdi-wallet-outline</v-icon>
+            </div>
+            <div class="text-h5 font-weight-black" :class="budgetVariance >= 0 ? 'text-success' : 'text-error'">{{ formatCurrency(budgetVariance) }}</div>
+            <div class="text-caption text-medium-emphasis mt-1">Actual net vs planned net</div>
+          </v-card-text>
         </v-card>
       </v-col>
     </v-row>
 
     <v-row>
       <v-col cols="12" lg="7">
-        <div class="mb-6">
-          <div class="d-flex align-center gap-2 mb-2">
-            <v-icon color="primary" size="20">mdi-chart-bar</v-icon>
-            <h2 class="text-h6 font-weight-bold">Category Performance</h2>
-          </div>
-          <v-table density="comfortable">
+        <v-card rounded elevation="2" class="mb-6">
+          <v-card-item class="pa-4 pb-0">
+            <template #prepend>
+              <v-icon color="primary" size="20" :opacity="0.7">mdi-chart-bar</v-icon>
+            </template>
+            <v-card-title class="text-h6 font-weight-bold pl-2">Category Performance</v-card-title>
+          </v-card-item>
+          <v-table density="comfortable" class="mt-2">
             <thead>
               <tr>
-                <th class="text-start text-uppercase text-caption font-weight-bold pl-4">
-                  Category
-                </th>
-                <th class="text-center text-uppercase text-caption font-weight-bold">Group</th>
-                <th class="text-center text-uppercase text-caption font-weight-bold">Actual</th>
-                <th class="text-center text-uppercase text-caption font-weight-bold">Budget</th>
-                <th class="text-center text-uppercase text-caption font-weight-bold">Variance</th>
+                <th class="text-start text-caption text-medium-emphasis pl-5">Category</th>
+                <th class="text-center text-caption text-medium-emphasis">Group</th>
+                <th class="text-center text-caption text-medium-emphasis">Actual</th>
+                <th class="text-center text-caption text-medium-emphasis">Budget</th>
+                <th class="text-center text-caption text-medium-emphasis pr-5">Variance</th>
               </tr>
             </thead>
             <tbody>
@@ -110,16 +108,16 @@
                 </td>
               </tr>
               <tr v-for="row in categoryPerformance" :key="row.key">
-                <td class="pl-4">{{ row.name }}</td>
+                <td class="pl-5 text-body-2 font-weight-medium">{{ row.name }}</td>
                 <td class="text-center">
-                  <v-chip :color="row.color" variant="tonal" size="x-small" rounded="sm">
+                  <v-chip :color="row.color" variant="tonal" size="x-small" rounded>
                     {{ row.typeLabel }}
                   </v-chip>
                 </td>
-                <td class="text-center font-weight-bold">{{ formatCurrency(row.actual) }}</td>
-                <td class="text-center">{{ formatCurrency(row.budget) }}</td>
+                <td class="text-center text-body-2 font-weight-bold">{{ formatCurrency(row.actual) }}</td>
+                <td class="text-center text-body-2">{{ formatCurrency(row.budget) }}</td>
                 <td
-                  class="text-center font-weight-bold"
+                  class="text-center text-body-2 font-weight-bold pr-5"
                   :class="row.variance >= 0 ? 'text-success' : 'text-error'"
                 >
                   {{ formatCurrency(row.variance) }}
@@ -127,23 +125,23 @@
               </tr>
             </tbody>
           </v-table>
-        </div>
+        </v-card>
       </v-col>
 
       <v-col cols="12" lg="5">
-        <div class="mb-6">
-          <div class="d-flex align-center gap-2 mb-2">
-            <v-icon color="primary" size="20">mdi-bank-outline</v-icon>
-            <h2 class="text-h6 font-weight-bold">Accounts</h2>
-          </div>
-          <v-table density="comfortable">
+        <v-card rounded elevation="2" class="mb-6">
+          <v-card-item class="pa-4 pb-0">
+            <template #prepend>
+              <v-icon color="primary" size="20" :opacity="0.7">mdi-bank-outline</v-icon>
+            </template>
+            <v-card-title class="text-h6 font-weight-bold pl-2">Accounts</v-card-title>
+          </v-card-item>
+          <v-table density="comfortable" class="mt-2">
             <thead>
               <tr>
-                <th class="text-start text-uppercase text-caption font-weight-bold pl-4">
-                  Account
-                </th>
-                <th class="text-center text-uppercase text-caption font-weight-bold">Count</th>
-                <th class="text-center text-uppercase text-caption font-weight-bold">Net</th>
+                <th class="text-start text-caption text-medium-emphasis pl-5">Account</th>
+                <th class="text-center text-caption text-medium-emphasis">Count</th>
+                <th class="text-center text-caption text-medium-emphasis pr-5">Net</th>
               </tr>
             </thead>
             <tbody>
@@ -153,12 +151,12 @@
                 </td>
               </tr>
               <tr v-for="account in accountRows" :key="account.ACCTID">
-                <td class="pl-4">
+                <td class="pl-5 text-body-2 font-weight-medium">
                   {{ account.displayName || account.ORG || `*${account.ACCTID}` }}
                 </td>
-                <td class="text-center">{{ account.count }}</td>
+                <td class="text-center text-body-2">{{ account.count }}</td>
                 <td
-                  class="text-center font-weight-bold"
+                  class="text-center text-body-2 font-weight-bold pr-5"
                   :class="account.total >= 0 ? 'text-success' : 'text-error'"
                 >
                   {{ formatCurrency(account.total) }}
@@ -166,24 +164,26 @@
               </tr>
             </tbody>
           </v-table>
-        </div>
+        </v-card>
       </v-col>
     </v-row>
 
     <v-row>
       <v-col cols="12" lg="6">
-        <div class="mb-6">
-          <div class="d-flex align-center gap-2 mb-2">
-            <v-icon color="primary" size="20">mdi-flag-outline</v-icon>
-            <h2 class="text-h6 font-weight-bold">Goals</h2>
-          </div>
-          <v-table density="comfortable">
+        <v-card rounded elevation="2" class="mb-6">
+          <v-card-item class="pa-4 pb-0">
+            <template #prepend>
+              <v-icon color="primary" size="20" :opacity="0.7">mdi-flag-outline</v-icon>
+            </template>
+            <v-card-title class="text-h6 font-weight-bold pl-2">Goals</v-card-title>
+          </v-card-item>
+          <v-table density="comfortable" class="mt-2">
             <thead>
               <tr>
-                <th class="text-start text-uppercase text-caption font-weight-bold pl-4">Goal</th>
-                <th class="text-center text-uppercase text-caption font-weight-bold">Saved</th>
-                <th class="text-center text-uppercase text-caption font-weight-bold">Target</th>
-                <th class="text-center text-uppercase text-caption font-weight-bold">Progress</th>
+                <th class="text-start text-caption text-medium-emphasis pl-5">Goal</th>
+                <th class="text-center text-caption text-medium-emphasis">Saved</th>
+                <th class="text-center text-caption text-medium-emphasis">Target</th>
+                <th class="text-center text-caption text-medium-emphasis pr-5">Progress</th>
               </tr>
             </thead>
             <tbody>
@@ -193,39 +193,39 @@
                 </td>
               </tr>
               <tr v-for="goal in goalRows" :key="goal.id">
-                <td class="pl-4">{{ goal.name }}</td>
-                <td class="text-center">{{ formatCurrency(goal.currentAmount) }}</td>
-                <td class="text-center">{{ formatCurrency(goal.targetAmount) }}</td>
-                <td class="text-center">
-                  <div class="d-flex align-center gap-2">
+                <td class="pl-5 text-body-2 font-weight-medium">{{ goal.name }}</td>
+                <td class="text-center text-body-2">{{ formatCurrency(goal.currentAmount) }}</td>
+                <td class="text-center text-body-2">{{ formatCurrency(goal.targetAmount) }}</td>
+                <td class="text-center pr-5">
+                  <div class="d-flex align-center gap-2 px-2">
                     <v-progress-linear
                       :model-value="goal.progress"
                       :color="goal.status === 'completed' ? 'success' : 'primary'"
-                      height="8"
+                      height="4"
                       rounded
                     />
-                    <span class="text-caption">{{ goal.progressLabel }}</span>
+                    <span class="text-caption text-medium-emphasis" style="min-width: 32px">{{ goal.progressLabel }}</span>
                   </div>
                 </td>
               </tr>
             </tbody>
           </v-table>
-        </div>
+        </v-card>
       </v-col>
 
       <v-col cols="12" lg="6">
-        <div class="mb-6">
-          <div class="d-flex align-center gap-2 mb-2">
-            <v-icon color="warning" size="20">mdi-alert-circle-outline</v-icon>
-            <h2 class="text-h6 font-weight-bold">Uncategorized</h2>
-          </div>
-          <v-table density="comfortable">
+        <v-card rounded elevation="2" class="mb-6">
+          <v-card-item class="pa-4 pb-0">
+            <template #prepend>
+              <v-icon color="warning" size="20" :opacity="0.7">mdi-alert-circle-outline</v-icon>
+            </template>
+            <v-card-title class="text-h6 font-weight-bold pl-2">Uncategorized</v-card-title>
+          </v-card-item>
+          <v-table density="comfortable" class="mt-2">
             <thead>
               <tr>
-                <th class="text-start text-uppercase text-caption font-weight-bold pl-4">
-                  Transaction
-                </th>
-                <th class="text-center text-uppercase text-caption font-weight-bold">Amount</th>
+                <th class="text-start text-caption text-medium-emphasis pl-5">Transaction</th>
+                <th class="text-center text-caption text-medium-emphasis pr-5">Amount</th>
               </tr>
             </thead>
             <tbody>
@@ -235,9 +235,9 @@
                 </td>
               </tr>
               <tr v-for="row in uncategorizedRows" :key="row.FITID">
-                <td class="pl-4">{{ row.NAME || row.MEMO || row.FITID }}</td>
+                <td class="pl-5 text-body-2 font-weight-medium">{{ row.NAME || row.MEMO || row.FITID }}</td>
                 <td
-                  class="text-center font-weight-bold"
+                  class="text-center text-body-2 font-weight-bold pr-5"
                   :class="Number(row.TRNAMT) >= 0 ? 'text-success' : 'text-error'"
                 >
                   {{ formatCurrency(Math.abs(Number(row.TRNAMT) || 0)) }}
@@ -245,7 +245,7 @@
               </tr>
             </tbody>
           </v-table>
-        </div>
+        </v-card>
       </v-col>
     </v-row>
   </v-container>

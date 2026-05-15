@@ -6,7 +6,6 @@
         <v-btn
           variant="tonal"
           color="secondary"
-          rounded="sm"
           prepend-icon="mdi-play-outline"
           :loading="store.loading"
           @click="applyToCurrentMonth"
@@ -14,7 +13,7 @@
           Apply to {{ settingsStore.selectedMonthLabel }}
         </v-btn>
 
-        <v-btn color="primary" rounded="sm" prepend-icon="mdi-plus" @click="openAddDialog">
+        <v-btn color="primary" prepend-icon="mdi-plus" @click="openAddDialog">
           Add Rule
         </v-btn>
       </div>
@@ -26,7 +25,6 @@
         v-if="applyResult !== null"
         :type="applyResult.applied > 0 ? 'success' : 'info'"
         variant="tonal"
-        rounded="sm"
         closable
         class="mb-4"
         @click:close="applyResult = null"
@@ -40,7 +38,6 @@
       v-if="store.error"
       type="error"
       variant="tonal"
-      rounded="sm"
       closable
       class="mb-4"
       @click:close="store.clearError()"
@@ -49,21 +46,21 @@
     </v-alert>
 
     <!-- Empty State -->
-    <v-card v-if="!store.loading && store.rules.length === 0" rounded="sm" elevation="3">
+    <v-card v-if="!store.loading && store.rules.length === 0" rounded elevation="2">
       <v-card-text class="pa-12 text-center">
         <v-icon size="60" class="mb-4 text-disabled">mdi-tag-multiple-outline</v-icon>
         <div class="text-h6 font-weight-medium mb-2">No rules yet</div>
         <div class="text-body-2 text-medium-emphasis mb-6">
           Add a rule to automatically categorize transactions when importing.
         </div>
-        <v-btn color="primary" rounded="sm" prepend-icon="mdi-plus" @click="openAddDialog">
+        <v-btn color="primary" prepend-icon="mdi-plus" @click="openAddDialog">
           Add First Rule
         </v-btn>
       </v-card-text>
     </v-card>
 
     <!-- Rules Table -->
-    <v-card v-else rounded="sm" elevation="3">
+    <v-card v-else rounded elevation="2">
       <v-data-table
         :headers="headers"
         :items="store.rules"

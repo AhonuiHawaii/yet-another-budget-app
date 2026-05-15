@@ -124,7 +124,7 @@
           <v-btn
             color="primary"
             variant="flat"
-            size="small"
+            size="  "
             prepend-icon="mdi-file-import-outline"
             @click="importDialog = true"
           >

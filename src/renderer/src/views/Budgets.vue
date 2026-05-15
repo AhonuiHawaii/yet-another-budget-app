@@ -2,55 +2,55 @@
   <v-container fluid class="pa-6">
     <v-row class="mb-6">
       <v-col cols="12" sm="6" lg="3">
-        <v-card class="pa-4 h-100" rounded="sm" elevation="3">
-          <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-1">
-            Planned Income
-          </div>
-          <div class="text-h5 font-weight-black">{{ formatCurrency(plannedIncome) }}</div>
-          <div class="text-caption text-medium-emphasis mt-1">
-            Actual {{ formatCurrency(actualIncome) }}
-          </div>
+        <v-card class="h-100" rounded elevation="2">
+          <v-card-text class="pa-4">
+            <div class="d-flex align-start justify-space-between mb-3">
+              <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis">Planned Income</span>
+              <v-icon color="success" size="18" :opacity="0.4">mdi-trending-up</v-icon>
+            </div>
+            <div class="text-h5 font-weight-black">{{ formatCurrency(plannedIncome) }}</div>
+            <div class="text-caption text-medium-emphasis mt-1">Actual {{ formatCurrency(actualIncome) }}</div>
+          </v-card-text>
         </v-card>
       </v-col>
       <v-col cols="12" sm="6" lg="3">
-        <v-card class="pa-4 h-100" rounded="sm" elevation="3">
-          <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-1">
-            Planned Outflow
-          </div>
-          <div class="text-h5 font-weight-black">{{ formatCurrency(plannedOutflow) }}</div>
-          <div class="text-caption text-medium-emphasis mt-1">
-            Actual {{ formatCurrency(actualOutflow) }}
-          </div>
+        <v-card class="h-100" rounded elevation="2">
+          <v-card-text class="pa-4">
+            <div class="d-flex align-start justify-space-between mb-3">
+              <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis">Planned Outflow</span>
+              <v-icon color="error" size="18" :opacity="0.4">mdi-arrow-up-circle-outline</v-icon>
+            </div>
+            <div class="text-h5 font-weight-black">{{ formatCurrency(plannedOutflow) }}</div>
+            <div class="text-caption text-medium-emphasis mt-1">Actual {{ formatCurrency(actualOutflow) }}</div>
+          </v-card-text>
         </v-card>
       </v-col>
       <v-col cols="12" sm="6" lg="3">
-        <v-card class="pa-4 h-100" rounded="sm" elevation="3">
-          <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-1">
-            Planned Net
-          </div>
-          <div
-            class="text-h5 font-weight-black"
-            :class="plannedNet >= 0 ? 'text-success' : 'text-error'"
-          >
-            {{ formatCurrency(plannedNet) }}
-          </div>
-          <div class="text-caption text-medium-emphasis mt-1">
-            Actual {{ formatCurrency(actualNet) }}
-          </div>
+        <v-card class="h-100" rounded elevation="2">
+          <v-card-text class="pa-4">
+            <div class="d-flex align-start justify-space-between mb-3">
+              <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis">Planned Net</span>
+              <v-icon :color="plannedNet >= 0 ? 'success' : 'error'" size="18" :opacity="0.4">mdi-trending-up</v-icon>
+            </div>
+            <div class="text-h5 font-weight-black" :class="plannedNet >= 0 ? 'text-success' : 'text-error'">
+              {{ formatCurrency(plannedNet) }}
+            </div>
+            <div class="text-caption text-medium-emphasis mt-1">Actual {{ formatCurrency(actualNet) }}</div>
+          </v-card-text>
         </v-card>
       </v-col>
       <v-col cols="12" sm="6" lg="3">
-        <v-card class="pa-4 h-100" rounded="sm" elevation="3">
-          <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-1">
-            Budget Variance
-          </div>
-          <div
-            class="text-h5 font-weight-black"
-            :class="budgetVariance >= 0 ? 'text-success' : 'text-error'"
-          >
-            {{ formatCurrency(budgetVariance) }}
-          </div>
-          <div class="text-caption text-medium-emphasis mt-1">Actual net vs planned net</div>
+        <v-card class="h-100" rounded elevation="2">
+          <v-card-text class="pa-4">
+            <div class="d-flex align-start justify-space-between mb-3">
+              <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis">Budget Variance</span>
+              <v-icon :color="budgetVariance >= 0 ? 'success' : 'warning'" size="18" :opacity="0.4">mdi-wallet-outline</v-icon>
+            </div>
+            <div class="text-h5 font-weight-black" :class="budgetVariance >= 0 ? 'text-success' : 'text-error'">
+              {{ formatCurrency(budgetVariance) }}
+            </div>
+            <div class="text-caption text-medium-emphasis mt-1">Actual net vs planned net</div>
+          </v-card-text>
         </v-card>
       </v-col>
     </v-row>
@@ -66,68 +66,70 @@
 
     <div>
       <section v-for="section in budgetSections" :key="section.value">
-        <div class="d-flex align-center justify-space-between flex-wrap gap-3 mb-2">
-          <div class="d-flex align-center gap-2">
-            <v-icon :color="section.color" size="20">{{ section.icon }}</v-icon>
-            <h2 class="text-h6 font-weight-bold">{{ section.label }}</h2>
-          </div>
-        </div>
+        <v-card rounded elevation="2" class="mb-6">
+          <v-card-item class="pa-4 pb-0">
+            <template #prepend>
+              <v-icon :color="section.color" size="20" :opacity="0.7">{{ section.icon }}</v-icon>
+            </template>
+            <v-card-title class="text-h6 font-weight-bold pl-2">{{ section.label }}</v-card-title>
+          </v-card-item>
 
-        <v-table density="comfortable" class="mb-6">
-          <thead>
-            <tr>
-              <th class="text-start text-uppercase text-caption font-weight-bold pl-4">Category</th>
-              <th class="text-center text-uppercase text-caption font-weight-bold">Actual</th>
-              <th class="text-center text-uppercase text-caption font-weight-bold">Budget</th>
-              <th class="text-center text-uppercase text-caption font-weight-bold">
-                {{ section.type === 'income' ? 'Variance' : 'Remaining' }}
-              </th>
-              <th class="text-center text-uppercase text-caption font-weight-bold">Used</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-if="section.rows.length === 0">
-              <td colspan="5" class="text-center py-8 text-medium-emphasis">
-                No {{ section.label.toLowerCase() }} categories yet.
-              </td>
-            </tr>
-            <tr v-for="row in section.rows" :key="row.id">
-              <td class="pl-4">
-                <span>{{ row.name }}</span>
-              </td>
-              <td class="text-center font-weight-bold">{{ formatCurrency(row.actual) }}</td>
-              <td>
-                <v-text-field
-                  :model-value="row.planned"
-                  type="number"
-                  prefix="$"
-                  variant="solo"
-                  flat
-                  density="compact"
-                  hide-details
-                  @update:model-value="(value) => updateBudget(row.id, value)"
-                />
-              </td>
-              <td
-                class="text-center font-weight-bold"
-                :class="row.remaining >= 0 ? 'text-success' : 'text-error'"
-              >
-                {{ formatCurrency(row.remaining) }}
-              </td>
-              <td class="text-center">
-                <div class="d-flex align-center gap-2">
-                  <v-progress-linear
-                    :model-value="row.percentUsed"
-                    :color="row.percentColor"
-                    height="8"
-                    rounded
+          <v-table density="comfortable" class="mt-2">
+            <thead>
+              <tr>
+                <th class="text-start text-caption text-medium-emphasis pl-5">Category</th>
+                <th class="text-center text-caption text-medium-emphasis">Actual</th>
+                <th class="text-center text-caption text-medium-emphasis">Budget</th>
+                <th class="text-center text-caption text-medium-emphasis">
+                  {{ section.type === 'income' ? 'Variance' : 'Remaining' }}
+                </th>
+                <th class="text-center text-caption text-medium-emphasis pr-5">Used</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-if="section.rows.length === 0">
+                <td colspan="5" class="text-center py-8 text-medium-emphasis">
+                  No {{ section.label.toLowerCase() }} categories yet.
+                </td>
+              </tr>
+              <tr v-for="row in section.rows" :key="row.id">
+                <td class="pl-5 text-body-2 font-weight-medium">
+                  <span>{{ row.name }}</span>
+                </td>
+                <td class="text-center text-body-2 font-weight-bold">{{ formatCurrency(row.actual) }}</td>
+                <td>
+                  <v-text-field
+                    :model-value="row.planned"
+                    type="number"
+                    prefix="$"
+                    variant="solo"
+                    flat
+                    density="compact"
+                    hide-details
+                    @update:model-value="(value) => updateBudget(row.id, value)"
                   />
-                  <span class="text-caption">{{ row.percentLabel }}</span>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </v-table>
+                </td>
+                <td
+                  class="text-center text-body-2 font-weight-bold"
+                  :class="row.remaining >= 0 ? 'text-success' : 'text-error'"
+                >
+                  {{ formatCurrency(row.remaining) }}
+                </td>
+                <td class="text-center pr-5">
+                  <div class="d-flex align-center gap-2 px-2">
+                    <v-progress-linear
+                      :model-value="row.percentUsed"
+                      :color="row.percentColor"
+                      height="4"
+                      rounded
+                    />
+                    <span class="text-caption text-medium-emphasis" style="min-width: 32px">{{ row.percentLabel }}</span>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </v-table>
+        </v-card>
       </section>
     </div>
   </v-container>
