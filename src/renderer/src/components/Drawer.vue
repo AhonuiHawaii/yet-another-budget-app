@@ -7,12 +7,11 @@ const navItems = [
   { title: 'Accounts', value: 'Accounts', icon: 'mdi-bank' },
   { title: 'Transactions', value: 'Transactions', icon: 'mdi-swap-horizontal' },
   { title: 'Income', value: 'Income', icon: 'mdi-trending-up' },
-  { title: 'Savings', value: 'Savings', icon: 'mdi-piggy-bank' },
-  { title: 'Variable Expenses', value: 'Variable', icon: 'mdi-shopping' },
+  { title: 'Savings & Goals', value: 'Savings', icon: 'mdi-piggy-bank' },
+  { title: 'Expenses', value: 'Variable', icon: 'mdi-shopping' },
   { title: 'Bills', value: 'Bills', icon: 'mdi-calendar-month' },
   { title: 'Debts', value: 'Debts', icon: 'mdi-cash-remove' },
   { title: 'Budgets', value: 'Budgets', icon: 'mdi-chart-donut' },
-  { title: 'Goals', value: 'Goals', icon: 'mdi-flag' },
   { title: 'Reports', value: 'Reports', icon: 'mdi-chart-bar' },
   { title: 'Auto-Rules', value: 'Rules', icon: 'mdi-tag-multiple-outline' }
 ]
