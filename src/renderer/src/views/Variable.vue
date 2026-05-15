@@ -27,8 +27,8 @@
     <!-- Tabs -->
     <v-card rounded elevation="2">
       <v-tabs v-model="activeTab" color="primary" class="px-4 pt-2">
-        <v-tab value="variable" prepend-icon="mdi-shopping">Variable</v-tab>
-        <v-tab value="bills" prepend-icon="mdi-calendar-month">Bills</v-tab>
+        <v-tab value="variable" prepend-icon="mdi-shopping">Variable Expenses</v-tab>
+        <v-tab value="bills" prepend-icon="mdi-calendar-month">Bills & Expenses</v-tab>
       </v-tabs>
 
       <v-divider />

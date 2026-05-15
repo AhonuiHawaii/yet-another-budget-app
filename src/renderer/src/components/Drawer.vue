@@ -9,7 +9,6 @@ const navItems = [
   { title: 'Income', value: 'Income', icon: 'mdi-trending-up' },
   { title: 'Savings & Goals', value: 'Savings', icon: 'mdi-piggy-bank' },
   { title: 'Expenses', value: 'Variable', icon: 'mdi-shopping' },
-  { title: 'Bills', value: 'Bills', icon: 'mdi-calendar-month' },
   { title: 'Debts', value: 'Debts', icon: 'mdi-cash-remove' },
   { title: 'Budgets', value: 'Budgets', icon: 'mdi-chart-donut' },
   { title: 'Reports', value: 'Reports', icon: 'mdi-chart-bar' },
