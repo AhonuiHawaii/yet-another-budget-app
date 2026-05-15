@@ -109,9 +109,9 @@
       </v-col>
     </v-row>
 
-    <v-row>
-      <v-col cols="12" lg="7">
-        <v-card rounded elevation="2" class="mb-6">
+    <v-row class="mb-6">
+      <v-col cols="12" lg="6">
+        <v-card rounded elevation="2" class="h-100">
           <v-card-item class="pa-4 pb-0">
             <template #prepend>
               <v-icon color="primary" size="20" :opacity="0.7">mdi-chart-bar</v-icon>
@@ -158,7 +158,7 @@
       </v-col>
 
       <v-col cols="12" lg="5">
-        <v-card rounded elevation="2" class="mb-6">
+        <v-card rounded elevation="2" class="h-100">
           <v-card-item class="pa-4 pb-0">
             <template #prepend>
               <v-icon color="primary" size="20" :opacity="0.7">mdi-bank-outline</v-icon>
@@ -199,7 +199,7 @@
 
     <v-row>
       <v-col cols="12" lg="6">
-        <v-card rounded elevation="2" class="mb-6">
+        <v-card rounded elevation="2" class="h-100">
           <v-card-item class="pa-4 pb-0">
             <template #prepend>
               <v-icon color="primary" size="20" :opacity="0.7">mdi-flag-outline</v-icon>
@@ -245,7 +245,7 @@
       </v-col>
 
       <v-col cols="12" lg="6">
-        <v-card rounded elevation="2" class="mb-6">
+        <v-card rounded elevation="2" class="h-100">
           <v-card-item class="pa-4 pb-0">
             <template #prepend>
               <v-icon color="warning" size="20" :opacity="0.7">mdi-alert-circle-outline</v-icon>

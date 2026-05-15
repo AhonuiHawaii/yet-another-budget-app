@@ -80,6 +80,9 @@
                   Estimated Payoff
                 </div>
                 <div class="text-h6 font-weight-black">{{ estimatedPayoffDate }}</div>
+                <div v-if="minimumsSimulation.totalMonths" class="text-caption text-medium-emphasis mt-1">
+                  vs {{ fmtDuration(minimumsSimulation.totalMonths) }} with minimums
+                </div>
               </v-col>
               <v-col cols="6" class="pb-4">
                 <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-1">
@@ -88,12 +91,18 @@
                 <div class="text-h6 font-weight-black text-warning">
                   {{ formatCurrency(activeSimulation.totalInterest) }}
                 </div>
+                <div v-if="interestSaved > 0" class="text-caption text-success mt-1">
+                  You save {{ formatCurrency(interestSaved) }}
+                </div>
               </v-col>
               <v-col cols="6">
                 <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-1">
                   Debt Free In
                 </div>
                 <div class="text-h6 font-weight-black">{{ debtFreeIn }}</div>
+                <div v-if="monthsSaved > 0" class="text-caption text-success mt-1">
+                  {{ monthsSaved }} months faster
+                </div>
               </v-col>
               <v-col cols="6">
                 <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-1">
@@ -101,6 +110,9 @@
                 </div>
                 <div class="text-h6 font-weight-black">
                   {{ formatCurrency(activeSimulation.totalPaid) }}
+                </div>
+                <div v-if="minimumsSimulation.totalPaid" class="text-caption text-medium-emphasis mt-1">
+                  vs {{ formatCurrency(minimumsSimulation.totalPaid) }} with minimums
                 </div>
               </v-col>
             </v-row>
@@ -110,10 +122,10 @@
     </v-card>
 
     <!-- Left Panel: Debt List + How It Works  |  Right Panel: Payoff Timeline -->
-    <v-row class="mb-6">
+    <v-row class="mb-6" align="stretch">
       <!-- Left: Debt List + How It Works -->
       <v-col cols="12" md="5" class="d-flex flex-column gap-4">
-        <v-card rounded elevation="2">
+        <v-card rounded elevation="2" class="h-100">
           <v-card-item class="pa-4 pb-2">
             <v-card-title class="text-subtitle-1 font-weight-bold">Payoff Order</v-card-title>
             <template #append>
@@ -190,25 +202,6 @@
           </v-table>
         </v-card>
 
-        <v-card rounded elevation="2" class="pa-4">
-          <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-4">
-            How It Works
-          </div>
-          <div
-            v-for="(step, i) in howItWorks"
-            :key="i"
-            class="d-flex align-start gap-3"
-            :class="i < howItWorks.length - 1 ? 'mb-4' : ''"
-          >
-            <v-icon :color="step.color" size="20" class="flex-shrink-0 mt-1">{{
-              step.icon
-            }}</v-icon>
-            <div>
-              <div class="text-body-2 font-weight-bold mb-1">{{ step.title }}</div>
-              <div class="text-caption text-medium-emphasis">{{ step.description }}</div>
-            </div>
-          </div>
-        </v-card>
       </v-col>
 
       <!-- Right: Payoff Timeline -->
@@ -466,6 +459,11 @@
                 <th class="text-center font-weight-bold text-uppercase text-caption">
                   Credit Limit
                 </th>
+                <th class="text-center font-weight-bold text-uppercase text-caption">Paid</th>
+                <th class="text-center font-weight-bold text-uppercase text-caption">Utilization</th>
+                <th class="text-center font-weight-bold text-uppercase text-caption">
+                  Payoff Progress
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -540,6 +538,27 @@
                     hide-details
                     @update:model-value="(val) => updateDebtDetail(debt.id, { creditLimit: val })"
                   />
+                </td>
+                <td class="text-center text-body-2 font-weight-bold">
+                  {{ formatCurrency(debt.actual) }}
+                </td>
+                <td class="text-center text-body-2 font-weight-bold">
+                  <span :class="debt.utilization >= 70 ? 'text-warning' : 'text-medium-emphasis'"
+                    >{{ debt.utilization }}%</span
+                  >
+                </td>
+                <td class="text-center" style="min-width: 120px">
+                  <div class="d-flex align-center gap-2 px-2">
+                    <v-progress-linear
+                      :model-value="debt.progress"
+                      :color="debt.progress >= 100 ? 'success' : 'primary'"
+                      height="4"
+                      rounded
+                    />
+                    <span class="text-caption text-medium-emphasis" style="min-width: 32px">{{
+                      debt.progressLabel
+                    }}</span>
+                  </div>
                 </td>
               </tr>
             </tbody>
@@ -956,35 +975,6 @@ function aprColor(rate) {
   if (rate >= 12) return 'warning'
   return 'success'
 }
-
-const howItWorks = [
-  {
-    icon: 'mdi-cash-plus',
-    color: 'primary',
-    title: 'Set your extra payment',
-    description: 'Enter any amount above your minimums to accelerate payoff.'
-  },
-  {
-    icon: 'mdi-sort-variant',
-    color: 'primary',
-    title: 'Choose a strategy',
-    description:
-      'Avalanche targets the highest APR to minimize total interest. Snowball targets the smallest balance for fast wins.'
-  },
-  {
-    icon: 'mdi-transfer-right',
-    color: 'primary',
-    title: 'Payments roll over',
-    description:
-      'When a debt clears, its full payment redirects to the next focus debt automatically.'
-  },
-  {
-    icon: 'mdi-trending-up',
-    color: 'success',
-    title: 'Watch the snowball grow',
-    description: 'Your monthly payment power compounds with every debt you eliminate.'
-  }
-]
 
 function formatCurrency(val) {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(val || 0)
