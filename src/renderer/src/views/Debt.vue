@@ -308,154 +308,269 @@
       </v-col>
     </v-row>
 
-    <v-card rounded elevation="2">
-      <v-card-item class="pa-4 pb-0">
-        <template #prepend>
-          <v-icon color="error" size="20" :opacity="0.7">mdi-cash-remove</v-icon>
-        </template>
-        <v-card-title class="text-h6 font-weight-bold pl-2">Debt Accounts</v-card-title>
-      </v-card-item>
+    <!-- Bottom Row: Snowball Chart + Avalanche vs Snowball -->
+    <v-row class="mb-6">
+      <!-- Payment Snowball Over Time -->
+      <v-col cols="12" md="7">
+        <v-card rounded elevation="2" class="h-100">
+          <v-card-item class="pa-4 pb-2">
+            <v-card-title class="text-subtitle-1 font-weight-bold">
+              Payment Snowball Over Time
+            </v-card-title>
+          </v-card-item>
+          <v-card-text class="pa-4 pt-2">
+            <div v-if="chartBars.length > 0" style="height: 220px">
+              <Bar :data="snowballChartData" :options="snowballChartOptions" />
+            </div>
+            <div v-else class="text-center py-8 text-medium-emphasis text-body-2">
+              No active debts
+            </div>
+          </v-card-text>
+        </v-card>
+      </v-col>
 
-      <v-table density="comfortable" class="mt-2">
-        <thead>
-          <tr>
-            <th class="text-start font-weight-bold text-uppercase text-caption pl-4">Priority</th>
-            <th class="text-center font-weight-bold text-uppercase text-caption">Debt</th>
-            <th class="text-center font-weight-bold text-uppercase text-caption">
-              Current Balance
-            </th>
-            <th class="text-center font-weight-bold text-uppercase text-caption">
-              Starting Balance
-            </th>
-            <th class="text-center font-weight-bold text-uppercase text-caption">APR</th>
-            <th class="text-center font-weight-bold text-uppercase text-caption">Min Payment</th>
-            <th class="text-center font-weight-bold text-uppercase text-caption">
-              Planned Payment
-            </th>
-            <th class="text-center font-weight-bold text-uppercase text-caption">Paid</th>
-            <th class="text-center font-weight-bold text-uppercase text-caption">Credit Limit</th>
-            <th class="text-center font-weight-bold text-uppercase text-caption">Utilization</th>
-            <th class="text-center font-weight-bold text-uppercase text-caption">
-              Payoff Progress
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-if="debtRows.length === 0">
-            <td colspan="11" class="text-center py-8 text-medium-emphasis">
-              No credit card accounts yet.
-            </td>
-          </tr>
-          <tr v-for="(debt, idx) in debtRows" :key="debt.id">
-            <td class="text-center text-medium-emphasis">
-              {{ idx + 1 }}
-            </td>
-            <td class="font-weight-medium text-body-2 text-uppercase pl-4">
-              {{ debt.name }}
-            </td>
-            <td>
-              <v-text-field
-                :model-value="debt.currentBalance"
-                type="number"
-                prefix="$"
-                variant="solo"
-                flat
-                density="compact"
-                hide-details
-                @update:model-value="(val) => updateDebtDetail(debt.id, { currentBalance: val })"
-              />
-            </td>
-            <td>
-              <v-text-field
-                :model-value="debt.startingBalance"
-                type="number"
-                prefix="$"
-                variant="solo"
-                flat
-                density="compact"
-                hide-details
-                @update:model-value="(val) => updateDebtDetail(debt.id, { startingBalance: val })"
-              />
-            </td>
-            <td>
-              <v-text-field
-                :model-value="debt.interestRate"
-                type="number"
-                suffix="%"
-                variant="solo"
-                flat
-                density="compact"
-                hide-details
-                @update:model-value="(val) => updateDebtDetail(debt.id, { interestRate: val })"
-              />
-            </td>
-            <td>
-              <v-text-field
-                :model-value="debt.minimumPayment"
-                type="number"
-                prefix="$"
-                variant="solo"
-                flat
-                density="compact"
-                hide-details
-                @update:model-value="(val) => updateDebtDetail(debt.id, { minimumPayment: val })"
-              />
-            </td>
-            <td>
-              <v-text-field
-                :model-value="debt.projected"
-                type="number"
-                prefix="$"
-                variant="solo"
-                flat
-                density="compact"
-                hide-details
-                class="text-center font-weight-bold"
-                @update:model-value="(val) => updateBudgetInline(debt.id, val)"
-              />
-            </td>
-            <td class="text-center font-weight-bold">
-              {{ formatCurrency(debt.actual) }}
-            </td>
-            <td>
-              <v-text-field
-                :model-value="debt.creditLimit"
-                type="number"
-                prefix="$"
-                variant="solo"
-                flat
-                density="compact"
-                hide-details
-                @update:model-value="(val) => updateDebtDetail(debt.id, { creditLimit: val })"
-              />
-            </td>
-            <td class="text-center font-weight-bold">
-              <span :class="debt.utilization >= 70 ? 'text-warning' : 'text-medium-emphasis'"
-                >{{ debt.utilization }}%</span
+      <!-- Avalanche vs Snowball Comparison -->
+      <v-col cols="12" md="5">
+        <v-card rounded elevation="2" class="h-100">
+          <v-card-item class="pa-4 pb-2">
+            <v-card-title class="text-subtitle-1 font-weight-bold">
+              Avalanche vs Snowball
+            </v-card-title>
+          </v-card-item>
+          <v-card-text class="pa-4 pt-2">
+            <v-row dense>
+              <!-- Avalanche -->
+              <v-col
+                cols="6"
+                class="pe-4"
+                style="border-right: 1px solid rgba(255, 255, 255, 0.12)"
               >
-            </td>
-            <td class="text-center">
-              <div class="d-flex align-center gap-2">
-                <v-progress-linear
-                  :model-value="debt.progress"
-                  :color="debt.progress >= 100 ? 'success' : 'primary'"
-                  height="4"
-                  rounded
-                />
-                <span class="text-caption text-medium-emphasis" style="min-width: 32px">{{
-                  debt.progressLabel
-                }}</span>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </v-table>
+                <div class="d-flex align-center gap-2 mb-3">
+                  <v-icon color="error" size="18">mdi-fire</v-icon>
+                  <span class="font-weight-bold text-body-2">Avalanche</span>
+                </div>
+                <div class="d-flex flex-column gap-3">
+                  <div>
+                    <div class="text-caption text-medium-emphasis mb-1">Total Interest</div>
+                    <div class="text-body-2 font-weight-bold text-warning">
+                      {{ formatCurrency(avalancheSimulation.totalInterest) }}
+                    </div>
+                  </div>
+                  <div>
+                    <div class="text-caption text-medium-emphasis mb-1">Months to Debt Free</div>
+                    <div class="text-body-2 font-weight-bold">
+                      {{ fmtDuration(avalancheSimulation.totalMonths) }}
+                    </div>
+                  </div>
+                  <div>
+                    <div class="text-caption text-medium-emphasis mb-1">First Debt Paid Off</div>
+                    <div class="text-body-2 font-weight-bold">
+                      {{ avalancheFirstPaid?.name ?? '—' }}
+                    </div>
+                    <div class="text-caption text-medium-emphasis">
+                      Mo. {{ avalancheFirstPaid?.payoffMonth ?? '—' }}
+                    </div>
+                  </div>
+                  <div>
+                    <div class="text-caption text-medium-emphasis mb-1">Saved vs Minimums</div>
+                    <div class="text-body-2 font-weight-bold text-success">
+                      {{
+                        formatCurrency(
+                          minimumsSimulation.totalInterest - avalancheSimulation.totalInterest
+                        )
+                      }}
+                    </div>
+                  </div>
+                </div>
+              </v-col>
+
+              <!-- Snowball -->
+              <v-col cols="6" class="ps-4">
+                <div class="d-flex align-center gap-2 mb-3">
+                  <v-icon color="info" size="18">mdi-snowflake</v-icon>
+                  <span class="font-weight-bold text-body-2">Snowball</span>
+                </div>
+                <div class="d-flex flex-column gap-3">
+                  <div>
+                    <div class="text-caption text-medium-emphasis mb-1">Total Interest</div>
+                    <div class="text-body-2 font-weight-bold text-warning">
+                      {{ formatCurrency(snowballSimulation.totalInterest) }}
+                    </div>
+                  </div>
+                  <div>
+                    <div class="text-caption text-medium-emphasis mb-1">Months to Debt Free</div>
+                    <div class="text-body-2 font-weight-bold">
+                      {{ fmtDuration(snowballSimulation.totalMonths) }}
+                    </div>
+                  </div>
+                  <div>
+                    <div class="text-caption text-medium-emphasis mb-1">First Debt Paid Off</div>
+                    <div class="text-body-2 font-weight-bold">
+                      {{ snowballFirstPaid?.name ?? '—' }}
+                    </div>
+                    <div class="text-caption text-medium-emphasis">
+                      Mo. {{ snowballFirstPaid?.payoffMonth ?? '—' }}
+                    </div>
+                  </div>
+                  <div>
+                    <div class="text-caption text-medium-emphasis mb-1">Saved vs Minimums</div>
+                    <div class="text-body-2 font-weight-bold text-success">
+                      {{
+                        formatCurrency(
+                          minimumsSimulation.totalInterest - snowballSimulation.totalInterest
+                        )
+                      }}
+                    </div>
+                  </div>
+                </div>
+              </v-col>
+            </v-row>
+
+            <v-divider class="my-4" />
+            <div class="text-caption text-medium-emphasis d-flex align-start gap-2">
+              <v-icon size="14" color="primary" class="mt-1 flex-shrink-0"
+                >mdi-lightbulb-outline</v-icon
+              >
+              {{ strategySummary }}
+            </div>
+          </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
+
+    <!-- Manage Debt Details (collapsible) -->
+    <v-card rounded elevation="2">
+      <v-card-title
+        class="pa-4 d-flex align-center justify-space-between cursor-pointer"
+        @click="showDetails = !showDetails"
+      >
+        <div class="d-flex align-center gap-2">
+          <v-icon color="error" size="20" :opacity="0.7">mdi-cash-remove</v-icon>
+          <span class="text-h6 font-weight-bold">Manage Debt Details</span>
+        </div>
+        <v-icon>{{ showDetails ? 'mdi-chevron-up' : 'mdi-chevron-down' }}</v-icon>
+      </v-card-title>
+
+      <v-expand-transition>
+        <div v-if="showDetails">
+          <v-divider />
+          <v-table density="comfortable">
+            <thead>
+              <tr>
+                <th class="text-center font-weight-bold text-uppercase text-caption pl-4">
+                  Priority
+                </th>
+                <th class="text-start font-weight-bold text-uppercase text-caption">Debt</th>
+                <th class="text-center font-weight-bold text-uppercase text-caption">
+                  Current Balance
+                </th>
+                <th class="text-center font-weight-bold text-uppercase text-caption">APR</th>
+                <th class="text-center font-weight-bold text-uppercase text-caption">
+                  Min Payment
+                </th>
+                <th class="text-center font-weight-bold text-uppercase text-caption">
+                  Planned Payment
+                </th>
+                <th class="text-center font-weight-bold text-uppercase text-caption">
+                  Credit Limit
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-if="debtRows.length === 0">
+                <td colspan="7" class="text-center py-8 text-medium-emphasis">
+                  No credit card accounts yet.
+                </td>
+              </tr>
+              <tr v-for="(debt, idx) in debtRows" :key="debt.id">
+                <td class="text-center text-medium-emphasis">{{ idx + 1 }}</td>
+                <td class="font-weight-medium text-body-2 text-uppercase">{{ debt.name }}</td>
+                <td>
+                  <v-text-field
+                    :model-value="debt.currentBalance"
+                    type="number"
+                    prefix="$"
+                    variant="solo"
+                    flat
+                    density="compact"
+                    hide-details
+                    @update:model-value="(val) => updateDebtDetail(debt.id, { currentBalance: val })"
+                  />
+                </td>
+                <td>
+                  <v-text-field
+                    :model-value="debt.interestRate"
+                    type="number"
+                    suffix="%"
+                    variant="solo"
+                    flat
+                    density="compact"
+                    hide-details
+                    @update:model-value="(val) => updateDebtDetail(debt.id, { interestRate: val })"
+                  />
+                </td>
+                <td>
+                  <v-text-field
+                    :model-value="debt.minimumPayment"
+                    type="number"
+                    prefix="$"
+                    variant="solo"
+                    flat
+                    density="compact"
+                    hide-details
+                    @update:model-value="
+                      (val) => updateDebtDetail(debt.id, { minimumPayment: val })
+                    "
+                  />
+                </td>
+                <td>
+                  <v-text-field
+                    :model-value="debt.projected"
+                    type="number"
+                    prefix="$"
+                    variant="solo"
+                    flat
+                    density="compact"
+                    hide-details
+                    @update:model-value="(val) => updateBudgetInline(debt.id, val)"
+                  />
+                </td>
+                <td>
+                  <v-text-field
+                    :model-value="debt.creditLimit"
+                    type="number"
+                    prefix="$"
+                    variant="solo"
+                    flat
+                    density="compact"
+                    hide-details
+                    @update:model-value="(val) => updateDebtDetail(debt.id, { creditLimit: val })"
+                  />
+                </td>
+              </tr>
+            </tbody>
+          </v-table>
+        </div>
+      </v-expand-transition>
     </v-card>
   </v-container>
 </template>
 
 <script setup>
-import { computed, onMounted, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
+import { Bar } from 'vue-chartjs'
+import {
+  Chart as ChartJS,
+  BarElement,
+  CategoryScale,
+  LinearScale,
+  Title,
+  Tooltip,
+  Legend
+} from 'chart.js'
+
+ChartJS.register(BarElement, CategoryScale, LinearScale, Title, Tooltip, Legend)
+
 import { useUserAccountsStore } from '../stores/userAccounts'
 import { useUserBudgetsStore } from '../stores/userBudgets'
 import { useUserDebtsStore } from '../stores/userDebts'
@@ -755,6 +870,90 @@ const interestSaved = computed(() =>
 const monthsSaved = computed(() =>
   Math.max(0, minimumsSimulation.value.totalMonths - activeSimulation.value.totalMonths)
 )
+
+const avalancheFirstPaid = computed(() =>
+  avalancheSimulation.value.results.reduce(
+    (min, r) => (!min || r.payoffMonth < min.payoffMonth ? r : min),
+    null
+  )
+)
+
+const snowballFirstPaid = computed(() =>
+  snowballSimulation.value.results.reduce(
+    (min, r) => (!min || r.payoffMonth < min.payoffMonth ? r : min),
+    null
+  )
+)
+
+const strategySummary = computed(() => {
+  const a = avalancheSimulation.value
+  const s = snowballSimulation.value
+  if (!a.totalMonths && !s.totalMonths) return 'Add debts to see a strategy comparison.'
+  const interestDiff = a.totalInterest - s.totalInterest
+  const firstDiff =
+    (snowballFirstPaid.value?.payoffMonth ?? 0) - (avalancheFirstPaid.value?.payoffMonth ?? 0)
+  if (Math.abs(interestDiff) < 1 && firstDiff === 0)
+    return 'Both strategies perform identically with your current debts.'
+  const parts = []
+  if (Math.abs(interestDiff) >= 1) {
+    const winner = interestDiff > 0 ? 'Avalanche' : 'Snowball'
+    parts.push(`${winner} saves ${formatCurrency(Math.abs(interestDiff))} more in interest`)
+  }
+  if (Math.abs(firstDiff) > 0) {
+    const winner = firstDiff > 0 ? 'Avalanche' : 'Snowball'
+    parts.push(`${winner} eliminates the first debt ${Math.abs(firstDiff)} month${Math.abs(firstDiff) > 1 ? 's' : ''} faster`)
+  }
+  return parts.join('; ') + '.'
+})
+
+const snowballChartData = computed(() => ({
+  labels: chartBars.value.map((b) => `${b.label} · ${b.monthLabel}`),
+  datasets: [
+    {
+      label: 'Payment at Payoff',
+      data: chartBars.value.map((b) => b.amount),
+      backgroundColor: chartBars.value.map((b) =>
+        b.isFocus ? 'rgba(100,181,246,0.9)' : 'rgba(100,181,246,0.4)'
+      ),
+      borderRadius: 4,
+      borderSkipped: false
+    }
+  ]
+}))
+
+const snowballChartOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: { display: false },
+    tooltip: {
+      callbacks: {
+        label: (ctx) =>
+          ` ${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(ctx.parsed.y)}/mo`
+      }
+    }
+  },
+  scales: {
+    x: {
+      grid: { display: false },
+      ticks: { color: 'rgba(255,255,255,0.6)', maxRotation: 30 }
+    },
+    y: {
+      grid: { color: 'rgba(255,255,255,0.08)' },
+      ticks: {
+        color: 'rgba(255,255,255,0.6)',
+        callback: (v) =>
+          new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD',
+            notation: 'compact'
+          }).format(v)
+      }
+    }
+  }
+}
+
+const showDetails = ref(false)
 
 function aprColor(rate) {
   if (rate >= 20) return 'error'
