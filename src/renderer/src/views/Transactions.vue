@@ -99,13 +99,6 @@
             </v-card>
           </v-menu>
 
-          <v-chip
-            v-if="store.monthsWithData.length === 0 && !store.loading"
-            variant="outlined"
-            size="small"
-          >
-            No data yet
-          </v-chip>
 
           <v-spacer />
 
@@ -124,7 +117,7 @@
           <v-btn
             color="primary"
             variant="flat"
-            size="  "
+            size="small"
             prepend-icon="mdi-file-import-outline"
             @click="importDialog = true"
           >
@@ -812,13 +805,9 @@ function onPickerSelect(date) {
 
 async function applyPeriod() {
   const months = activePeriodMonths.value
-  // Fetch each month that has data (avoid unnecessary calls)
   const available = store.monthsWithData
   const toFetch = months.filter((m) => available.includes(m))
-  for (const ym of toFetch) {
-    await store.fetchTransactionsByMonth(ym)
-  }
-  // activeMonth on store still points to last fetched; that's fine
+  await store.fetchTransactionsForPeriod(toFetch)
 }
 
 // ── Filters ───────────────────────────────────────────────────────────────────

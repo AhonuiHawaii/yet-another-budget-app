@@ -302,8 +302,8 @@ function getDebtDetail(id) {
   return debtsStore.getDetail(id)
 }
 
-function updateDebtDetail(id, updates) {
-  debtsStore.upsertDebtDetail(id, updates)
+async function updateDebtDetail(id, updates) {
+  await debtsStore.upsertDebtDetail(id, updates)
 }
 
 // ── Data Aggregation ─────────────────────────────────────────────────────────

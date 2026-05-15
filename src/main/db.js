@@ -94,8 +94,7 @@ try {
       BEGIN;
       CREATE TABLE Transactions_new (
         FITID           TEXT PRIMARY KEY,
-        ACCTID          TEXT, 
-        MASKEDID        TEXT,
+        ACCTID          TEXT,
         TRNTYPE         TEXT,
         DTPOSTED        TEXT,
         DTUSER          TEXT,

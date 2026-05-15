@@ -61,6 +61,34 @@ export const useUserTransactionsStore = defineStore('userTransactions', () => {
     await fetchTransactions({ DTPOSTED: yyyymm })
   }
 
+  /**
+   * Fetch transactions for multiple months in parallel and merge results.
+   * Needed for Quarter and Year granularity in the Transactions view.
+   * Falls back to single-month fetch when only one month is given.
+   * @param {string[]} months - Array of 'yyyymm' strings
+   */
+  async function fetchTransactionsForPeriod(months = []) {
+    if (!months.length) return
+    if (months.length === 1) return fetchTransactionsByMonth(months[0])
+
+    loadingCount.value++
+    error.value = null
+    try {
+      const results = await Promise.all(
+        months.map((ym) => ipc.invoke('transactions:fetch', { DTPOSTED: ym }))
+      )
+      for (const result of results) {
+        if (!result.success) throw new Error(result.error)
+      }
+      transactions.value = results.flatMap((r) => r.data)
+      activeMonth.value = months[months.length - 1]
+    } catch (err) {
+      setError(err)
+    } finally {
+      loadingCount.value--
+    }
+  }
+
   // ── Transactions: writes ──────────────────────────────────────────────────
 
   /**
@@ -240,6 +268,7 @@ export const useUserTransactionsStore = defineStore('userTransactions', () => {
     // Transactions
     fetchTransactions,
     fetchTransactionsByMonth,
+    fetchTransactionsForPeriod,
     importTransactionsFromOfx,
     editTransaction,
     removeTransaction,

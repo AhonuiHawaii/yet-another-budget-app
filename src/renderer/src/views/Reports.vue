@@ -413,7 +413,7 @@ const chartData = computed(() => {
       {
         label: 'Income',
         data: rows.map((r) => r.income),
-        Color: '#4caf50',
+        borderColor: '#4caf50',
         backgroundColor: 'rgba(76,175,80,0.08)',
         fill: true,
         tension: 0.3,
@@ -423,7 +423,7 @@ const chartData = computed(() => {
       {
         label: 'Spending',
         data: rows.map((r) => r.spending),
-        Color: '#f44336',
+        borderColor: '#f44336',
         backgroundColor: 'rgba(244,67,54,0.08)',
         fill: true,
         tension: 0.3,
