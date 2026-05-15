@@ -1,0 +1,155 @@
+```json
+[
+  {
+    "categoryGroup": "Expenses",
+    "category": "Rent"
+  },
+  {
+    "categoryGroup": "Expenses",
+    "category": "Mortgage"
+  },
+  {
+    "categoryGroup": "Expenses",
+    "category": "Electricity"
+  },
+  {
+    "categoryGroup": "Expenses",
+    "category": "Water"
+  },
+  {
+    "categoryGroup": "Expenses",
+    "category": "Sewer"
+  },
+  {
+    "categoryGroup": "Expenses",
+    "category": "Trash"
+  },
+  {
+    "categoryGroup": "Expenses",
+    "category": "Internet"
+  },
+  {
+    "categoryGroup": "Expenses",
+    "category": "Mobile Phone"
+  },
+  {
+    "categoryGroup": "Expenses",
+    "category": "Insurance"
+  },
+  {
+    "categoryGroup": "Expenses",
+    "category": "Streaming Services"
+  },
+  {
+    "categoryGroup": "Expenses",
+    "category": "Gym Membership"
+  },
+  {
+    "categoryGroup": "Expenses",
+    "category": "HOA Fees"
+  },
+  {
+    "categoryGroup": "Expenses",
+    "category": "Childcare"
+  },
+  {
+    "categoryGroup": "Expenses",
+    "category": "Minimum Loan Payments"
+  },
+  {
+    "categoryGroup": "Variable",
+    "category": "Groceries"
+  },
+  {
+    "categoryGroup": "Variable",
+    "category": "Dining Out"
+  },
+  {
+    "categoryGroup": "Variable",
+    "category": "Coffee"
+  },
+  {
+    "categoryGroup": "Variable",
+    "category": "Gas"
+  },
+  {
+    "categoryGroup": "Variable",
+    "category": "Parking"
+  },
+  {
+    "categoryGroup": "Variable",
+    "category": "Public Transit"
+  },
+  {
+    "categoryGroup": "Variable",
+    "category": "Household Supplies"
+  },
+  {
+    "categoryGroup": "Variable",
+    "category": "Clothing"
+  },
+  {
+    "categoryGroup": "Variable",
+    "category": "Medical"
+  },
+  {
+    "categoryGroup": "Variable",
+    "category": "Pharmacy"
+  },
+  {
+    "categoryGroup": "Variable",
+    "category": "Pet Supplies"
+  },
+  {
+    "categoryGroup": "Variable",
+    "category": "Entertainment"
+  },
+  {
+    "categoryGroup": "Variable",
+    "category": "Hobbies"
+  },
+  {
+    "categoryGroup": "Variable",
+    "category": "Travel"
+  },
+  {
+    "categoryGroup": "Variable",
+    "category": "Gifts"
+  },
+  {
+    "categoryGroup": "Variable",
+    "category": "Haircuts"
+  },
+  {
+    "categoryGroup": "Variable",
+    "category": "Laundry"
+  },
+  {
+    "categoryGroup": "Variable",
+    "category": "Home Maintenance"
+  },
+  {
+    "categoryGroup": "Variable",
+    "category": "Car Maintenance"
+  },
+  {
+    "categoryGroup": "Expenses",
+    "category": "Car Insurance"
+  },
+  {
+    "categoryGroup": "Expenses",
+    "category": "Car Payments"
+  },
+  {
+    "categoryGroup": "Variable",
+    "category": "Education"
+  },
+  {
+    "categoryGroup": "Variable",
+    "category": "Charity"
+  },
+  {
+    "categoryGroup": "Variable",
+    "category": "Other"
+  }
+]

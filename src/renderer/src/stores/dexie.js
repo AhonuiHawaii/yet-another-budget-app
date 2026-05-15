@@ -1,4 +1,5 @@
 import Dexie from 'dexie'
+import defaultCategories from '../assets/categories.json'
 
 const db = new Dexie('BudgetAppFrontendDB')
 
@@ -42,6 +43,20 @@ db.version(4).stores({
   goals: 'id, name, targetDate, status, createdAt',
   debtDetails: 'id, updatedAt',
   budgetRollovers: 'id, categoryId, month, createdAt'
+})
+
+db.on('populate', () => {
+  const now = new Date().toISOString()
+  db.billsCategories.bulkAdd(
+    defaultCategories
+      .filter((d) => d.categoryGroup === 'Expenses')
+      .map((d) => ({ id: crypto.randomUUID(), name: d.category, createdAt: now }))
+  )
+  db.variableCategories.bulkAdd(
+    defaultCategories
+      .filter((d) => d.categoryGroup === 'Variable')
+      .map((d) => ({ id: crypto.randomUUID(), name: d.category, createdAt: now }))
+  )
 })
 
 export default db
