@@ -117,114 +117,113 @@
       </v-card-text>
     </v-card>
 
-    <!-- Payoff Projection Panel -->
-    <v-card v-if="projectionRows.length > 0" rounded elevation="2" class="mb-6">
-      <v-card-title
-        class="pa-4 d-flex align-center justify-space-between cursor-pointer"
-        @click="showProjections = !showProjections"
-      >
-        <div class="d-flex align-center gap-2">
-          <v-icon color="primary" size="20">mdi-calculator-variant-outline</v-icon>
-          <span class="text-h6 font-weight-bold">Payoff Projection</span>
-        </div>
-        <v-icon>{{ showProjections ? 'mdi-chevron-up' : 'mdi-chevron-down' }}</v-icon>
-      </v-card-title>
+    <!-- Left Panel: Debt List + How It Works  |  Right Panel: Payoff Timeline -->
+    <v-row class="mb-6">
+      <!-- Left: Debt List + How It Works -->
+      <v-col cols="12" md="5" class="d-flex flex-column gap-4">
+        <v-card rounded elevation="2">
+          <v-card-item class="pa-4 pb-2">
+            <v-card-title class="text-subtitle-1 font-weight-bold">Payoff Order</v-card-title>
+            <template #append>
+              <v-chip
+                :color="debtsStore.strategy === 'avalanche' ? 'error' : 'info'"
+                variant="tonal"
+                size="small"
+                :prepend-icon="debtsStore.strategy === 'avalanche' ? 'mdi-fire' : 'mdi-snowflake'"
+              >
+                {{ debtsStore.strategy === 'avalanche' ? 'Avalanche' : 'Snowball' }}
+              </v-chip>
+            </template>
+          </v-card-item>
 
-      <v-expand-transition>
-        <div v-if="showProjections">
-          <v-divider />
-          <v-card-text class="pa-5">
-            <v-row class="mb-4">
-              <!-- Per-debt payoff table -->
-              <v-col cols="12" lg="7">
-                <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-3">
-                  Payoff timeline (current payment)
-                </div>
-                <v-table density="compact">
-                  <thead>
-                    <tr>
-                      <th class="text-start text-caption">Debt</th>
-                      <th class="text-right text-caption">Balance</th>
-                      <th class="text-right text-caption">Payment</th>
-                      <th class="text-right text-caption">Payoff</th>
-                      <th class="text-right text-caption">Interest</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-for="row in projectionRows" :key="row.id">
-                      <td class="text-body-2">{{ row.name }}</td>
-                      <td class="text-right text-body-2">
-                        {{ formatCurrency(row.currentBalance) }}
-                      </td>
-                      <td class="text-right text-body-2">{{ formatCurrency(row.payment) }}</td>
-                      <td class="text-right text-body-2">
-                        <span v-if="row.payoff" class="text-success font-weight-medium">{{
-                          row.payoffLabel
-                        }}</span>
-                        <span v-else class="text-error text-caption">Payment too low</span>
-                      </td>
-                      <td class="text-right text-body-2 text-warning">
-                        {{ row.payoff ? formatCurrency(row.payoff.interest) : '—' }}
-                      </td>
-                    </tr>
-                  </tbody>
-                </v-table>
-              </v-col>
+          <v-table density="compact" class="px-2">
+            <thead>
+              <tr>
+                <th style="width: 36px"></th>
+                <th class="text-start text-caption font-weight-bold">Debt</th>
+                <th class="text-right text-caption font-weight-bold">Balance</th>
+                <th class="text-right text-caption font-weight-bold">APR</th>
+                <th class="text-right text-caption font-weight-bold">Min Pmt</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-if="strategyRows.length === 0">
+                <td colspan="5" class="text-center py-6 text-medium-emphasis text-body-2">
+                  No active debts
+                </td>
+              </tr>
+              <tr v-for="row in strategyRows" :key="row.id">
+                <td class="py-2">
+                  <v-avatar
+                    size="22"
+                    :color="row.priority === 1 ? 'primary' : 'surface-variant'"
+                    class="text-caption font-weight-bold"
+                  >
+                    {{ row.priority }}
+                  </v-avatar>
+                </td>
+                <td class="text-body-2 font-weight-medium">
+                  {{ row.name }}
+                  <v-chip
+                    v-if="row.priority === 1"
+                    color="primary"
+                    variant="tonal"
+                    size="x-small"
+                    class="ml-1"
+                    >FOCUS</v-chip
+                  >
+                </td>
+                <td class="text-right text-body-2">{{ formatCurrency(row.currentBalance) }}</td>
+                <td class="text-right text-body-2">
+                  <span :class="`text-${aprColor(row.interestRate)} font-weight-bold`">
+                    {{ formatPercent(row.interestRate) }}
+                  </span>
+                </td>
+                <td class="text-right text-body-2">{{ formatCurrency(row.minimumPayment) }}</td>
+              </tr>
+            </tbody>
+            <tfoot v-if="strategyRows.length > 0">
+              <tr style="border-top: 1px solid rgba(255, 255, 255, 0.12)">
+                <td></td>
+                <td class="text-caption text-medium-emphasis font-weight-bold py-2">TOTAL</td>
+                <td class="text-right text-body-2 font-weight-bold">
+                  {{ formatCurrency(strategyRows.reduce((s, r) => s + r.currentBalance, 0)) }}
+                </td>
+                <td></td>
+                <td class="text-right text-body-2 font-weight-bold">
+                  {{ formatCurrency(strategyRows.reduce((s, r) => s + r.minimumPayment, 0)) }}
+                </td>
+              </tr>
+            </tfoot>
+          </v-table>
+        </v-card>
 
-              <!-- Avalanche vs Snowball -->
-              <v-col cols="12" lg="5">
-                <v-row>
-                  <v-col cols="6">
-                    <div
-                      class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-2"
-                    >
-                      Avalanche order
-                      <v-tooltip text="Highest APR first — minimizes total interest">
-                        <template #activator="{ props }">
-                          <v-icon v-bind="props" size="14" class="ml-1"
-                            >mdi-information-outline</v-icon
-                          >
-                        </template>
-                      </v-tooltip>
-                    </div>
-                    <ol class="pl-4">
-                      <li v-for="(row, i) in avalancheOrder" :key="row.id" class="text-body-2 mb-1">
-                        {{ row.name }}
-                        <span class="text-caption text-medium-emphasis ml-1">{{
-                          formatPercent(row.interestRate)
-                        }}</span>
-                      </li>
-                    </ol>
-                  </v-col>
-                  <v-col cols="6">
-                    <div
-                      class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-2"
-                    >
-                      Snowball order
-                      <v-tooltip text="Lowest balance first — fastest psychological wins">
-                        <template #activator="{ props }">
-                          <v-icon v-bind="props" size="14" class="ml-1"
-                            >mdi-information-outline</v-icon
-                          >
-                        </template>
-                      </v-tooltip>
-                    </div>
-                    <ol class="pl-4">
-                      <li v-for="row in snowballOrder" :key="row.id" class="text-body-2 mb-1">
-                        {{ row.name }}
-                        <span class="text-caption text-medium-emphasis ml-1">{{
-                          formatCurrency(row.currentBalance)
-                        }}</span>
-                      </li>
-                    </ol>
-                  </v-col>
-                </v-row>
-              </v-col>
-            </v-row>
-          </v-card-text>
-        </div>
-      </v-expand-transition>
-    </v-card>
+        <v-card rounded elevation="2" class="pa-4">
+          <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-4">
+            How It Works
+          </div>
+          <div
+            v-for="(step, i) in howItWorks"
+            :key="i"
+            class="d-flex align-start gap-3"
+            :class="i < howItWorks.length - 1 ? 'mb-4' : ''"
+          >
+            <v-icon :color="step.color" size="20" class="flex-shrink-0 mt-1">{{
+              step.icon
+            }}</v-icon>
+            <div>
+              <div class="text-body-2 font-weight-bold mb-1">{{ step.title }}</div>
+              <div class="text-caption text-medium-emphasis">{{ step.description }}</div>
+            </div>
+          </div>
+        </v-card>
+      </v-col>
+
+      <!-- Right: Payoff Timeline (Phase 4) -->
+      <v-col cols="12" md="7">
+        <!-- Phase 4 -->
+      </v-col>
+    </v-row>
 
     <v-card rounded elevation="2">
       <v-card-item class="pa-4 pb-0">
