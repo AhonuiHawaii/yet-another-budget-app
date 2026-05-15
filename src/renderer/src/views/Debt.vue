@@ -219,9 +219,92 @@
         </v-card>
       </v-col>
 
-      <!-- Right: Payoff Timeline (Phase 4) -->
+      <!-- Right: Payoff Timeline -->
       <v-col cols="12" md="7">
-        <!-- Phase 4 -->
+        <v-card rounded elevation="2" class="h-100 d-flex flex-column">
+          <v-card-item class="pa-4 pb-2">
+            <v-card-title class="text-subtitle-1 font-weight-bold">Payoff Timeline</v-card-title>
+            <template #append>
+              <v-icon color="primary" size="18">mdi-calendar-clock</v-icon>
+            </template>
+          </v-card-item>
+
+          <v-table density="compact" class="px-2">
+            <thead>
+              <tr>
+                <th style="width: 36px"></th>
+                <th class="text-start text-caption font-weight-bold">Debt</th>
+                <th class="text-right text-caption font-weight-bold">Mo #</th>
+                <th class="text-right text-caption font-weight-bold">Payoff Date</th>
+                <th class="text-right text-caption font-weight-bold">Duration</th>
+                <th class="text-right text-caption font-weight-bold">Interest</th>
+                <th class="text-right text-caption font-weight-bold">Pmt at Payoff</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-if="timelineRows.length === 0">
+                <td colspan="7" class="text-center py-6 text-medium-emphasis text-body-2">
+                  No active debts
+                </td>
+              </tr>
+              <tr v-for="row in timelineRows" :key="row.id">
+                <td class="py-2">
+                  <v-avatar
+                    size="22"
+                    :color="row.isFocus ? 'primary' : 'surface-variant'"
+                    class="text-caption font-weight-bold"
+                  >
+                    {{ row.priority }}
+                  </v-avatar>
+                </td>
+                <td class="text-body-2 font-weight-medium">
+                  {{ row.name }}
+                  <v-chip
+                    v-if="row.isFocus"
+                    color="primary"
+                    variant="tonal"
+                    size="x-small"
+                    class="ml-1"
+                    >FOCUS</v-chip
+                  >
+                </td>
+                <td class="text-right text-body-2 text-medium-emphasis">
+                  {{ row.payoffMonth }}
+                </td>
+                <td class="text-right text-body-2 font-weight-medium">{{ row.payoffDate }}</td>
+                <td class="text-right text-body-2">{{ fmtDuration(row.payoffMonth) }}</td>
+                <td class="text-right text-body-2 text-warning">
+                  {{ formatCurrency(row.totalInterest) }}
+                </td>
+                <td class="text-right text-body-2 font-weight-bold text-success">
+                  {{ formatCurrency(row.paymentAtPayoff) }}
+                </td>
+              </tr>
+            </tbody>
+            <tfoot v-if="timelineRows.length > 0">
+              <tr style="border-top: 1px solid rgba(255, 255, 255, 0.12)">
+                <td></td>
+                <td class="text-caption text-medium-emphasis font-weight-bold py-2">TOTAL</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td class="text-right text-body-2 font-weight-bold text-warning">
+                  {{ formatCurrency(activeSimulation.totalInterest) }}
+                </td>
+                <td class="text-right text-body-2 font-weight-bold text-success">
+                  {{ formatCurrency(timelineRows.at(-1)?.paymentAtPayoff ?? 0) }}
+                </td>
+              </tr>
+            </tfoot>
+          </v-table>
+
+          <div v-if="timelineRows.length > 0" class="pa-3 pt-2 mt-auto">
+            <div class="text-caption text-medium-emphasis d-flex align-center gap-1">
+              <v-icon size="14" color="success">mdi-trending-up</v-icon>
+              Payment grows as debts are paid off!
+            </div>
+          </div>
+        </v-card>
       </v-col>
     </v-row>
 
@@ -714,6 +797,13 @@ function formatCurrency(val) {
 
 function formatPercent(val) {
   return `${Number(val || 0).toFixed(2)}%`
+}
+
+function fmtDuration(m) {
+  const y = Math.floor(m / 12)
+  const mo = m % 12
+  if (y === 0) return `${mo}mo`
+  return mo ? `${y}y ${mo}mo` : `${y}y`
 }
 
 onMounted(async () => {
