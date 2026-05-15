@@ -76,17 +76,13 @@
           <v-col cols="12" md="5" class="ps-6">
             <v-row dense>
               <v-col cols="6" class="pb-4">
-                <div
-                  class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-1"
-                >
+                <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-1">
                   Estimated Payoff
                 </div>
                 <div class="text-h6 font-weight-black">{{ estimatedPayoffDate }}</div>
               </v-col>
               <v-col cols="6" class="pb-4">
-                <div
-                  class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-1"
-                >
+                <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-1">
                   Total Interest Paid
                 </div>
                 <div class="text-h6 font-weight-black text-warning">
@@ -94,17 +90,13 @@
                 </div>
               </v-col>
               <v-col cols="6">
-                <div
-                  class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-1"
-                >
+                <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-1">
                   Debt Free In
                 </div>
                 <div class="text-h6 font-weight-black">{{ debtFreeIn }}</div>
               </v-col>
               <v-col cols="6">
-                <div
-                  class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-1"
-                >
+                <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-1">
                   Total Paid
                 </div>
                 <div class="text-h6 font-weight-black">
@@ -494,7 +486,9 @@
                     flat
                     density="compact"
                     hide-details
-                    @update:model-value="(val) => updateDebtDetail(debt.id, { currentBalance: val })"
+                    @update:model-value="
+                      (val) => updateDebtDetail(debt.id, { currentBalance: val })
+                    "
                   />
                 </td>
                 <td>
@@ -901,7 +895,9 @@ const strategySummary = computed(() => {
   }
   if (Math.abs(firstDiff) > 0) {
     const winner = firstDiff > 0 ? 'Avalanche' : 'Snowball'
-    parts.push(`${winner} eliminates the first debt ${Math.abs(firstDiff)} month${Math.abs(firstDiff) > 1 ? 's' : ''} faster`)
+    parts.push(
+      `${winner} eliminates the first debt ${Math.abs(firstDiff)} month${Math.abs(firstDiff) > 1 ? 's' : ''} faster`
+    )
   }
   return parts.join('; ') + '.'
 })
