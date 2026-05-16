@@ -64,6 +64,28 @@ export const useUserAccountsStore = defineStore('userAccounts', () => {
     }
   }
 
+  /**
+   * Create a manual (non-OFX) account such as a personal loan or Affirm.
+   * @param {{ displayName?: string, ORG?: string, ACCTTYPE?: string,
+   *           interestRate?: number, dueDate?: number|null }} data
+   * @returns {Object|null} The created account row, or null on failure.
+   */
+  async function createManualAccount(data) {
+    loadingCount.value++
+    error.value = null
+    try {
+      const result = await ipc.invoke('accounts:createManual', data)
+      if (!result.success) throw new Error(result.error)
+      await fetchAccounts()
+      return result.data
+    } catch (err) {
+      setError(err)
+      return null
+    } finally {
+      loadingCount.value--
+    }
+  }
+
   // ── Mutations ─────────────────────────────────────────────────────────────
 
   /**
@@ -132,6 +154,7 @@ export const useUserAccountsStore = defineStore('userAccounts', () => {
     accountCount,
     fetchAccounts,
     importAccountFromOfx,
+    createManualAccount,
     updateAccount,
     updateBankName,
     removeAccount,

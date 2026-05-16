@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto'
 import { extractAccountData, extractTransactionData } from './ofx.js'
 import {
   createTransactions,
@@ -5,6 +6,7 @@ import {
   updateTransaction,
   deleteTransaction,
   upsertAccount,
+  createManualAccount,
   getAccounts,
   getAccount,
   updateAccount,
@@ -143,6 +145,17 @@ export const fetchAccount = (acctid) => {
     const account = getAccount(realAcctid)
     if (!account) return fail(new Error(`No account found with ACCTID: ${acctid}`))
     return ok({ ...account, ACCTID: maskAcctid(account.ACCTID) })
+  } catch (e) {
+    return fail(e)
+  }
+}
+
+export const addManualAccount = (data) => {
+  try {
+    const ACCTID = `manual-${randomUUID()}`
+    createManualAccount({ ...data, ACCTID })
+    const created = getAccount(ACCTID)
+    return ok({ ...created, ACCTID: maskAcctid(ACCTID) })
   } catch (e) {
     return fail(e)
   }

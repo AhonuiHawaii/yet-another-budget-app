@@ -507,12 +507,25 @@
                     density="compact"
                     hide-details
                     @update:model-value="
-                      (val) => accountsStore.updateAccount(debt.id, { interestRate: Number(val) || 0 })
+                      (val) =>
+                        accountsStore.updateAccount(debt.id, { interestRate: Number(val) || 0 })
                     "
                   />
                 </td>
                 <td>
+                  <template v-if="debt.accountType === 'Buy Now Pay Later'">
+                    <div class="text-caption px-2">
+                      {{ debt.paymentFrequency === 'BiWeekly' ? 'Bi-Weekly' : debt.paymentFrequency || '—' }}
+                    </div>
+                    <div
+                      v-if="debt.paymentFrequency === 'Monthly' && debt.dueDate"
+                      class="text-caption text-medium-emphasis px-2"
+                    >
+                      Day {{ debt.dueDate }}
+                    </div>
+                  </template>
                   <v-text-field
+                    v-else
                     :model-value="debt.dueDate"
                     type="number"
                     variant="solo"
@@ -522,7 +535,8 @@
                     min="1"
                     max="31"
                     @update:model-value="
-                      (val) => accountsStore.updateAccount(debt.id, { dueDate: Number(val) || null })
+                      (val) =>
+                        accountsStore.updateAccount(debt.id, { dueDate: Number(val) || null })
                     "
                   />
                 </td>
@@ -656,7 +670,14 @@ async function updateDebtDetail(id, updates) {
 const debtAccounts = computed(() =>
   accountsStore.accounts.filter((account) => {
     const accountType = String(account.ACCTTYPE || '').toLowerCase()
-    return accountType.includes('credit')
+    return (
+      accountType.includes('credit') ||
+      accountType.includes('loan') ||
+      accountType.includes('mortgage') ||
+      accountType.includes('buy now pay later') ||
+      accountType.includes('medical debt') ||
+      accountType === 'other'
+    )
   })
 )
 
@@ -714,6 +735,7 @@ const debtRows = computed(() => {
         ...details,
         interestRate: account.interestRate || details.interestRate || 0,
         dueDate: account.dueDate ?? null,
+        paymentFrequency: account.paymentFrequency ?? null,
         remaining,
         progress: Math.min(Math.max(payoffProgress, 0), 100),
         progressLabel: `${Math.round(Math.max(payoffProgress, 0))}%`,

@@ -9,6 +9,7 @@ import {
   fetchAccounts,
   fetchAccount,
   editAccount,
+  addManualAccount,
   removeAccount,
   fetchMonthlySummary,
   fetchCategoryTotals,
@@ -35,6 +36,7 @@ export const setupIpcHandlers = () => {
   ipcMain.handle('accounts:fetchAll', () => fetchAccounts())
   ipcMain.handle('accounts:fetchOne', (_, acctid) => fetchAccount(acctid))
   ipcMain.handle('accounts:edit', (_, acctid, updates) => editAccount(acctid, updates))
+  ipcMain.handle('accounts:createManual', (_, data) => addManualAccount(data))
   ipcMain.handle('accounts:remove', (_, acctid) => removeAccount(acctid))
 
   ipcMain.handle('reports:monthlySummary', (_, yyyymm) => fetchMonthlySummary(yyyymm))

@@ -44,6 +44,7 @@ db.exec(`
     displayName TEXT,
     interestRate REAL,
     dueDate INTEGER,
+    paymentFrequency TEXT,
     createdAt   TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     lastImport  TEXT
   )
@@ -98,6 +99,9 @@ try {
   }
   if (!accountCols.has('dueDate')) {
     db.exec(`ALTER TABLE Accounts ADD COLUMN dueDate INTEGER`)
+  }
+  if (!accountCols.has('paymentFrequency')) {
+    db.exec(`ALTER TABLE Accounts ADD COLUMN paymentFrequency TEXT`)
   }
 }
 
@@ -345,6 +349,39 @@ function upsertAccount(acct) {
   ).run(acct)
 }
 
+/**
+ * Insert a new manual (non-OFX) account. Caller supplies a unique ACCTID.
+ * Used for loans like Affirm where there's no OFX feed.
+ *
+ * @param {{ ACCTID: string, displayName?: string, ORG?: string, ACCTTYPE?: string,
+ *           interestRate?: number, dueDate?: number|null, paymentFrequency?: string }} acct
+ */
+function createManualAccount(acct) {
+  if (!acct?.ACCTID) throw new Error('ACCTID is required to create an account.')
+
+  const dueDate = (() => {
+    const n = Number(acct.dueDate)
+    return Number.isInteger(n) && n >= 1 && n <= 31 ? n : null
+  })()
+
+  const VALID_FREQUENCIES = new Set(['Weekly', 'BiWeekly', 'Monthly'])
+
+  db.prepare(
+    `
+    INSERT INTO Accounts (ACCTID, ACCTTYPE, ORG, displayName, interestRate, dueDate, paymentFrequency)
+    VALUES (@ACCTID, @ACCTTYPE, @ORG, @displayName, @interestRate, @dueDate, @paymentFrequency)
+  `
+  ).run({
+    ACCTID: acct.ACCTID,
+    ACCTTYPE: acct.ACCTTYPE || 'Loan',
+    ORG: acct.ORG || null,
+    displayName: acct.displayName || null,
+    interestRate: Number(acct.interestRate) || 0,
+    dueDate,
+    paymentFrequency: VALID_FREQUENCIES.has(acct.paymentFrequency) ? acct.paymentFrequency : null
+  })
+}
+
 /** @returns {Object[]} All known accounts ordered by creation date. */
 function getAccounts() {
   return db.prepare('SELECT * FROM Accounts ORDER BY createdAt').all()
@@ -366,13 +403,17 @@ function getAccount(acctid) {
  * @returns {number} Rows changed.
  */
 function updateAccount(acctid, updates = {}) {
-  const ALLOWED = new Set(['displayName', 'ACCTTYPE', 'ORG', 'INTU_BID', 'interestRate', 'dueDate'])
+  const ALLOWED = new Set(['displayName', 'ACCTTYPE', 'ORG', 'INTU_BID', 'interestRate', 'dueDate', 'paymentFrequency'])
   const entries = Object.entries(updates)
     .filter(([col]) => ALLOWED.has(col))
     .map(([col, val]) => {
       if (col === 'dueDate') {
         const n = Number(val)
         return [col, Number.isInteger(n) && n >= 1 && n <= 31 ? n : null]
+      }
+      if (col === 'paymentFrequency') {
+        const VALID = new Set(['Weekly', 'BiWeekly', 'Monthly'])
+        return [col, VALID.has(val) ? val : null]
       }
       return [col, val]
     })
@@ -650,6 +691,7 @@ export {
   deleteTransaction,
   // Accounts
   upsertAccount,
+  createManualAccount,
   getAccounts,
   getAccount,
   updateAccount,

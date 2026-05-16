@@ -1,9 +1,18 @@
 <template>
   <v-container fluid class="pa-6">
     <!-- Add Account Button -->
-    <div class="mb-8">
+    <div class="mb-8 d-flex align-center gap-2">
       <v-btn color="primary" rounded="sm" prepend-icon="mdi-plus" @click="importDialog = true">
         Add Account
+      </v-btn>
+      <v-btn
+        color="secondary"
+        variant="tonal"
+        rounded="sm"
+        prepend-icon="mdi-pencil-plus-outline"
+        @click="manualDialog = true"
+      >
+        Add Manual Loan
       </v-btn>
 
       <v-slide-x-transition>
@@ -73,6 +82,127 @@
             @click="handleImport"
           >
             Import
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- Add Manual Loan Modal -->
+    <v-dialog v-model="manualDialog" max-width="500">
+      <v-card rounded="sm">
+        <v-card-title class="pa-6 pb-4">
+          <div class="d-flex align-center justify-space-between">
+            <div class="d-flex align-center gap-3">
+              <v-icon color="primary" size="22">mdi-pencil-plus-outline</v-icon>
+              <span class="text-h6 font-weight-bold">Add Manual Loan</span>
+            </div>
+            <v-btn
+              icon="mdi-close"
+              variant="text"
+              density="compact"
+              @click="manualDialog = false"
+            />
+          </div>
+        </v-card-title>
+        <v-divider />
+        <v-card-text class="pa-6">
+
+          <v-text-field
+            v-model="manualForm.displayName"
+            label="Account name"
+            placeholder="e.g. Affirm — Sofa"
+            variant="solo-filled"
+            density="comfortable"
+            rounded="sm"
+            hide-details="auto"
+            class="mb-4"
+            autofocus
+          />
+          <v-text-field
+            v-model="manualForm.ORG"
+            label="Lender"
+            placeholder="e.g. Affirm"
+            variant="solo-filled"
+            density="comfortable"
+            rounded="sm"
+            hide-details="auto"
+            class="mb-4"
+          />
+          <v-select
+            v-model="manualForm.ACCTTYPE"
+            :items="manualAccountTypes"
+            label="Type"
+            variant="solo-filled"
+            density="comfortable"
+            rounded="sm"
+            hide-details="auto"
+            class="mb-4"
+          />
+          <v-text-field
+            v-model.number="manualForm.interestRate"
+            label="Interest Rate (%)"
+            type="number"
+            variant="solo-filled"
+            density="comfortable"
+            rounded="sm"
+            hide-details="auto"
+            class="mb-4"
+          />
+          <template v-if="manualForm.ACCTTYPE === 'Buy Now Pay Later'">
+            <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-2">
+              Payment Frequency
+            </div>
+            <v-btn-toggle
+              v-model="manualForm.paymentFrequency"
+              mandatory
+              divided
+              variant="outlined"
+              density="compact"
+              color="primary"
+              class="mb-4"
+            >
+              <v-btn value="Weekly" size="small">Weekly</v-btn>
+              <v-btn value="BiWeekly" size="small">Bi-Weekly</v-btn>
+              <v-btn value="Monthly" size="small">Monthly</v-btn>
+            </v-btn-toggle>
+            <v-text-field
+              v-if="manualForm.paymentFrequency === 'Monthly'"
+              v-model.number="manualForm.dueDate"
+              label="Due Date (Day of month)"
+              type="number"
+              min="1"
+              max="31"
+              variant="solo-filled"
+              density="comfortable"
+              rounded="sm"
+              hide-details="auto"
+            />
+          </template>
+          <v-text-field
+            v-else
+            v-model.number="manualForm.dueDate"
+            label="Due Date (Day of month)"
+            type="number"
+            min="1"
+            max="31"
+            variant="solo-filled"
+            density="comfortable"
+            rounded="sm"
+            hide-details="auto"
+          />
+        </v-card-text>
+        <v-card-actions class="pa-6 pt-0">
+          <v-spacer />
+          <v-btn variant="text" @click="manualDialog = false">Cancel</v-btn>
+          <v-btn
+            color="primary"
+            variant="flat"
+            rounded="sm"
+            :loading="store.loading"
+            :disabled="!manualForm.displayName"
+            @click="saveManualAccount"
+          >
+            Add
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -232,7 +362,7 @@
             autofocus
             @keyup.enter="saveEditName"
           />
-          <template v-if="isCreditLine(editNameTarget)">
+          <template v-if="isLoanAccount(editNameTarget)">
             <v-text-field
               v-model.number="editInterestRate"
               label="Interest Rate (%)"
@@ -244,7 +374,39 @@
               class="mb-4"
               @keyup.enter="saveEditName"
             />
+            <template v-if="isVariableDueDate(editNameTarget)">
+              <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-2">
+                Payment Frequency
+              </div>
+              <v-btn-toggle
+                v-model="editPaymentFrequency"
+                mandatory
+                divided
+                variant="outlined"
+                density="compact"
+                color="primary"
+                class="mb-4"
+              >
+                <v-btn value="Weekly" size="small">Weekly</v-btn>
+                <v-btn value="BiWeekly" size="small">Bi-Weekly</v-btn>
+                <v-btn value="Monthly" size="small">Monthly</v-btn>
+              </v-btn-toggle>
+              <v-text-field
+                v-if="editPaymentFrequency === 'Monthly'"
+                v-model.number="editDueDate"
+                label="Due Date (Day of month)"
+                type="number"
+                min="1"
+                max="31"
+                variant="solo-filled"
+                density="comfortable"
+                rounded="sm"
+                hide-details="auto"
+                @keyup.enter="saveEditName"
+              />
+            </template>
             <v-text-field
+              v-else
               v-model.number="editDueDate"
               label="Due Date (Day of month)"
               type="number"
@@ -291,7 +453,20 @@ import { useUserAccountsStore } from '../stores/userAccounts'
 
 const store = useUserAccountsStore()
 
-const isCreditLine = (account) => account?.ACCTTYPE === 'Credit Line'
+const isVariableDueDate = (account) =>
+  String(account?.ACCTTYPE || '').toLowerCase().includes('buy now pay later')
+
+const isLoanAccount = (account) => {
+  const type = String(account?.ACCTTYPE || '').toLowerCase()
+  return (
+    type.includes('credit') ||
+    type.includes('loan') ||
+    type.includes('mortgage') ||
+    type.includes('buy now pay later') ||
+    type.includes('medical debt') ||
+    type === 'other'
+  )
+}
 
 onMounted(() => store.fetchAccounts())
 
@@ -336,12 +511,14 @@ const editNameTarget = ref(null)
 const editNameValue = ref('')
 const editInterestRate = ref(0)
 const editDueDate = ref('')
+const editPaymentFrequency = ref('Monthly')
 
 function openEditName(account) {
   editNameTarget.value = account
   editNameValue.value = account.displayName || account.ACCTTYPE || ''
   editInterestRate.value = account.interestRate || 0
   editDueDate.value = account.dueDate || ''
+  editPaymentFrequency.value = account.paymentFrequency || 'Monthly'
   editNameDialog.value = true
 }
 
@@ -350,14 +527,58 @@ function saveEditName() {
     const updates = {
       displayName: editNameValue.value.trim() || editNameTarget.value.ACCTTYPE
     }
-    if (isCreditLine(editNameTarget.value)) {
+    if (isLoanAccount(editNameTarget.value)) {
       updates.interestRate = Number(editInterestRate.value) || 0
-      updates.dueDate = Number(editDueDate.value) || null
+      if (isVariableDueDate(editNameTarget.value)) {
+        updates.paymentFrequency = editPaymentFrequency.value
+        updates.dueDate = editPaymentFrequency.value === 'Monthly' ? (Number(editDueDate.value) || null) : null
+      } else {
+        updates.dueDate = Number(editDueDate.value) || null
+      }
     }
     store.updateAccount(editNameTarget.value.ACCTID, updates)
   }
   editNameDialog.value = false
   editNameTarget.value = null
+}
+
+// Add manual loan account
+const manualDialog = ref(false)
+const manualAccountTypes = [
+  'Buy Now Pay Later',
+  'Personal Loan',
+  'Medical Debt',
+  'Family / Friend Loan',
+  'Other'
+]
+const emptyManualForm = () => ({
+  displayName: '',
+  ORG: '',
+  ACCTTYPE: 'Buy Now Pay Later',
+  interestRate: 0,
+  paymentFrequency: 'Monthly',
+  dueDate: null
+})
+const manualForm = ref(emptyManualForm())
+
+async function saveManualAccount() {
+  const payload = {
+    displayName: manualForm.value.displayName.trim(),
+    ORG: manualForm.value.ORG.trim() || null,
+    ACCTTYPE: manualForm.value.ACCTTYPE,
+    interestRate: Number(manualForm.value.interestRate) || 0,
+    paymentFrequency: manualForm.value.ACCTTYPE === 'Buy Now Pay Later' ? manualForm.value.paymentFrequency : null,
+    dueDate: manualForm.value.ACCTTYPE === 'Buy Now Pay Later' && manualForm.value.paymentFrequency === 'Monthly'
+      ? (Number(manualForm.value.dueDate) || null)
+      : manualForm.value.ACCTTYPE !== 'Buy Now Pay Later'
+        ? (Number(manualForm.value.dueDate) || null)
+        : null
+  }
+  const created = await store.createManualAccount(payload)
+  if (created) {
+    manualDialog.value = false
+    manualForm.value = emptyManualForm()
+  }
 }
 
 async function handleImport() {
@@ -399,7 +620,15 @@ function accountTypeColor(type) {
       Checking: 'primary',
       Savings: 'success',
       'Money Market': 'warning',
-      'Credit Line': 'error'
+      'Credit Line': 'error',
+      'Buy Now Pay Later': 'error',
+      'Personal Loan': 'error',
+      'Auto Loan': 'error',
+      'Student Loan': 'error',
+      Mortgage: 'error',
+      'Medical Debt': 'error',
+      'Family / Friend Loan': 'error',
+      Other: 'error'
     }[type] || 'secondary'
   )
 }
@@ -410,7 +639,15 @@ function accountTypeIcon(type) {
       Checking: 'mdi-bank-outline',
       Savings: 'mdi-piggy-bank-outline',
       'Money Market': 'mdi-chart-line',
-      'Credit Line': 'mdi-credit-card-outline'
+      'Credit Line': 'mdi-credit-card-outline',
+      'Buy Now Pay Later': 'mdi-shopping-outline',
+      'Personal Loan': 'mdi-cash-multiple',
+      'Auto Loan': 'mdi-car',
+      'Student Loan': 'mdi-school-outline',
+      Mortgage: 'mdi-home-outline',
+      'Medical Debt': 'mdi-hospital-box-outline',
+      'Family / Friend Loan': 'mdi-account-heart-outline',
+      Other: 'mdi-dots-horizontal-circle-outline'
     }[type] || 'mdi-bank-outline'
   )
 }
