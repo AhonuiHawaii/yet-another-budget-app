@@ -59,13 +59,13 @@
               <div class="text-subtitle-1 font-weight-bold mb-2">{{ focusDebt.name }}</div>
               <div class="d-flex align-center gap-2 flex-wrap">
                 <v-chip color="error" variant="tonal" size="small">
-                  {{ formatPercent(focusDebt.interestRate) }} APR
+                  {{ formatPercent(focusDebt.interestRate) }} Annual Percentage Rate
                 </v-chip>
                 <v-chip variant="tonal" size="small">
                   {{ formatCurrency(focusDebt.currentBalance) }}
                 </v-chip>
                 <v-chip color="primary" variant="tonal" size="small">
-                  {{ formatCurrency(focusPayment) }}/mo
+                  {{ formatCurrency(focusPayment) }}/month
                 </v-chip>
               </div>
             </template>
@@ -152,8 +152,8 @@
                 <th style="width: 36px"></th>
                 <th class="text-start text-caption font-weight-bold">Debt</th>
                 <th class="text-right text-caption font-weight-bold">Balance</th>
-                <th class="text-right text-caption font-weight-bold">APR</th>
-                <th class="text-right text-caption font-weight-bold">Min Pmt</th>
+                <th class="text-right text-caption font-weight-bold">Annual Percentage Rate</th>
+                <th class="text-right text-caption font-weight-bold">Minimum Payment</th>
               </tr>
             </thead>
             <tbody>
@@ -189,7 +189,19 @@
                     {{ formatPercent(row.interestRate) }}
                   </span>
                 </td>
-                <td class="text-right text-body-2">{{ formatCurrency(row.minimumPayment) }}</td>
+                <td class="text-right text-body-2">
+                  {{ formatCurrency(row.minimumPayment) }}
+                  <span class="text-caption text-medium-emphasis ml-1">
+                    /
+                    {{
+                      row.paymentFrequency === 'BiWeekly'
+                        ? 'Bi-Weekly'
+                        : row.paymentFrequency === 'Weekly'
+                          ? 'Weekly'
+                          : 'Monthly'
+                    }}
+                  </span>
+                </td>
               </tr>
             </tbody>
             <tfoot v-if="strategyRows.length > 0">
@@ -224,11 +236,11 @@
               <tr>
                 <th style="width: 36px"></th>
                 <th class="text-start text-caption font-weight-bold">Debt</th>
-                <th class="text-right text-caption font-weight-bold">Mo #</th>
+                <th class="text-right text-caption font-weight-bold">Month #</th>
                 <th class="text-right text-caption font-weight-bold">Payoff Date</th>
                 <th class="text-right text-caption font-weight-bold">Duration</th>
                 <th class="text-right text-caption font-weight-bold">Interest</th>
-                <th class="text-right text-caption font-weight-bold">Pmt at Payoff</th>
+                <th class="text-right text-caption font-weight-bold">Payment at Payoff</th>
               </tr>
             </thead>
             <tbody>
@@ -358,7 +370,7 @@
                       {{ avalancheFirstPaid?.name ?? '—' }}
                     </div>
                     <div class="text-caption text-medium-emphasis">
-                      Mo. {{ avalancheFirstPaid?.payoffMonth ?? '—' }}
+                      Month {{ avalancheFirstPaid?.payoffMonth ?? '—' }}
                     </div>
                   </div>
                   <div>
@@ -399,7 +411,7 @@
                       {{ snowballFirstPaid?.name ?? '—' }}
                     </div>
                     <div class="text-caption text-medium-emphasis">
-                      Mo. {{ snowballFirstPaid?.payoffMonth ?? '—' }}
+                      Month {{ snowballFirstPaid?.payoffMonth ?? '—' }}
                     </div>
                   </div>
                   <div>
@@ -454,7 +466,9 @@
                 <th class="text-center font-weight-bold text-uppercase text-caption">
                   Current Balance
                 </th>
-                <th class="text-center font-weight-bold text-uppercase text-caption">APR</th>
+                <th class="text-center font-weight-bold text-uppercase text-caption">
+                  Annual Percentage Rate
+                </th>
                 <th class="text-center font-weight-bold text-uppercase text-caption">Due Date</th>
                 <th class="text-center font-weight-bold text-uppercase text-caption">
                   Min Payment
@@ -513,32 +527,22 @@
                   />
                 </td>
                 <td>
-                  <template v-if="debt.accountType === 'Buy Now Pay Later'">
-                    <div class="text-caption px-2">
-                      {{ debt.paymentFrequency === 'BiWeekly' ? 'Bi-Weekly' : debt.paymentFrequency || '—' }}
-                    </div>
-                    <div
-                      v-if="debt.paymentFrequency === 'Monthly' && debt.dueDate"
-                      class="text-caption text-medium-emphasis px-2"
-                    >
-                      Day {{ debt.dueDate }}
-                    </div>
-                  </template>
-                  <v-text-field
-                    v-else
-                    :model-value="debt.dueDate"
-                    type="number"
-                    variant="solo"
-                    flat
-                    density="compact"
-                    hide-details
-                    min="1"
-                    max="31"
-                    @update:model-value="
-                      (val) =>
-                        accountsStore.updateAccount(debt.id, { dueDate: Number(val) || null })
+                  <div class="text-caption px-2">
+                    {{
+                      debt.paymentFrequency === 'BiWeekly'
+                        ? 'Bi-Weekly'
+                        : debt.paymentFrequency || 'Monthly'
+                    }}
+                  </div>
+                  <div
+                    v-if="
+                      (debt.paymentFrequency === 'Monthly' || !debt.paymentFrequency) &&
+                      debt.dueDate
                     "
-                  />
+                    class="text-caption text-medium-emphasis px-2"
+                  >
+                    Day {{ debt.dueDate }}
+                  </div>
                 </td>
                 <td>
                   <v-text-field
@@ -726,6 +730,9 @@ const debtRows = computed(() => {
       const utilization =
         details.creditLimit > 0 ? (details.currentBalance / details.creditLimit) * 100 : 0
 
+      const paymentFrequency = account.paymentFrequency ?? null
+      const minimumPayment = Number(details.minimumPayment) || 0
+      const monthlyMinimumPayment = minimumPayment * freqToMonthlyFactor(paymentFrequency)
       return {
         id: accountId,
         name: account.displayName || account.ORG || `Account ${accountId}`,
@@ -735,7 +742,9 @@ const debtRows = computed(() => {
         ...details,
         interestRate: account.interestRate || details.interestRate || 0,
         dueDate: account.dueDate ?? null,
-        paymentFrequency: account.paymentFrequency ?? null,
+        paymentFrequency,
+        paymentCount: account.paymentCount ?? null,
+        monthlyMinimumPayment,
         remaining,
         progress: Math.min(Math.max(payoffProgress, 0), 100),
         progressLabel: `${Math.round(Math.max(payoffProgress, 0))}%`,
@@ -746,6 +755,12 @@ const debtRows = computed(() => {
 })
 
 // ── Rollover Simulation Engine ────────────────────────────────────────────────
+
+function freqToMonthlyFactor(freq) {
+  if (freq === 'Weekly') return 52 / 12
+  if (freq === 'BiWeekly') return 26 / 12
+  return 1
+}
 
 function runSimulation(debts, extra, strategy) {
   if (!debts.length) return { results: [], totalMonths: 0, totalInterest: 0, totalPaid: 0 }
@@ -758,7 +773,9 @@ function runSimulation(debts, extra, strategy) {
 
   const n = sorted.length
   const balances = sorted.map((d) => d.currentBalance)
-  const minimums = sorted.map((d) => d.minimumPayment)
+  const minimums = sorted.map(
+    (d) => d.monthlyMinimumPayment ?? d.minimumPayment * freqToMonthlyFactor(d.paymentFrequency)
+  )
   const rates = sorted.map((d) => d.interestRate / 100 / 12)
   const interestAccum = new Array(n).fill(0)
   const payoffMonth = new Array(n).fill(null)
@@ -813,6 +830,7 @@ function runSimulation(debts, extra, strategy) {
       currentBalance: d.currentBalance,
       interestRate: d.interestRate,
       minimumPayment: d.minimumPayment,
+      paymentFrequency: d.paymentFrequency ?? null,
       payoffMonth: payoffMonth[i] ?? totalMonths,
       totalInterest: interestAccum[i],
       paymentAtPayoff: paymentAtPayoff[i]
@@ -837,7 +855,7 @@ const focusDebt = computed(() => {
 })
 
 const focusPayment = computed(() =>
-  focusDebt.value ? (focusDebt.value.minimumPayment || 0) + debtsStore.extraPayment : 0
+  focusDebt.value ? (focusDebt.value.monthlyMinimumPayment || 0) + debtsStore.extraPayment : 0
 )
 
 const estimatedPayoffDate = computed(() => {
@@ -853,8 +871,9 @@ const debtFreeIn = computed(() => {
   if (!m) return 'N/A'
   const y = Math.floor(m / 12)
   const mo = m % 12
-  if (y === 0) return `${mo}mo`
-  return mo ? `${y}y ${mo}mo` : `${y}y`
+  const yPart = y === 1 ? '1 year' : y > 1 ? `${y} years` : ''
+  const moPart = mo === 1 ? '1 month' : mo > 1 ? `${mo} months` : ''
+  return [yPart, moPart].filter(Boolean).join(' ') || '0 months'
 })
 
 const minimumsSimulation = computed(() =>
@@ -993,7 +1012,7 @@ const snowballChartOptions = {
     tooltip: {
       callbacks: {
         label: (ctx) =>
-          ` ${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(ctx.parsed.y)}/mo`
+          ` ${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(ctx.parsed.y)}/month`
       }
     }
   },
@@ -1036,8 +1055,9 @@ function formatPercent(val) {
 function fmtDuration(m) {
   const y = Math.floor(m / 12)
   const mo = m % 12
-  if (y === 0) return `${mo}mo`
-  return mo ? `${y}y ${mo}mo` : `${y}y`
+  const yPart = y === 1 ? '1 year' : y > 1 ? `${y} years` : ''
+  const moPart = mo === 1 ? '1 month' : mo > 1 ? `${mo} months` : ''
+  return [yPart, moPart].filter(Boolean).join(' ') || '0 months'
 }
 
 onMounted(async () => {

@@ -106,7 +106,6 @@
         </v-card-title>
         <v-divider />
         <v-card-text class="pa-6">
-
           <v-text-field
             v-model="manualForm.displayName"
             label="Account name"
@@ -148,7 +147,7 @@
             hide-details="auto"
             class="mb-4"
           />
-          <template v-if="manualForm.ACCTTYPE === 'Buy Now Pay Later'">
+          <template v-if="isVariableDueDate({ ACCTTYPE: manualForm.ACCTTYPE })">
             <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-2">
               Payment Frequency
             </div>
@@ -165,31 +164,118 @@
               <v-btn value="BiWeekly" size="small">Bi-Weekly</v-btn>
               <v-btn value="Monthly" size="small">Monthly</v-btn>
             </v-btn-toggle>
-            <v-text-field
+            <!-- Monthly: day-of-month picker -->
+            <v-menu
               v-if="manualForm.paymentFrequency === 'Monthly'"
-              v-model.number="manualForm.dueDate"
-              label="Due Date (Day of month)"
-              type="number"
-              min="1"
-              max="31"
-              variant="solo-filled"
-              density="comfortable"
-              rounded="sm"
-              hide-details="auto"
-            />
+              :close-on-content-click="false"
+              location="bottom end"
+            >
+              <template #activator="{ props }">
+                <v-text-field
+                  v-bind="props"
+                  :model-value="manualForm.dueDate ? `Day ${manualForm.dueDate}` : ''"
+                  label="Due Date"
+                  readonly
+                  clearable
+                  variant="solo-filled"
+                  density="comfortable"
+                  rounded="sm"
+                  hide-details="auto"
+                  append-inner-icon="mdi-calendar"
+                  @click:clear="manualForm.dueDate = null"
+                />
+              </template>
+              <v-date-picker
+                :model-value="dueDateToPickerValue(manualForm.dueDate)"
+                color="primary"
+                hide-header
+                show-adjacent-months
+                @update:model-value="
+                  (val) => {
+                    manualForm.dueDate = val
+                      ? new Date(
+                          new Date(val).getTime() - new Date(val).getTimezoneOffset() * 60000
+                        ).getDate()
+                      : null
+                  }
+                "
+              />
+            </v-menu>
+            <!-- Weekly / BiWeekly: start date + payment count -->
+            <template v-else>
+              <v-menu :close-on-content-click="false" location="bottom end" class="mb-4">
+                <template #activator="{ props }">
+                  <v-text-field
+                    v-bind="props"
+                    :model-value="formatIsoDisplay(manualForm.paymentStartDate)"
+                    label="First Payment Date"
+                    readonly
+                    clearable
+                    variant="solo-filled"
+                    density="comfortable"
+                    rounded="sm"
+                    hide-details="auto"
+                    append-inner-icon="mdi-calendar"
+                    class="mb-4"
+                    @click:clear="manualForm.paymentStartDate = null"
+                  />
+                </template>
+                <v-date-picker
+                  :model-value="isoToPickerValue(manualForm.paymentStartDate)"
+                  color="primary"
+                  hide-header
+                  show-adjacent-months
+                  @update:model-value="
+                    (val) => {
+                      manualForm.paymentStartDate = pickerValToIso(val)
+                    }
+                  "
+                />
+              </v-menu>
+              <v-text-field
+                v-model.number="manualForm.paymentCount"
+                label="Number of Payments"
+                type="number"
+                min="1"
+                variant="solo-filled"
+                density="comfortable"
+                rounded="sm"
+                hide-details="auto"
+              />
+            </template>
           </template>
-          <v-text-field
-            v-else
-            v-model.number="manualForm.dueDate"
-            label="Due Date (Day of month)"
-            type="number"
-            min="1"
-            max="31"
-            variant="solo-filled"
-            density="comfortable"
-            rounded="sm"
-            hide-details="auto"
-          />
+          <v-menu v-else :close-on-content-click="false" location="bottom end">
+            <template #activator="{ props }">
+              <v-text-field
+                v-bind="props"
+                :model-value="manualForm.dueDate ? `Day ${manualForm.dueDate}` : ''"
+                label="Due Date"
+                readonly
+                clearable
+                variant="solo-filled"
+                density="comfortable"
+                rounded="sm"
+                hide-details="auto"
+                append-inner-icon="mdi-calendar"
+                @click:clear="manualForm.dueDate = null"
+              />
+            </template>
+            <v-date-picker
+              :model-value="dueDateToPickerValue(manualForm.dueDate)"
+              color="primary"
+              hide-header
+              show-adjacent-months
+              @update:model-value="
+                (val) => {
+                  manualForm.dueDate = val
+                    ? new Date(
+                        new Date(val).getTime() - new Date(val).getTimezoneOffset() * 60000
+                      ).getDate()
+                    : null
+                }
+              "
+            />
+          </v-menu>
         </v-card-text>
         <v-card-actions class="pa-6 pt-0">
           <v-spacer />
@@ -391,33 +477,118 @@
                 <v-btn value="BiWeekly" size="small">Bi-Weekly</v-btn>
                 <v-btn value="Monthly" size="small">Monthly</v-btn>
               </v-btn-toggle>
-              <v-text-field
+              <!-- Monthly: day-of-month picker -->
+              <v-menu
                 v-if="editPaymentFrequency === 'Monthly'"
-                v-model.number="editDueDate"
-                label="Due Date (Day of month)"
-                type="number"
-                min="1"
-                max="31"
-                variant="solo-filled"
-                density="comfortable"
-                rounded="sm"
-                hide-details="auto"
-                @keyup.enter="saveEditName"
-              />
+                :close-on-content-click="false"
+                location="bottom end"
+              >
+                <template #activator="{ props }">
+                  <v-text-field
+                    v-bind="props"
+                    :model-value="editDueDate ? `Day ${editDueDate}` : ''"
+                    label="Due Date"
+                    readonly
+                    clearable
+                    variant="solo-filled"
+                    density="comfortable"
+                    rounded="sm"
+                    hide-details="auto"
+                    append-inner-icon="mdi-calendar"
+                    @click:clear="editDueDate = null"
+                  />
+                </template>
+                <v-date-picker
+                  :model-value="dueDateToPickerValue(editDueDate)"
+                  color="primary"
+                  hide-header
+                  show-adjacent-months
+                  @update:model-value="
+                    (val) => {
+                      editDueDate = val
+                        ? new Date(
+                            new Date(val).getTime() - new Date(val).getTimezoneOffset() * 60000
+                          ).getDate()
+                        : null
+                    }
+                  "
+                />
+              </v-menu>
+              <!-- Weekly / BiWeekly: start date + payment count -->
+              <template v-else>
+                <v-menu :close-on-content-click="false" location="bottom end">
+                  <template #activator="{ props }">
+                    <v-text-field
+                      v-bind="props"
+                      :model-value="formatIsoDisplay(editPaymentStartDate)"
+                      label="First Payment Date"
+                      readonly
+                      clearable
+                      variant="solo-filled"
+                      density="comfortable"
+                      rounded="sm"
+                      hide-details="auto"
+                      append-inner-icon="mdi-calendar"
+                      class="mb-4"
+                      @click:clear="editPaymentStartDate = null"
+                    />
+                  </template>
+                  <v-date-picker
+                    :model-value="isoToPickerValue(editPaymentStartDate)"
+                    color="primary"
+                    hide-header
+                    show-adjacent-months
+                    @update:model-value="
+                      (val) => {
+                        editPaymentStartDate = pickerValToIso(val)
+                      }
+                    "
+                  />
+                </v-menu>
+                <v-text-field
+                  v-model.number="editPaymentCount"
+                  label="Number of Payments"
+                  type="number"
+                  min="1"
+                  variant="solo-filled"
+                  density="comfortable"
+                  rounded="sm"
+                  hide-details="auto"
+                />
+              </template>
             </template>
-            <v-text-field
-              v-else
-              v-model.number="editDueDate"
-              label="Due Date (Day of month)"
-              type="number"
-              min="1"
-              max="31"
-              variant="solo-filled"
-              density="comfortable"
-              rounded="sm"
-              hide-details="auto"
-              @keyup.enter="saveEditName"
-            />
+            <v-menu v-else :close-on-content-click="false" location="bottom end">
+              <template #activator="{ props }">
+                <v-text-field
+                  v-bind="props"
+                  :model-value="editDueDate ? `Day ${editDueDate}` : ''"
+                  label="Due Date"
+                  readonly
+                  clearable
+                  variant="solo-filled"
+                  density="comfortable"
+                  rounded="sm"
+                  hide-details="auto"
+                  append-inner-icon="mdi-calendar"
+                  @click:clear="editDueDate = null"
+                />
+              </template>
+              <v-date-picker
+                :model-value="dueDateToPickerValue(editDueDate)"
+                color="primary"
+                hide-header
+                show-adjacent-months
+                @update:model-value="
+                  (val) => {
+                    editDueDate = val
+                      ? new Date(
+                          new Date(val).getTime() - new Date(val).getTimezoneOffset() * 60000
+                        ).getDate()
+                      : null
+                  }
+                "
+              />
+            </v-menu>
           </template>
         </v-card-text>
         <v-card-actions class="pa-6 pt-0">
@@ -453,8 +624,32 @@ import { useUserAccountsStore } from '../stores/userAccounts'
 
 const store = useUserAccountsStore()
 
-const isVariableDueDate = (account) =>
-  String(account?.ACCTTYPE || '').toLowerCase().includes('buy now pay later')
+const isVariableDueDate = (account) => isLoanAccount(account)
+
+function dueDateToPickerValue(day) {
+  if (!day) return null
+  const now = new Date()
+  return new Date(now.getFullYear(), now.getMonth(), Number(day), 12, 0, 0)
+}
+
+function isoToPickerValue(isoStr) {
+  if (!isoStr) return null
+  const d = new Date(isoStr + 'T12:00:00')
+  return isNaN(d.getTime()) ? null : d
+}
+
+function formatIsoDisplay(isoStr) {
+  if (!isoStr) return ''
+  const d = new Date(isoStr + 'T12:00:00')
+  if (isNaN(d.getTime())) return isoStr
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+}
+
+function pickerValToIso(val) {
+  if (!val) return null
+  const d = new Date(val)
+  return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().split('T')[0]
+}
 
 const isLoanAccount = (account) => {
   const type = String(account?.ACCTTYPE || '').toLowerCase()
@@ -510,15 +705,19 @@ const editNameDialog = ref(false)
 const editNameTarget = ref(null)
 const editNameValue = ref('')
 const editInterestRate = ref(0)
-const editDueDate = ref('')
+const editDueDate = ref(null)
 const editPaymentFrequency = ref('Monthly')
+const editPaymentStartDate = ref(null)
+const editPaymentCount = ref(null)
 
 function openEditName(account) {
   editNameTarget.value = account
   editNameValue.value = account.displayName || account.ACCTTYPE || ''
   editInterestRate.value = account.interestRate || 0
-  editDueDate.value = account.dueDate || ''
+  editDueDate.value = account.dueDate || null
   editPaymentFrequency.value = account.paymentFrequency || 'Monthly'
+  editPaymentStartDate.value = account.paymentStartDate || null
+  editPaymentCount.value = account.paymentCount || null
   editNameDialog.value = true
 }
 
@@ -531,7 +730,12 @@ function saveEditName() {
       updates.interestRate = Number(editInterestRate.value) || 0
       if (isVariableDueDate(editNameTarget.value)) {
         updates.paymentFrequency = editPaymentFrequency.value
-        updates.dueDate = editPaymentFrequency.value === 'Monthly' ? (Number(editDueDate.value) || null) : null
+        updates.dueDate =
+          editPaymentFrequency.value === 'Monthly' ? Number(editDueDate.value) || null : null
+        updates.paymentStartDate =
+          editPaymentFrequency.value !== 'Monthly' ? editPaymentStartDate.value || null : null
+        updates.paymentCount =
+          Number(editPaymentCount.value) > 0 ? Math.round(Number(editPaymentCount.value)) : null
       } else {
         updates.dueDate = Number(editDueDate.value) || null
       }
@@ -557,7 +761,9 @@ const emptyManualForm = () => ({
   ACCTTYPE: 'Buy Now Pay Later',
   interestRate: 0,
   paymentFrequency: 'Monthly',
-  dueDate: null
+  dueDate: null,
+  paymentStartDate: null,
+  paymentCount: null
 })
 const manualForm = ref(emptyManualForm())
 
@@ -567,11 +773,24 @@ async function saveManualAccount() {
     ORG: manualForm.value.ORG.trim() || null,
     ACCTTYPE: manualForm.value.ACCTTYPE,
     interestRate: Number(manualForm.value.interestRate) || 0,
-    paymentFrequency: manualForm.value.ACCTTYPE === 'Buy Now Pay Later' ? manualForm.value.paymentFrequency : null,
-    dueDate: manualForm.value.ACCTTYPE === 'Buy Now Pay Later' && manualForm.value.paymentFrequency === 'Monthly'
-      ? (Number(manualForm.value.dueDate) || null)
-      : manualForm.value.ACCTTYPE !== 'Buy Now Pay Later'
-        ? (Number(manualForm.value.dueDate) || null)
+    paymentFrequency: isVariableDueDate({ ACCTTYPE: manualForm.value.ACCTTYPE })
+      ? manualForm.value.paymentFrequency
+      : null,
+    dueDate:
+      isVariableDueDate({ ACCTTYPE: manualForm.value.ACCTTYPE }) &&
+      manualForm.value.paymentFrequency === 'Monthly'
+        ? Number(manualForm.value.dueDate) || null
+        : !isVariableDueDate({ ACCTTYPE: manualForm.value.ACCTTYPE })
+          ? Number(manualForm.value.dueDate) || null
+          : null,
+    paymentStartDate:
+      isVariableDueDate({ ACCTTYPE: manualForm.value.ACCTTYPE }) &&
+      manualForm.value.paymentFrequency !== 'Monthly'
+        ? manualForm.value.paymentStartDate || null
+        : null,
+    paymentCount:
+      Number(manualForm.value.paymentCount) > 0
+        ? Math.round(Number(manualForm.value.paymentCount))
         : null
   }
   const created = await store.createManualAccount(payload)

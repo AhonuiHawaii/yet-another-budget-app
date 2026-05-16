@@ -9,8 +9,12 @@
       <v-spacer />
       <!-- Legend -->
       <div class="d-flex align-center gap-3">
-        <v-chip color="warning" variant="tonal" size="small" prepend-icon="mdi-calendar-month">Bill</v-chip>
-        <v-chip color="error" variant="tonal" size="small" prepend-icon="mdi-credit-card-outline">Debt</v-chip>
+        <v-chip color="warning" variant="flat" size="small" prepend-icon="mdi-calendar-month"
+          >Bill</v-chip
+        >
+        <v-chip color="error" variant="flat" size="small" prepend-icon="mdi-credit-card-outline"
+          >Debt</v-chip
+        >
       </div>
     </div>
 
@@ -49,15 +53,17 @@
         </div>
 
         <template v-if="day.currentMonth">
-          <div
+          <v-chip
             v-for="evt in eventsByDay.get(day.key) || []"
             :key="evt.id"
-            class="cal-event mb-1 cursor-pointer"
-            :class="`cal-event--${evt.color}`"
+            :color="evt.color"
+            size="x-small"
+            variant="flat"
+            class="cal-chip mb-1 cursor-pointer"
             @click.stop="openEvent(evt)"
           >
-            {{ evt.name }}
-          </div>
+            <span class="cal-chip-label">{{ evt.name }}</span>
+          </v-chip>
         </template>
       </div>
     </div>
@@ -69,7 +75,11 @@
           <div class="d-flex align-center justify-space-between">
             <div class="d-flex align-center gap-3">
               <v-icon :color="selectedEvent.color" size="20">
-                {{ selectedEvent.eventType === 'bill' ? 'mdi-calendar-month' : 'mdi-credit-card-outline' }}
+                {{
+                  selectedEvent.eventType === 'bill'
+                    ? 'mdi-calendar-month'
+                    : 'mdi-credit-card-outline'
+                }}
               </v-icon>
               <span class="text-h6 font-weight-bold">{{ selectedEvent.name }}</span>
             </div>
@@ -105,7 +115,9 @@
               class="d-flex align-center justify-space-between mb-2"
             >
               <span class="text-body-2 font-weight-medium">Interest Rate</span>
-              <span class="text-body-2 text-medium-emphasis">{{ selectedEvent.interestRate }}%</span>
+              <span class="text-body-2 text-medium-emphasis"
+                >{{ selectedEvent.interestRate }}%</span
+              >
             </div>
             <div
               v-if="selectedEvent.currentBalance"
@@ -117,9 +129,22 @@
               </span>
             </div>
             <div
-              v-if="selectedEvent.institution"
-              class="d-flex align-center justify-space-between"
+              v-if="selectedEvent.paymentFrequency"
+              class="d-flex align-center justify-space-between mb-2"
             >
+              <span class="text-body-2 font-weight-medium">Frequency</span>
+              <span class="text-body-2 text-medium-emphasis">
+                {{
+                  selectedEvent.paymentFrequency === 'BiWeekly'
+                    ? 'Bi-Weekly'
+                    : selectedEvent.paymentFrequency
+                }}
+                <span v-if="selectedEvent.paymentCount">
+                  · {{ selectedEvent.paymentCount }} payments</span
+                >
+              </span>
+            </div>
+            <div v-if="selectedEvent.institution" class="d-flex align-center justify-space-between">
               <span class="text-body-2 font-weight-medium">Lender</span>
               <span class="text-body-2 text-medium-emphasis">{{ selectedEvent.institution }}</span>
             </div>
@@ -242,16 +267,14 @@ function extractDayOfMonth(dueDate) {
   return isNaN(d) ? null : d
 }
 
-function isDebtAccount(account) {
-  const t = String(account?.ACCTTYPE || '').toLowerCase()
-  return (
-    t.includes('credit') ||
-    t.includes('loan') ||
-    t.includes('mortgage') ||
-    t.includes('buy now pay later') ||
-    t.includes('medical debt') ||
-    t === 'other'
-  )
+// An account contributes to the calendar if it has either a fixed monthly
+// dueDate or a weekly/biweekly payment schedule. ACCTTYPE is intentionally
+// not used as a gate — if the user set a due date, we display it.
+function hasDueDateData(account) {
+  if (account?.dueDate) return true
+  const freq = account?.paymentFrequency
+  if ((freq === 'Weekly' || freq === 'BiWeekly') && account?.paymentStartDate) return true
+  return false
 }
 
 // ── Event Generation ──────────────────────────────────────────────────────────
@@ -286,8 +309,8 @@ const eventsByDay = computed(() => {
     })
   }
 
-  // ── Debts ─────────────────────────────────────────────────────────────────
-  for (const acc of accountsStore.accounts.filter(isDebtAccount)) {
+  // ── Account due dates ────────────────────────────────────────────────────
+  for (const acc of accountsStore.accounts.filter(hasDueDateData)) {
     const details = debtsStore.getDetail(acc.ACCTID)
     const title = acc.displayName || acc.ORG || `*${acc.ACCTID}`
     const amount = Number(details.minimumPayment) || 0
@@ -306,18 +329,33 @@ const eventsByDay = computed(() => {
         interestRate: interestRate || null,
         currentBalance: currentBalance || null,
         institution: acc.ORG || null,
-        paymentFrequency: acc.paymentFrequency || null
+        paymentFrequency: acc.paymentFrequency || null,
+        paymentCount: acc.paymentCount || null
       }
     }
 
     const freq = acc.paymentFrequency
-    if (freq === 'Weekly') {
-      for (let d = 1; d <= daysInMonth; d += 7) addEvent(d, makeDebtEvent(d))
-    } else if (freq === 'BiWeekly') {
-      for (let d = 1; d <= daysInMonth; d += 14) addEvent(d, makeDebtEvent(d))
+    if ((freq === 'Weekly' || freq === 'BiWeekly') && acc.paymentStartDate) {
+      const interval = freq === 'Weekly' ? 7 : 14
+      const maxPayments = acc.paymentCount || 999
+      const start = new Date(acc.paymentStartDate + 'T12:00:00')
+      let cursor = new Date(start)
+      let count = 0
+      // Wind forward to first occurrence on or after the start of this month
+      const monthStart = new Date(y, m, 1)
+      while (cursor < monthStart && count < maxPayments) {
+        cursor = new Date(cursor.getTime() + interval * 86400000)
+        count++
+      }
+      // Emit events that fall within this month
+      while (cursor.getMonth() === m && cursor.getFullYear() === y && count < maxPayments) {
+        addEvent(cursor.getDate(), makeDebtEvent(cursor.getDate()))
+        cursor = new Date(cursor.getTime() + interval * 86400000)
+        count++
+      }
     } else {
       // Monthly or no frequency — needs a specific due date
-      const day = acc.dueDate
+      const day = extractDayOfMonth(acc.dueDate)
       if (!day) continue
       addEvent(day, makeDebtEvent(day))
     }
@@ -389,23 +427,16 @@ onMounted(async () => {
   margin-bottom: 4px;
 }
 
-.cal-event {
-  font-size: 11px;
-  font-weight: 600;
-  line-height: 1.3;
-  padding: 2px 6px;
-  border-radius: 4px;
-  white-space: nowrap;
+.cal-chip {
+  display: flex;
+  width: 100%;
+  max-width: 100%;
+}
+
+.cal-chip-label {
   overflow: hidden;
   text-overflow: ellipsis;
-  color: #fff;
-}
-
-.cal-event--warning {
-  background-color: rgb(var(--v-theme-warning));
-}
-
-.cal-event--error {
-  background-color: rgb(var(--v-theme-error));
+  white-space: nowrap;
+  max-width: 100%;
 }
 </style>

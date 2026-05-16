@@ -45,6 +45,8 @@ db.exec(`
     interestRate REAL,
     dueDate INTEGER,
     paymentFrequency TEXT,
+    paymentStartDate TEXT,
+    paymentCount     INTEGER,
     createdAt   TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     lastImport  TEXT
   )
@@ -102,6 +104,12 @@ try {
   }
   if (!accountCols.has('paymentFrequency')) {
     db.exec(`ALTER TABLE Accounts ADD COLUMN paymentFrequency TEXT`)
+  }
+  if (!accountCols.has('paymentStartDate')) {
+    db.exec(`ALTER TABLE Accounts ADD COLUMN paymentStartDate TEXT`)
+  }
+  if (!accountCols.has('paymentCount')) {
+    db.exec(`ALTER TABLE Accounts ADD COLUMN paymentCount INTEGER`)
   }
 }
 
@@ -368,8 +376,8 @@ function createManualAccount(acct) {
 
   db.prepare(
     `
-    INSERT INTO Accounts (ACCTID, ACCTTYPE, ORG, displayName, interestRate, dueDate, paymentFrequency)
-    VALUES (@ACCTID, @ACCTTYPE, @ORG, @displayName, @interestRate, @dueDate, @paymentFrequency)
+    INSERT INTO Accounts (ACCTID, ACCTTYPE, ORG, displayName, interestRate, dueDate, paymentFrequency, paymentStartDate, paymentCount)
+    VALUES (@ACCTID, @ACCTTYPE, @ORG, @displayName, @interestRate, @dueDate, @paymentFrequency, @paymentStartDate, @paymentCount)
   `
   ).run({
     ACCTID: acct.ACCTID,
@@ -378,7 +386,9 @@ function createManualAccount(acct) {
     displayName: acct.displayName || null,
     interestRate: Number(acct.interestRate) || 0,
     dueDate,
-    paymentFrequency: VALID_FREQUENCIES.has(acct.paymentFrequency) ? acct.paymentFrequency : null
+    paymentFrequency: VALID_FREQUENCIES.has(acct.paymentFrequency) ? acct.paymentFrequency : null,
+    paymentStartDate: acct.paymentStartDate || null,
+    paymentCount: Number(acct.paymentCount) > 0 ? Math.round(Number(acct.paymentCount)) : null
   })
 }
 
@@ -403,7 +413,17 @@ function getAccount(acctid) {
  * @returns {number} Rows changed.
  */
 function updateAccount(acctid, updates = {}) {
-  const ALLOWED = new Set(['displayName', 'ACCTTYPE', 'ORG', 'INTU_BID', 'interestRate', 'dueDate', 'paymentFrequency'])
+  const ALLOWED = new Set([
+    'displayName',
+    'ACCTTYPE',
+    'ORG',
+    'INTU_BID',
+    'interestRate',
+    'dueDate',
+    'paymentFrequency',
+    'paymentStartDate',
+    'paymentCount'
+  ])
   const entries = Object.entries(updates)
     .filter(([col]) => ALLOWED.has(col))
     .map(([col, val]) => {

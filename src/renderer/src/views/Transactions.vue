@@ -75,27 +75,90 @@
                 <v-icon end size="16">mdi-chevron-down</v-icon>
               </v-btn>
             </template>
-            <v-card rounded elevation="6" min-width="340">
+            <v-card min-width="260" rounded="lg" elevation="8" class="pa-3">
+              <!-- Mode tabs -->
               <v-tabs
                 v-model="granularity"
                 density="compact"
                 color="primary"
                 align-tabs="center"
+                class="mb-2"
                 @update:model-value="onGranularityTab"
               >
-                <v-tab v-for="g in granularities" :key="g.value" :value="g.value">
-                  {{ g.label }}
-                </v-tab>
+                <v-tab value="month">Month</v-tab>
+                <v-tab value="quarter">Quarter</v-tab>
+                <v-tab value="year">Annual</v-tab>
               </v-tabs>
-              <v-date-picker
-                v-model="pickerDate"
-                :view-mode="pickerViewMode"
-                :allowed-dates="allowedDates"
-                color="primary"
-                hide-header
-                show-adjacent-months
-                @update:model-value="onPickerSelect"
-              />
+
+              <!-- Year navigator -->
+              <div class="d-flex align-center justify-space-between mb-2">
+                <v-btn
+                  icon="mdi-chevron-left"
+                  variant="text"
+                  size="small"
+                  @click="changeYear(-1)"
+                />
+                <div class="text-subtitle-1 font-weight-bold">{{ pickerYear }}</div>
+                <v-btn
+                  icon="mdi-chevron-right"
+                  variant="text"
+                  size="small"
+                  @click="changeYear(1)"
+                />
+              </div>
+
+              <!-- Month grid -->
+              <v-row v-if="granularity === 'month'" dense>
+                <v-col v-for="mo in monthOptions" :key="mo.value" cols="4">
+                  <v-btn
+                    block
+                    size="small"
+                    :variant="mo.value === selectedPeriodKey ? 'flat' : 'text'"
+                    :color="
+                      mo.value === selectedPeriodKey
+                        ? 'primary'
+                        : monthHasData(mo.value)
+                          ? undefined
+                          : undefined
+                    "
+                    :opacity="monthHasData(mo.value) ? 1 : 0.35"
+                    @click="selectMonth(mo.value)"
+                  >
+                    {{ mo.label }}
+                  </v-btn>
+                </v-col>
+              </v-row>
+
+              <!-- Quarter grid -->
+              <v-row v-else-if="granularity === 'quarter'" dense>
+                <v-col v-for="q in quarterOptions" :key="q.value" cols="6">
+                  <v-btn
+                    block
+                    height="52"
+                    :variant="q.value === selectedPeriodKey ? 'flat' : 'text'"
+                    :color="q.value === selectedPeriodKey ? 'primary' : undefined"
+                    class="d-flex flex-column align-center justify-center"
+                    @click="selectQuarter(q.value)"
+                  >
+                    <span class="text-body-2 font-weight-bold">{{ q.label }}</span>
+                    <span class="text-caption opacity-70" style="margin-top: 2px">{{
+                      q.months
+                    }}</span>
+                  </v-btn>
+                </v-col>
+              </v-row>
+
+              <!-- Annual -->
+              <div v-else class="d-flex justify-center py-2">
+                <v-btn
+                  :variant="String(pickerYear) === selectedPeriodKey ? 'flat' : 'tonal'"
+                  color="primary"
+                  size="small"
+                  @click="selectYear(pickerYear)"
+                >
+                  Select {{ pickerYear }}
+                </v-btn>
+              </div>
             </v-card>
           </v-menu>
 
@@ -695,93 +758,100 @@ async function handleImport() {
 onMounted(async () => {
   await Promise.all([accountsStore.fetchAccounts(), store.fetchMonthsWithData()])
   const selectedMonth = settingsStore.selectedMonth
-  const y = parseInt(selectedMonth.slice(0, 4))
-  const m = parseInt(selectedMonth.slice(4, 6)) - 1
-  pickerDate.value = new Date(y, m, 1)
+  pickerYear.value = parseInt(selectedMonth.slice(0, 4)) || new Date().getFullYear()
+  selectedPeriodKey.value = selectedMonth
   await store.fetchTransactionsByMonth(selectedMonth)
 })
 
 // ── Date picker ──────────────────────────────────────────────────────────────
-// granularity: 'month' | 'quarter' | 'year'
 const granularity = ref('month')
-const granularities = [
-  { label: 'Month', value: 'month' },
-  { label: 'Quarter', value: 'quarter' },
-  { label: 'Year', value: 'year' }
-]
-
-// pickerDate is a JS Date object (Vuetify v-date-picker model)
-const pickerDate = ref(null)
 const pickerMenu = ref(false)
+const pickerYear = ref(new Date().getFullYear())
 
-// Which months are currently loaded (drives allowed-dates)
-const allowedDates = computed(() => {
-  return store.monthsWithData.map((ym) => {
-    const y = parseInt(ym.slice(0, 4))
-    const m = parseInt(ym.slice(4, 6)) - 1
-    return new Date(y, m, 1)
+// Tracks what is currently selected as a display key:
+// month → 'YYYYMM', quarter → 'YYYY-QN', year → 'YYYY'
+const selectedPeriodKey = ref('')
+
+const monthOptions = computed(() =>
+  Array.from({ length: 12 }, (_, i) => ({
+    label: new Date(pickerYear.value, i, 1).toLocaleDateString('en-US', { month: 'short' }),
+    value: `${pickerYear.value}${String(i + 1).padStart(2, '0')}`
+  }))
+)
+
+const quarterOptions = computed(() =>
+  [1, 2, 3, 4].map((q) => {
+    const startM = (q - 1) * 3
+    const months = [0, 1, 2].map((i) =>
+      new Date(pickerYear.value, startM + i, 1).toLocaleDateString('en-US', { month: 'short' })
+    )
+    return {
+      label: `Q${q}`,
+      months: months.join(' · '),
+      value: `${pickerYear.value}-Q${q}`
+    }
   })
-})
+)
 
-// Map granularity → v-date-picker view-mode
-const pickerViewMode = computed(() => {
-  if (granularity.value === 'year') return 'year'
-  if (granularity.value === 'quarter') return 'month' // month view lets user pick a month inside a quarter
-  return 'month'
-})
+function monthHasData(yyyymm) {
+  return store.monthsWithData.includes(yyyymm)
+}
 
-// Human-readable label for the trigger button
-const pickerLabel = computed(() => {
-  if (!pickerDate.value) return 'Pick period'
-  const d = pickerDate.value
-  const y = d.getFullYear()
-  const m = d.getMonth() // 0-based
-  if (granularity.value === 'year') return String(y)
-  if (granularity.value === 'quarter') {
-    const q = Math.floor(m / 3) + 1
-    return `Q${q} ${y}`
-  }
-  return d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
-})
+function changeYear(dir) {
+  pickerYear.value += dir
+}
 
-// Months (yyyymm strings) that belong to the selected period
+// Months (yyyymm strings) for the active selection — drives the table
 const activePeriodMonths = computed(() => {
-  if (!pickerDate.value) return []
-  const d = pickerDate.value
-  const y = d.getFullYear()
-  const m = d.getMonth() // 0-based
-  if (granularity.value === 'month') {
-    const mm = String(m + 1).padStart(2, '0')
-    return [`${y}${mm}`]
-  }
+  const key = selectedPeriodKey.value
+  if (!key) return []
+  if (granularity.value === 'month') return [key]
   if (granularity.value === 'quarter') {
-    const startM = Math.floor(m / 3) * 3 // 0, 3, 6, or 9
-    return [0, 1, 2].map((i) => {
-      const mm = String(startM + i + 1).padStart(2, '0')
-      return `${y}${mm}`
-    })
+    const y = parseInt(key.slice(0, 4))
+    const q = parseInt(key.slice(-1)) - 1 // 0-based quarter
+    const startM = q * 3
+    return [0, 1, 2].map((i) => `${y}${String(startM + i + 1).padStart(2, '0')}`)
   }
-  // year
+  // annual
+  const y = parseInt(key)
   return Array.from({ length: 12 }, (_, i) => `${y}${String(i + 1).padStart(2, '0')}`)
 })
 
-function onGranularityTab(g) {
-  granularity.value = g
-  // re-apply with the same base date so the table updates immediately
-  if (pickerDate.value) applyPeriod(pickerDate.value)
+const pickerLabel = computed(() => {
+  const key = selectedPeriodKey.value
+  if (!key) return 'Pick period'
+  if (granularity.value === 'quarter') return key.replace('-', ' ')
+  if (granularity.value === 'year') return key
+  const y = key.slice(0, 4)
+  const m = parseInt(key.slice(4, 6)) - 1
+  return new Date(Number(y), m, 1).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+})
+
+function selectMonth(yyyymm) {
+  selectedPeriodKey.value = yyyymm
+  applyPeriod()
+  pickerMenu.value = false
 }
 
-function onPickerSelect(date) {
-  if (!date) return
-  pickerDate.value = date
-  applyPeriod(date)
+function selectQuarter(key) {
+  selectedPeriodKey.value = key
+  applyPeriod()
   pickerMenu.value = false
+}
+
+function selectYear(y) {
+  selectedPeriodKey.value = String(y)
+  applyPeriod()
+  pickerMenu.value = false
+}
+
+function onGranularityTab() {
+  selectedPeriodKey.value = ''
 }
 
 async function applyPeriod() {
   const months = activePeriodMonths.value
-  const available = store.monthsWithData
-  const toFetch = months.filter((m) => available.includes(m))
+  const toFetch = months.filter((m) => store.monthsWithData.includes(m))
   await store.fetchTransactionsForPeriod(toFetch)
 }
 

@@ -69,25 +69,34 @@
                 <th class="text-start font-weight-bold text-uppercase text-caption pl-4">
                   Category
                 </th>
-                <th class="text-center font-weight-bold text-uppercase text-caption" style="width: 150px;">
+                <th
+                  class="text-center font-weight-bold text-uppercase text-caption"
+                  style="width: 150px"
+                >
                   Actual
                   <div class="text-body-2 font-weight-bold">
                     {{ formatCurrency(variableTotalActual) }}
                   </div>
                 </th>
-                <th class="text-center font-weight-bold text-uppercase text-caption" style="width: 150px;">
+                <th
+                  class="text-center font-weight-bold text-uppercase text-caption"
+                  style="width: 150px"
+                >
                   Projected
                   <div class="text-body-2 font-weight-bold">
                     {{ formatCurrency(variableTotalProjected) }}
                   </div>
                 </th>
-                <th class="text-center font-weight-bold text-uppercase text-caption" style="width: 150px;">
+                <th
+                  class="text-center font-weight-bold text-uppercase text-caption"
+                  style="width: 150px"
+                >
                   Diff
                   <div class="text-body-2 font-weight-bold">
                     {{ formatCurrency(variableTotalActual - variableTotalProjected) }}
                   </div>
                 </th>
-                <th style="width: 100px;"></th>
+                <th style="width: 100px"></th>
               </tr>
             </thead>
             <tbody>
@@ -207,28 +216,40 @@
                 <th class="text-start font-weight-bold text-uppercase text-caption pl-4">
                   Category
                 </th>
-                <th class="text-center font-weight-bold text-uppercase text-caption" style="width: 220px;">
+                <th
+                  class="text-center font-weight-bold text-uppercase text-caption"
+                  style="width: 220px"
+                >
                   Due Date
                 </th>
-                <th class="text-center font-weight-bold text-uppercase text-caption" style="width: 150px;">
+                <th
+                  class="text-center font-weight-bold text-uppercase text-caption"
+                  style="width: 150px"
+                >
                   Actual
                   <div class="text-body-2 font-weight-bold">
                     {{ formatCurrency(billsTotalActual) }}
                   </div>
                 </th>
-                <th class="text-center font-weight-bold text-uppercase text-caption" style="width: 150px;">
+                <th
+                  class="text-center font-weight-bold text-uppercase text-caption"
+                  style="width: 150px"
+                >
                   Projected
                   <div class="text-body-2 font-weight-bold">
                     {{ formatCurrency(billsTotalProjected) }}
                   </div>
                 </th>
-                <th class="text-center font-weight-bold text-uppercase text-caption" style="width: 150px;">
+                <th
+                  class="text-center font-weight-bold text-uppercase text-caption"
+                  style="width: 150px"
+                >
                   Diff
                   <div class="text-body-2 font-weight-bold">
                     {{ formatCurrency(billsTotalActual - billsTotalProjected) }}
                   </div>
                 </th>
-                <th style="width: 100px;"></th>
+                <th style="width: 100px"></th>
               </tr>
             </thead>
             <tbody>
@@ -279,16 +300,22 @@
                     <template #default="{ isActive }">
                       <v-date-picker
                         :model-value="parseDateForPicker(cat.dueDate)"
-                        @update:model-value="(val) => {
-                          if (!val) {
-                            categoriesStore.updateCategory(cat.id, { dueDate: null })
-                          } else {
-                            const d = new Date(val)
-                            const localDate = new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().split('T')[0]
-                            categoriesStore.updateCategory(cat.id, { dueDate: localDate })
+                        @update:model-value="
+                          (val) => {
+                            if (!val) {
+                              categoriesStore.updateCategory(cat.id, { dueDate: null })
+                            } else {
+                              const d = new Date(val)
+                              const localDate = new Date(
+                                d.getTime() - d.getTimezoneOffset() * 60000
+                              )
+                                .toISOString()
+                                .split('T')[0]
+                              categoriesStore.updateCategory(cat.id, { dueDate: localDate })
+                            }
+                            isActive.value = false
                           }
-                          isActive.value = false
-                        }"
+                        "
                         color="primary"
                         hide-header
                         show-adjacent-months
