@@ -12,6 +12,7 @@ function createWindow() {
     height: 900,
     show: false,
     autoHideMenuBar: true,
+    frame: false,
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
@@ -22,6 +23,9 @@ function createWindow() {
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
   })
+
+  mainWindow.on('maximize', () => mainWindow.webContents.send('window-maximized-changed', true))
+  mainWindow.on('unmaximize', () => mainWindow.webContents.send('window-maximized-changed', false))
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
     shell.openExternal(details.url)

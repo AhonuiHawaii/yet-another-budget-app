@@ -16,6 +16,7 @@ import Reports from './views/Reports.vue'
 import Goals from './views/Goals.vue'
 import Rules from './views/Rules.vue'
 import Calendar from './views/Calendar.vue'
+import AppBar from './components/AppBar.vue'
 
 const views = {
   Dashboard,
@@ -64,6 +65,7 @@ onErrorCaptured((err) => {
 
 <template>
   <v-app>
+    <AppBar />
     <Drawer :current-view="currentView" @change-view="changeView" />
     <v-main>
       <v-alert v-if="appError" type="error" class="ma-4" closable @click:close="appError = null">
