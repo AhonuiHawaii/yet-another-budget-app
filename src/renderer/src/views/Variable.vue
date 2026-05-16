@@ -69,25 +69,25 @@
                 <th class="text-start font-weight-bold text-uppercase text-caption pl-4">
                   Category
                 </th>
-                <th class="text-center font-weight-bold text-uppercase text-caption">
+                <th class="text-center font-weight-bold text-uppercase text-caption" style="width: 150px;">
                   Actual
                   <div class="text-body-2 font-weight-bold">
                     {{ formatCurrency(variableTotalActual) }}
                   </div>
                 </th>
-                <th class="text-center font-weight-bold text-uppercase text-caption">
+                <th class="text-center font-weight-bold text-uppercase text-caption" style="width: 150px;">
                   Projected
                   <div class="text-body-2 font-weight-bold">
                     {{ formatCurrency(variableTotalProjected) }}
                   </div>
                 </th>
-                <th class="text-center font-weight-bold text-uppercase text-caption">
+                <th class="text-center font-weight-bold text-uppercase text-caption" style="width: 150px;">
                   Diff
                   <div class="text-body-2 font-weight-bold">
                     {{ formatCurrency(variableTotalActual - variableTotalProjected) }}
                   </div>
                 </th>
-                <th></th>
+                <th style="width: 100px;"></th>
               </tr>
             </thead>
             <tbody>
@@ -207,25 +207,28 @@
                 <th class="text-start font-weight-bold text-uppercase text-caption pl-4">
                   Category
                 </th>
-                <th class="text-center font-weight-bold text-uppercase text-caption">
+                <th class="text-center font-weight-bold text-uppercase text-caption" style="width: 220px;">
+                  Due Date
+                </th>
+                <th class="text-center font-weight-bold text-uppercase text-caption" style="width: 150px;">
                   Actual
                   <div class="text-body-2 font-weight-bold">
                     {{ formatCurrency(billsTotalActual) }}
                   </div>
                 </th>
-                <th class="text-center font-weight-bold text-uppercase text-caption">
+                <th class="text-center font-weight-bold text-uppercase text-caption" style="width: 150px;">
                   Projected
                   <div class="text-body-2 font-weight-bold">
                     {{ formatCurrency(billsTotalProjected) }}
                   </div>
                 </th>
-                <th class="text-center font-weight-bold text-uppercase text-caption">
+                <th class="text-center font-weight-bold text-uppercase text-caption" style="width: 150px;">
                   Diff
                   <div class="text-body-2 font-weight-bold">
                     {{ formatCurrency(billsTotalActual - billsTotalProjected) }}
                   </div>
                 </th>
-                <th></th>
+                <th style="width: 100px;"></th>
               </tr>
             </thead>
             <tbody>
@@ -254,6 +257,44 @@
                       }}</span>
                     </div>
                   </div>
+                </td>
+                <td class="text-center px-1">
+                  <v-menu :close-on-content-click="false" location="bottom end">
+                    <template #activator="{ props }">
+                      <v-text-field
+                        v-bind="props"
+                        :model-value="formatDisplayDate(cat.dueDate)"
+                        readonly
+                        clearable
+                        @click:clear="categoriesStore.updateCategory(cat.id, { dueDate: null })"
+                        variant="solo"
+                        flat
+                        density="compact"
+                        hide-details
+                        class="text-center cursor-pointer"
+                        placeholder="Select Date"
+                        append-inner-icon="mdi-calendar"
+                      />
+                    </template>
+                    <template #default="{ isActive }">
+                      <v-date-picker
+                        :model-value="parseDateForPicker(cat.dueDate)"
+                        @update:model-value="(val) => {
+                          if (!val) {
+                            categoriesStore.updateCategory(cat.id, { dueDate: null })
+                          } else {
+                            const d = new Date(val)
+                            const localDate = new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().split('T')[0]
+                            categoriesStore.updateCategory(cat.id, { dueDate: localDate })
+                          }
+                          isActive.value = false
+                        }"
+                        color="primary"
+                        hide-header
+                        show-adjacent-months
+                      />
+                    </template>
+                  </v-menu>
                 </td>
                 <td class="text-center font-weight-bold">{{ formatCurrency(cat.actual) }}</td>
                 <td class="text-center">
@@ -415,7 +456,13 @@ function buildActualsMap(catList) {
 }
 
 const variableCombined = computed(() => buildActualsMap(variableCategories.value))
-const billsCombined = computed(() => buildActualsMap(billsCategories.value))
+const billsCombined = computed(() => {
+  return buildActualsMap(billsCategories.value).sort((a, b) => {
+    const aDue = a.dueDate ? new Date(a.dueDate).getTime() : 9999999999999
+    const bDue = b.dueDate ? new Date(b.dueDate).getTime() : 9999999999999
+    return aDue - bDue || a.name.localeCompare(b.name)
+  })
+})
 
 const variableTotalProjected = computed(() =>
   variableCombined.value.reduce((s, c) => s + c.projected, 0)
@@ -435,6 +482,21 @@ const activeTotalActual = computed(() =>
 // ── Shared Utilities ──────────────────────────────────────────────────────────
 function formatCurrency(val) {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(val || 0)
+}
+
+function formatDisplayDate(dateStr) {
+  if (!dateStr) return ''
+  if (!isNaN(dateStr) && String(dateStr).length < 3) return `Day ${dateStr}`
+  const d = new Date(dateStr + 'T12:00:00')
+  if (isNaN(d.getTime())) return String(dateStr)
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+}
+
+function parseDateForPicker(dateStr) {
+  if (!dateStr) return null
+  if (!isNaN(dateStr) && String(dateStr).length < 3) return null
+  const d = new Date(dateStr + 'T12:00:00')
+  return isNaN(d.getTime()) ? null : d
 }
 
 onMounted(async () => {
