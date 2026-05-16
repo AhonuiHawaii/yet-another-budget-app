@@ -80,7 +80,10 @@
                   Estimated Payoff
                 </div>
                 <div class="text-h6 font-weight-black">{{ estimatedPayoffDate }}</div>
-                <div v-if="minimumsSimulation.totalMonths" class="text-caption text-medium-emphasis mt-1">
+                <div
+                  v-if="minimumsSimulation.totalMonths"
+                  class="text-caption text-medium-emphasis mt-1"
+                >
                   vs {{ fmtDuration(minimumsSimulation.totalMonths) }} with minimums
                 </div>
               </v-col>
@@ -111,7 +114,10 @@
                 <div class="text-h6 font-weight-black">
                   {{ formatCurrency(activeSimulation.totalPaid) }}
                 </div>
-                <div v-if="minimumsSimulation.totalPaid" class="text-caption text-medium-emphasis mt-1">
+                <div
+                  v-if="minimumsSimulation.totalPaid"
+                  class="text-caption text-medium-emphasis mt-1"
+                >
                   vs {{ formatCurrency(minimumsSimulation.totalPaid) }} with minimums
                 </div>
               </v-col>
@@ -201,7 +207,6 @@
             </tfoot>
           </v-table>
         </v-card>
-
       </v-col>
 
       <!-- Right: Payoff Timeline -->
@@ -450,6 +455,7 @@
                   Current Balance
                 </th>
                 <th class="text-center font-weight-bold text-uppercase text-caption">APR</th>
+                <th class="text-center font-weight-bold text-uppercase text-caption">Due Date</th>
                 <th class="text-center font-weight-bold text-uppercase text-caption">
                   Min Payment
                 </th>
@@ -460,7 +466,9 @@
                   Credit Limit
                 </th>
                 <th class="text-center font-weight-bold text-uppercase text-caption">Paid</th>
-                <th class="text-center font-weight-bold text-uppercase text-caption">Utilization</th>
+                <th class="text-center font-weight-bold text-uppercase text-caption">
+                  Utilization
+                </th>
                 <th class="text-center font-weight-bold text-uppercase text-caption">
                   Payoff Progress
                 </th>
@@ -498,7 +506,24 @@
                     flat
                     density="compact"
                     hide-details
-                    @update:model-value="(val) => updateDebtDetail(debt.id, { interestRate: val })"
+                    @update:model-value="
+                      (val) => accountsStore.updateAccount(debt.id, { interestRate: Number(val) || 0 })
+                    "
+                  />
+                </td>
+                <td>
+                  <v-text-field
+                    :model-value="debt.dueDate"
+                    type="number"
+                    variant="solo"
+                    flat
+                    density="compact"
+                    hide-details
+                    min="1"
+                    max="31"
+                    @update:model-value="
+                      (val) => accountsStore.updateAccount(debt.id, { dueDate: Number(val) || null })
+                    "
                   />
                 </td>
                 <td>
@@ -687,6 +712,8 @@ const debtRows = computed(() => {
         projected,
         actual,
         ...details,
+        interestRate: account.interestRate || details.interestRate || 0,
+        dueDate: account.dueDate ?? null,
         remaining,
         progress: Math.min(Math.max(payoffProgress, 0), 100),
         progressLabel: `${Math.round(Math.max(payoffProgress, 0))}%`,

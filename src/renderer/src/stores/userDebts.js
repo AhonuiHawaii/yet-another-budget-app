@@ -7,7 +7,8 @@ const DEFAULT_DETAIL = {
   startingBalance: 0,
   interestRate: 0,
   minimumPayment: 0,
-  creditLimit: 0
+  creditLimit: 0,
+  dueDate: null
 }
 
 export const useUserDebtsStore = defineStore('userDebts', () => {

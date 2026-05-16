@@ -202,14 +202,14 @@
       </v-card>
     </v-dialog>
 
-    <!-- Edit Account Name Modal -->
+    <!-- Edit Account Modal -->
     <v-dialog v-model="editNameDialog" max-width="400">
       <v-card rounded="sm">
         <v-card-title class="pa-6 pb-4">
           <div class="d-flex align-center justify-space-between">
             <div class="d-flex align-center gap-3">
               <v-icon color="primary" size="20">mdi-pencil-outline</v-icon>
-              <span class="text-h6 font-weight-bold">Edit Account Name</span>
+              <span class="text-h6 font-weight-bold">Edit Account</span>
             </div>
             <v-btn
               icon="mdi-close"
@@ -227,10 +227,36 @@
             variant="solo-filled"
             density="comfortable"
             rounded="sm"
-            hide-details
+            hide-details="auto"
+            class="mb-4"
             autofocus
             @keyup.enter="saveEditName"
           />
+          <template v-if="isCreditLine(editNameTarget)">
+            <v-text-field
+              v-model.number="editInterestRate"
+              label="Interest Rate (%)"
+              type="number"
+              variant="solo-filled"
+              density="comfortable"
+              rounded="sm"
+              hide-details="auto"
+              class="mb-4"
+              @keyup.enter="saveEditName"
+            />
+            <v-text-field
+              v-model.number="editDueDate"
+              label="Due Date (Day of month)"
+              type="number"
+              min="1"
+              max="31"
+              variant="solo-filled"
+              density="comfortable"
+              rounded="sm"
+              hide-details="auto"
+              @keyup.enter="saveEditName"
+            />
+          </template>
         </v-card-text>
         <v-card-actions class="pa-6 pt-0">
           <v-spacer />
@@ -264,6 +290,8 @@ import { ref, computed, onMounted } from 'vue'
 import { useUserAccountsStore } from '../stores/userAccounts'
 
 const store = useUserAccountsStore()
+
+const isCreditLine = (account) => account?.ACCTTYPE === 'Credit Line'
 
 onMounted(() => store.fetchAccounts())
 
@@ -302,22 +330,31 @@ function saveEditBank() {
   editBankDialog.value = false
 }
 
-// Edit account name
+// Edit account details
 const editNameDialog = ref(false)
 const editNameTarget = ref(null)
 const editNameValue = ref('')
+const editInterestRate = ref(0)
+const editDueDate = ref('')
 
 function openEditName(account) {
   editNameTarget.value = account
   editNameValue.value = account.displayName || account.ACCTTYPE || ''
+  editInterestRate.value = account.interestRate || 0
+  editDueDate.value = account.dueDate || ''
   editNameDialog.value = true
 }
 
 function saveEditName() {
   if (editNameTarget.value) {
-    store.updateAccount(editNameTarget.value.ACCTID, {
+    const updates = {
       displayName: editNameValue.value.trim() || editNameTarget.value.ACCTTYPE
-    })
+    }
+    if (isCreditLine(editNameTarget.value)) {
+      updates.interestRate = Number(editInterestRate.value) || 0
+      updates.dueDate = Number(editDueDate.value) || null
+    }
+    store.updateAccount(editNameTarget.value.ACCTID, updates)
   }
   editNameDialog.value = false
   editNameTarget.value = null

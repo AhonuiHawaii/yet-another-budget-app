@@ -42,6 +42,8 @@ db.exec(`
     ORG         TEXT,
     INTU_BID    TEXT,
     displayName TEXT,
+    interestRate REAL,
+    dueDate INTEGER,
     createdAt   TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     lastImport  TEXT
   )
@@ -81,6 +83,22 @@ try {
   db.exec(`ALTER TABLE Transactions ADD COLUMN ORG TEXT`)
 } catch {
   // Column already exists
+}
+
+// Migrate Accounts table to add interestRate and dueDate
+{
+  const accountCols = new Set(
+    db
+      .prepare('PRAGMA table_info(Accounts)')
+      .all()
+      .map((c) => c.name)
+  )
+  if (!accountCols.has('interestRate')) {
+    db.exec(`ALTER TABLE Accounts ADD COLUMN interestRate REAL`)
+  }
+  if (!accountCols.has('dueDate')) {
+    db.exec(`ALTER TABLE Accounts ADD COLUMN dueDate INTEGER`)
+  }
 }
 
 // 1.6: Migrate TRNAMT from TEXT to REAL (one-time, guarded by type check)
@@ -348,8 +366,16 @@ function getAccount(acctid) {
  * @returns {number} Rows changed.
  */
 function updateAccount(acctid, updates = {}) {
-  const ALLOWED = new Set(['displayName', 'ACCTTYPE', 'ORG', 'INTU_BID'])
-  const entries = Object.entries(updates).filter(([col]) => ALLOWED.has(col))
+  const ALLOWED = new Set(['displayName', 'ACCTTYPE', 'ORG', 'INTU_BID', 'interestRate', 'dueDate'])
+  const entries = Object.entries(updates)
+    .filter(([col]) => ALLOWED.has(col))
+    .map(([col, val]) => {
+      if (col === 'dueDate') {
+        const n = Number(val)
+        return [col, Number.isInteger(n) && n >= 1 && n <= 31 ? n : null]
+      }
+      return [col, val]
+    })
 
   if (entries.length === 0) return 0
 
