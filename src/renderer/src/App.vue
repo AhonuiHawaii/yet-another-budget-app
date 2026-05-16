@@ -15,6 +15,7 @@ import Budgets from './views/Budgets.vue'
 import Reports from './views/Reports.vue'
 import Goals from './views/Goals.vue'
 import Rules from './views/Rules.vue'
+import Calendar from './views/Calendar.vue'
 
 const views = {
   Dashboard,
@@ -28,7 +29,8 @@ const views = {
   Budgets,
   Reports,
   Goals,
-  Rules
+  Rules,
+  Calendar
 }
 
 const currentView = ref('Dashboard')

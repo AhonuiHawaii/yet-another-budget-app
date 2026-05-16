@@ -10,6 +10,7 @@ const navItems = [
   { title: 'Savings & Goals', value: 'Savings', icon: 'mdi-piggy-bank' },
   { title: 'Expenses', value: 'Variable', icon: 'mdi-shopping' },
   { title: 'Debts', value: 'Debts', icon: 'mdi-cash-remove' },
+  { title: 'Calendar', value: 'Calendar', icon: 'mdi-calendar' },
   { title: 'Budgets', value: 'Budgets', icon: 'mdi-chart-donut' },
   { title: 'Reports', value: 'Reports', icon: 'mdi-chart-bar' },
   { title: 'Auto-Rules', value: 'Rules', icon: 'mdi-tag-multiple-outline' }
