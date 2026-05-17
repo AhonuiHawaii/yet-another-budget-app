@@ -275,7 +275,7 @@ export const removeRule = (id) => {
 
 export const applyRulesToMonth = (yyyymm) => {
   try {
-    const transactions = getUncategorized(yyyymm)
+    const transactions = getTransactions({ DTPOSTED: yyyymm })
     const patches = applyRules(transactions)
     for (const patch of patches) {
       const updates = { category: patch.category }

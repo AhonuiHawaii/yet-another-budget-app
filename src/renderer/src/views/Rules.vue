@@ -8,6 +8,7 @@
           color="secondary"
           prepend-icon="mdi-play-outline"
           :loading="store.loading"
+          :disabled="store.rules.length === 0"
           @click="applyToCurrentMonth"
         >
           Apply to {{ settingsStore.selectedMonthLabel }}
@@ -192,7 +193,8 @@
                 inset
                 density="comfortable"
                 rounded="sm"
-                hide-details
+                persistent-hint
+                :hint="operatorHint"
                 autofocus
               />
             </v-col>
@@ -303,6 +305,19 @@ onMounted(() => store.fetchRules())
 
 const allCategoryNames = computed(() => categoriesStore.categories.map((c) => c.name))
 
+const operatorHint = computed(
+  () =>
+    ({
+      contains: 'Use wildcard (*) or quotations phrases — e.g. wal* matches "Walmart", "gas station" matches "gas station"',
+      equals: 'Must match the full field exactly',
+      startsWith: 'e.g. "wal" matches fields that begin with "wal"',
+      wildcard: 'Use * for any characters — e.g. WAL*MART*',
+      wholeWord: 'e.g. "gas" matches "gas station" but not "gasoline"',
+      gt: 'Numeric — e.g. 50 matches amounts greater than 50',
+      lt: 'Numeric — e.g. 50 matches amounts less than 50'
+    })[form.value.operator] ?? ''
+)
+
 // ── Table headers ─────────────────────────────────────────────────────────────
 const headers = [
   { title: 'Field', key: 'field', width: '110px', sortable: true },
@@ -325,6 +340,8 @@ const operatorOptions = [
   { label: 'contains', value: 'contains' },
   { label: 'equals', value: 'equals' },
   { label: 'starts with', value: 'startsWith' },
+  { label: 'wildcard (*)', value: 'wildcard' },
+  { label: 'whole words', value: 'wholeWord' },
   { label: '> (greater than)', value: 'gt' },
   { label: '< (less than)', value: 'lt' }
 ]

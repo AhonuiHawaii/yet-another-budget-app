@@ -557,6 +557,16 @@ function applyRules(transactions) {
         case 'lt':
           matches = Number(raw) < Number(ruleVal)
           break
+        case 'wildcard': {
+          const pattern = ruleVal.replace(/[.+^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*')
+          matches = new RegExp(`^${pattern}$`, 'i').test(fieldStr)
+          break
+        }
+        case 'wholeWord': {
+          const pattern = ruleVal.replace(/[.*+^${}()|[\]\\]/g, '\\$&')
+          matches = new RegExp(`\\b${pattern}\\b`, 'i').test(fieldStr)
+          break
+        }
       }
 
       if (matches) {
