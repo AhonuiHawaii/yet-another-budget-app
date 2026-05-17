@@ -4,6 +4,7 @@ import { app } from 'electron'
 import { join } from 'path'
 import { mkdirSync, readFileSync, writeFileSync, existsSync } from 'fs'
 import { randomBytes } from 'crypto'
+import { buildMerchantHistory, scoreRecurring } from './util/detectRecurring.js'
 
 /*
   Database initialization
@@ -77,100 +78,11 @@ db.exec(`
     splitAmount1    REAL,
     splitCategory2  TEXT,
     splitAmount2    REAL,
-    notes           TEXT
+    notes           TEXT,
+    recurring       INTEGER DEFAULT 0
   )
 `)
 
-// 1.4: Add ORG column to Transactions (safe on re-runs — ALTER ADD COLUMN throws if exists)
-try {
-  db.exec(`ALTER TABLE Transactions ADD COLUMN ORG TEXT`)
-} catch {
-  // Column already exists
-}
-
-// Migrate Accounts table to add interestRate and dueDate
-{
-  const accountCols = new Set(
-    db
-      .prepare('PRAGMA table_info(Accounts)')
-      .all()
-      .map((c) => c.name)
-  )
-  if (!accountCols.has('interestRate')) {
-    db.exec(`ALTER TABLE Accounts ADD COLUMN interestRate REAL`)
-  }
-  if (!accountCols.has('dueDate')) {
-    db.exec(`ALTER TABLE Accounts ADD COLUMN dueDate INTEGER`)
-  }
-  if (!accountCols.has('paymentFrequency')) {
-    db.exec(`ALTER TABLE Accounts ADD COLUMN paymentFrequency TEXT`)
-  }
-  if (!accountCols.has('paymentStartDate')) {
-    db.exec(`ALTER TABLE Accounts ADD COLUMN paymentStartDate TEXT`)
-  }
-  if (!accountCols.has('paymentCount')) {
-    db.exec(`ALTER TABLE Accounts ADD COLUMN paymentCount INTEGER`)
-  }
-}
-
-// 1.6: Migrate TRNAMT from TEXT to REAL (one-time, guarded by type check)
-{
-  const trnamtCol = db
-    .prepare('PRAGMA table_info(Transactions)')
-    .all()
-    .find((c) => c.name === 'TRNAMT')
-  if (trnamtCol && trnamtCol.type.toUpperCase() === 'TEXT') {
-    db.exec(`
-      BEGIN;
-      CREATE TABLE Transactions_new (
-        FITID           TEXT PRIMARY KEY,
-        ACCTID          TEXT,
-        TRNTYPE         TEXT,
-        DTPOSTED        TEXT,
-        DTUSER          TEXT,
-        TRNAMT          REAL,
-        NAME            TEXT,
-        MEMO            TEXT,
-        CHECKNUM        TEXT,
-        REFNUM          TEXT,
-        DTAVAIL         TEXT,
-        SRVRTID         TEXT,
-        PAYEEID         TEXT,
-        EXTDNAME        TEXT,
-        SIC             TEXT,
-        ORG             TEXT,
-        rawTransaction  TEXT NOT NULL,
-        createdAt       TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        transactionType TEXT,
-        category        TEXT,
-        splitCategory1  TEXT,
-        splitAmount1    REAL,
-        splitCategory2  TEXT,
-        splitAmount2    REAL,
-        notes           TEXT
-      );
-      INSERT INTO Transactions_new
-        (FITID, ACCTID, TRNTYPE, DTPOSTED, DTUSER, TRNAMT, NAME, MEMO,
-         CHECKNUM, REFNUM, DTAVAIL, SRVRTID, PAYEEID, EXTDNAME, SIC, ORG,
-         rawTransaction, createdAt, transactionType, category,
-         splitCategory1, splitAmount1, splitCategory2, splitAmount2, notes)
-      SELECT
-        FITID, ACCTID, TRNTYPE, DTPOSTED, DTUSER, CAST(TRNAMT AS REAL), NAME, MEMO,
-        CHECKNUM, REFNUM, DTAVAIL, SRVRTID, PAYEEID, EXTDNAME, SIC, ORG,
-        rawTransaction, createdAt, transactionType, category,
-        splitCategory1, splitAmount1, splitCategory2, splitAmount2, notes
-      FROM Transactions;
-      DROP TABLE Transactions;
-      ALTER TABLE Transactions_new RENAME TO Transactions;
-      COMMIT;
-    `)
-  }
-}
-
-// Backfill: copy NAME → MEMO for rows where MEMO is missing
-db.exec(
-  `UPDATE Transactions SET MEMO = NAME WHERE (MEMO IS NULL OR MEMO = '') AND NAME IS NOT NULL`
-)
 
 // 1.1: Indexes on hot columns (recreated after any migration, IF NOT EXISTS is idempotent)
 db.exec(`CREATE INDEX IF NOT EXISTS idx_transactions_dtposted ON Transactions(DTPOSTED)`)
@@ -221,7 +133,8 @@ const VALID_COLUMNS = new Set([
   'splitCategory2',
   'splitAmount2',
   'ORG',
-  'notes'
+  'notes',
+  'recurring'
 ])
 
 // OFX date columns — use LIKE prefix matching so partial dates work
@@ -277,13 +190,15 @@ function createTransaction(txn) {
   const stmt = db.prepare(`
     INSERT OR IGNORE INTO Transactions
       (FITID, ACCTID, TRNTYPE, DTPOSTED, DTUSER, TRNAMT, NAME, MEMO,
-       CHECKNUM, REFNUM, DTAVAIL, SRVRTID, PAYEEID, EXTDNAME, SIC, ORG, rawTransaction)
+       CHECKNUM, REFNUM, DTAVAIL, SRVRTID, PAYEEID, EXTDNAME, SIC, ORG, rawTransaction, recurring)
     VALUES
       (@FITID, @ACCTID, @TRNTYPE, @DTPOSTED, @DTUSER, @TRNAMT, @NAME, COALESCE(NULLIF(@MEMO, ''), @NAME),
-       @CHECKNUM, @REFNUM, @DTAVAIL, @SRVRTID, @PAYEEID, @EXTDNAME, @SIC, @ORG, @rawTransaction)
+       @CHECKNUM, @REFNUM, @DTAVAIL, @SRVRTID, @PAYEEID, @EXTDNAME, @SIC, @ORG, @rawTransaction, @recurring)
   `)
 
-  return stmt.run({ ...txn, rawTransaction: JSON.stringify(txn) }).changes
+  const history = buildMerchantHistory(db)
+  const recurring = scoreRecurring(txn, history) ? 1 : 0
+  return stmt.run({ ...txn, rawTransaction: JSON.stringify(txn), recurring }).changes
 }
 
 /**
@@ -299,16 +214,19 @@ function createTransactions(txns) {
   const stmt = db.prepare(`
     INSERT OR IGNORE INTO Transactions
       (FITID, ACCTID, TRNTYPE, DTPOSTED, DTUSER, TRNAMT, NAME, MEMO,
-       CHECKNUM, REFNUM, DTAVAIL, SRVRTID, PAYEEID, EXTDNAME, SIC, ORG, rawTransaction)
+       CHECKNUM, REFNUM, DTAVAIL, SRVRTID, PAYEEID, EXTDNAME, SIC, ORG, rawTransaction, recurring)
     VALUES
       (@FITID, @ACCTID, @TRNTYPE, @DTPOSTED, @DTUSER, @TRNAMT, @NAME, COALESCE(NULLIF(@MEMO, ''), @NAME),
-       @CHECKNUM, @REFNUM, @DTAVAIL, @SRVRTID, @PAYEEID, @EXTDNAME, @SIC, @ORG, @rawTransaction)
+       @CHECKNUM, @REFNUM, @DTAVAIL, @SRVRTID, @PAYEEID, @EXTDNAME, @SIC, @ORG, @rawTransaction, @recurring)
   `)
+
+  const history = buildMerchantHistory(db)
 
   let inserted = 0
   db.transaction((rows) => {
     for (const txn of rows) {
-      inserted += stmt.run({ ...txn, rawTransaction: JSON.stringify(txn) }).changes
+      const recurring = scoreRecurring(txn, history) ? 1 : 0
+      inserted += stmt.run({ ...txn, rawTransaction: JSON.stringify(txn), recurring }).changes
     }
   })(txns)
 
