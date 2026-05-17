@@ -146,29 +146,88 @@
               <v-icon :color="section.color" size="20" :opacity="0.7">{{ section.icon }}</v-icon>
             </template>
             <v-card-title class="text-h6 font-weight-bold pl-2">{{ section.label }}</v-card-title>
+            <template v-if="['income', 'bills', 'variable', 'savings'].includes(section.type)" #append>
+              <v-btn
+                variant="text"
+                size="small"
+                prepend-icon="mdi-plus"
+                color="primary"
+                density="compact"
+                @click="startAddingCategory(section.type)"
+              >
+                Add Category
+              </v-btn>
+            </template>
           </v-card-item>
 
           <v-table density="comfortable" class="mt-2">
             <thead>
               <tr>
                 <th class="text-start text-caption text-medium-emphasis pl-5">Category</th>
-                <th class="text-center text-caption text-medium-emphasis">Actual</th>
-                <th class="text-center text-caption text-medium-emphasis">Budget</th>
-                <th class="text-center text-caption text-medium-emphasis">
+                <th
+                  v-if="section.type === 'bills' || section.type === 'debt'"
+                  class="text-center text-caption text-medium-emphasis"
+                  style="width: 120px"
+                >
+                  Due
+                </th>
+                <th class="text-center text-caption text-medium-emphasis" style="width: 120px">Actual</th>
+                <th class="text-center text-caption text-medium-emphasis" style="width: 150px">Budget</th>
+                <th class="text-center text-caption text-medium-emphasis" style="width: 120px">
                   {{ section.type === 'income' ? 'Variance' : 'Remaining' }}
                 </th>
-                <th class="text-center text-caption text-medium-emphasis pr-5">Used</th>
+                <th class="text-center text-caption text-medium-emphasis pr-5" style="width: 160px">Used</th>
+                <th style="width: 40px"></th>
               </tr>
             </thead>
             <tbody>
               <tr v-if="section.rows.length === 0">
-                <td colspan="5" class="text-center py-8 text-medium-emphasis">
+                <td
+                  :colspan="section.type === 'bills' || section.type === 'debt' ? 7 : 6"
+                  class="text-center py-8 text-medium-emphasis"
+                >
                   No {{ section.label.toLowerCase() }} categories yet.
                 </td>
               </tr>
               <tr v-for="row in section.rows" :key="row.id">
                 <td class="pl-5 text-body-2 font-weight-medium">
                   <span>{{ row.name }}</span>
+                </td>
+                <td v-if="section.type === 'bills' || section.type === 'debt'" class="text-center">
+                  <v-menu
+                    :model-value="openDueDateId === row.id"
+                    :close-on-content-click="false"
+                    @update:model-value="(v) => { if (!v) openDueDateId = null }"
+                  >
+                    <template #activator="{ props }">
+                      <v-btn
+                        v-bind="props"
+                        variant="text"
+                        size="small"
+                        density="compact"
+                        :color="row.dueDate ? 'primary' : undefined"
+                        :icon="!row.dueDate"
+                        class="text-caption"
+                        @click="openDueDateId = row.id"
+                      >
+                        <v-icon
+                          :size="row.dueDate ? 14 : 18"
+                          :class="row.dueDate ? 'mr-1' : ''"
+                          :opacity="row.dueDate ? 1 : 0.4"
+                        >
+                          {{ row.dueDate ? 'mdi-calendar-check' : 'mdi-calendar-plus' }}
+                        </v-icon>
+                        <span v-if="row.dueDate">Day {{ row.dueDate }}</span>
+                      </v-btn>
+                    </template>
+                    <v-date-picker
+                      :model-value="dueDateToModelValue(row.dueDate)"
+                      hide-header
+                      color="primary"
+                      elevation="4"
+                      @update:model-value="(d) => { updateDueDate(row.id, d); openDueDateId = null }"
+                    />
+                  </v-menu>
                 </td>
                 <td class="text-center text-body-2 font-weight-bold">
                   {{ formatCurrency(row.actual) }}
@@ -203,6 +262,34 @@
                       row.percentLabel
                     }}</span>
                   </div>
+                </td>
+                <td class="text-center pr-2">
+                  <v-btn
+                    icon="mdi-delete-outline"
+                    variant="text"
+                    size="small"
+                    color="error"
+                    density="compact"
+                    :opacity="0.4"
+                    @click="categoriesStore.deleteCategory(row.id)"
+                  />
+                </td>
+              </tr>
+              <tr v-if="addingType === section.type">
+                <td :colspan="section.type === 'bills' ? 7 : 6" class="pl-4 py-1">
+                  <v-text-field
+                    v-model="newCategoryName"
+                    placeholder="Category name"
+                    variant="solo"
+                    flat
+                    density="compact"
+                    hide-details
+                    autofocus
+                    style="max-width: 280px"
+                    @keyup.enter="saveNewCategory(section.type)"
+                    @keyup.esc="cancelNewCategory"
+                    @blur="saveNewCategory(section.type)"
+                  />
                 </td>
               </tr>
             </tbody>
@@ -301,7 +388,8 @@ const budgetRows = computed(() => {
       percentColor: getPercentColor(category.type, rawPercent),
       typeLabel: meta.label,
       icon: meta.icon,
-      color: meta.color
+      color: meta.color,
+      dueDate: category.dueDate ?? null
     }
   })
 })
@@ -369,8 +457,42 @@ async function loadMonth() {
   }
 }
 
+const openDueDateId = ref(null)
+const addingType = ref(null)
+const newCategoryName = ref('')
+
+function startAddingCategory(type) {
+  addingType.value = type
+  newCategoryName.value = ''
+}
+
+async function saveNewCategory(type) {
+  const name = newCategoryName.value.trim()
+  addingType.value = null
+  newCategoryName.value = ''
+  if (!name) return
+  await categoriesStore.addCategory({ type, name })
+}
+
+function cancelNewCategory() {
+  addingType.value = null
+  newCategoryName.value = ''
+}
+
+function dueDateToModelValue(dueDay) {
+  if (!dueDay) return null
+  const year = Number(selectedMonth.value.slice(0, 4))
+  const month = Number(selectedMonth.value.slice(4)) - 1
+  return new Date(year, month, dueDay)
+}
+
 async function updateBudget(categoryId, value) {
   await budgetsStore.upsertBudget(categoryId, Number(value) || 0)
+}
+
+async function updateDueDate(categoryId, date) {
+  const d = date instanceof Date ? date : date ? new Date(date) : null
+  await categoriesStore.updateCategory(categoryId, { dueDate: d ? d.getDate() : null })
 }
 
 onMounted(async () => {
