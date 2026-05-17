@@ -395,7 +395,7 @@ const budgetRows = computed(() => {
     const meta = categoryMeta.value[category.type] || categoryMeta.value.variable
     const budget = budgetsStore.getBudget(category.id)
     const planned = budget?.amount || 0
-    const actual = actualsByCategory.value.get(category.name) || 0
+    const actual = actualsByCategory.value.get(category.id) || 0
     const remaining = category.type === 'income' ? actual - planned : planned - actual
     const rawPercent = planned > 0 ? (actual / planned) * 100 : actual > 0 ? 100 : 0
     const percentUsed = Math.min(rawPercent, 100)

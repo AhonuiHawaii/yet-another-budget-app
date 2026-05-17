@@ -366,7 +366,7 @@
               size="small"
               class="text-on-secondary font-weight-medium"
             >
-              {{ item.category }}
+              {{ categoryName(item.category) }}
             </v-chip>
             <span v-else class="text-disabled text-caption">Uncategorized</span>
 
@@ -440,7 +440,7 @@
                   <tr v-if="item.splitCategory1 || item.splitAmount1">
                     <td class="pl-0 text-body-2">
                       <v-chip color="secondary" variant="tonal" size="x-small">
-                        {{ item.splitCategory1 || 'Uncategorized' }}
+                        {{ categoryName(item.splitCategory1) || 'Uncategorized' }}
                       </v-chip>
                     </td>
                     <td class="text-body-2 font-weight-medium">
@@ -450,7 +450,7 @@
                   <tr v-if="item.splitCategory2 || item.splitAmount2">
                     <td class="pl-0 text-body-2">
                       <v-chip color="secondary" variant="tonal" size="x-small">
-                        {{ item.splitCategory2 || 'Uncategorized' }}
+                        {{ categoryName(item.splitCategory2) || 'Uncategorized' }}
                       </v-chip>
                     </td>
                     <td class="text-body-2 font-weight-medium">
@@ -825,9 +825,9 @@
               />
             </v-col>
             <v-col cols="8" class="mt-3">
-              <v-combobox
+              <v-autocomplete
                 v-model="ruleForm.category"
-                :items="allCategoryNames"
+                :items="allCategoryItems"
                 label="Assign category"
                 variant="solo"
                 inset
@@ -921,19 +921,29 @@ const settingsStore = useUserSettingsStore()
 const categoriesStore = useUserCategoriesStore()
 const rulesStore = useUserRulesStore()
 
-const allCategoryNames = computed(() => categoriesStore.categories.map((c) => c.name))
-
-const incomeCategoryNames = computed(() =>
-  categoriesStore.categories.filter((c) => c.type === 'income').map((c) => c.name)
+const categoryById = computed(() =>
+  Object.fromEntries(categoriesStore.categories.map((c) => [c.id, c.name]))
 )
 
-const nonIncomeCategoryNames = computed(() =>
-  categoriesStore.categories.filter((c) => c.type !== 'income').map((c) => c.name)
+function categoryName(id) {
+  return categoryById.value[id] ?? null
+}
+
+const allCategoryItems = computed(() =>
+  categoriesStore.categories.map((c) => ({ title: c.name, value: c.id }))
+)
+
+const incomeCategoryItems = computed(() =>
+  categoriesStore.categories.filter((c) => c.type === 'income').map((c) => ({ title: c.name, value: c.id }))
+)
+
+const nonIncomeCategoryItems = computed(() =>
+  categoriesStore.categories.filter((c) => c.type !== 'income').map((c) => ({ title: c.name, value: c.id }))
 )
 
 function categoriesForTransaction(item) {
-  if (!item) return allCategoryNames.value
-  return Number(item.TRNAMT) >= 0 ? incomeCategoryNames.value : nonIncomeCategoryNames.value
+  if (!item) return allCategoryItems.value
+  return Number(item.TRNAMT) >= 0 ? incomeCategoryItems.value : nonIncomeCategoryItems.value
 }
 
 // ── Bulk Recategorization ─────────────────────────────────────────────────────
@@ -955,9 +965,9 @@ const bulkSelectionKind = computed(() => {
 })
 
 const bulkCategoryItems = computed(() => {
-  if (bulkSelectionKind.value === 'income') return incomeCategoryNames.value
-  if (bulkSelectionKind.value === 'expense') return nonIncomeCategoryNames.value
-  return allCategoryNames.value
+  if (bulkSelectionKind.value === 'income') return incomeCategoryItems.value
+  if (bulkSelectionKind.value === 'expense') return nonIncomeCategoryItems.value
+  return allCategoryItems.value
 })
 
 function openBulkCategoryDialog() {
@@ -966,7 +976,7 @@ function openBulkCategoryDialog() {
 }
 
 async function saveBulkCategory() {
-  const category = (bulkCategoryValue.value || '').trim() || null
+  const category = bulkCategoryValue.value || null
   await Promise.all(
     selectedRows.value.map((item) => store.editTransaction(item.FITID, { category }))
   )
@@ -1238,7 +1248,7 @@ function openEditCategory(item) {
 async function saveCategory() {
   if (!editTarget.value) return
   await store.editTransaction(editTarget.value.FITID, {
-    category: editCategoryValue.value.trim() || null
+    category: editCategoryValue.value || null
   })
   editCategoryDialog.value = false
   editTarget.value = null
