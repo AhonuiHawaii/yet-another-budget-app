@@ -190,8 +190,30 @@
                 </td>
               </tr>
               <tr v-for="row in section.rows" :key="row.id">
-                <td class="pl-5 text-body-2 font-weight-medium">
-                  <span>{{ row.name }}</span>
+                <td class="pl-2 text-body-2 font-weight-medium">
+                  <div class="d-flex align-center gap-3">
+                    <v-btn
+                      :icon="locked[row.id] ? 'mdi-lock-outline' : 'mdi-lock-open-variant-outline'"
+                      variant="text"
+                      size="x-small"
+                      density="compact"
+                      :color="locked[row.id] ? 'error' : undefined"
+                      :opacity="locked[row.id] ? 0.7 : 0.3"
+                      @click="toggleLock(row.id)"
+                    />
+                    <v-text-field
+                      v-if="!locked[row.id]"
+                      :model-value="editingNames[row.id] ?? row.name"
+                      variant="solo"
+                      flat
+                      density="compact"
+                      hide-details
+                      @update:model-value="(v) => (editingNames[row.id] = v)"
+                      @keyup.enter="saveCategoryName(row.id, row.name)"
+                      @blur="saveCategoryName(row.id, row.name)"
+                    />
+                    <span v-else class="pl-3">{{ row.name }}</span>
+                  </div>
                 </td>
                 <td v-if="section.type === 'bills' || section.type === 'debt'" class="text-center">
                   <v-menu
@@ -458,6 +480,26 @@ async function loadMonth() {
 }
 
 const openDueDateId = ref(null)
+const locked = ref({})
+const editingNames = ref({})
+
+function toggleLock(id) {
+  if (locked.value[id]) {
+    const { [id]: _, ...rest } = locked.value
+    locked.value = rest
+  } else {
+    locked.value = { ...locked.value, [id]: true }
+    const { [id]: _, ...rest } = editingNames.value
+    editingNames.value = rest
+  }
+}
+
+async function saveCategoryName(id, currentName) {
+  const name = (editingNames.value[id] ?? currentName).trim()
+  if (!name || name === currentName) return
+  await categoriesStore.updateCategory(id, { name })
+}
+
 const addingType = ref(null)
 const newCategoryName = ref('')
 

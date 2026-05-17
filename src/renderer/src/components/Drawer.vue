@@ -6,7 +6,6 @@ const navItems = [
   { title: 'Dashboard', value: 'Dashboard', icon: 'mdi-view-dashboard' },
   { title: 'Accounts', value: 'Accounts', icon: 'mdi-bank' },
   { title: 'Spending', value: 'Spending', icon: 'mdi-cash-multiple' },
-  { title: 'Income', value: 'Income', icon: 'mdi-trending-up' },
   { title: 'Debts', value: 'Debts', icon: 'mdi-cash-remove' },
   { title: 'Recurring', value: 'Recurring', icon: 'mdi-calendar-sync' },
   { title: 'Savings', value: 'Savings', icon: 'mdi-piggy-bank' },
