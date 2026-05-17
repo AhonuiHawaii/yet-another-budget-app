@@ -308,7 +308,8 @@ const allCategoryNames = computed(() => categoriesStore.categories.map((c) => c.
 const operatorHint = computed(
   () =>
     ({
-      contains: 'Use wildcard (*) or quotations phrases — e.g. wal* matches "Walmart", "gas station" matches "gas station"',
+      contains:
+        'Use wildcard (*) or quotations phrases — e.g. wal* matches "Walmart", "gas station" matches "gas station"',
       equals: 'Must match the full field exactly',
       startsWith: 'e.g. "wal" matches fields that begin with "wal"',
       wildcard: 'Use * for any characters — e.g. WAL*MART*',

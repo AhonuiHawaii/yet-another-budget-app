@@ -400,6 +400,15 @@
               @click="openNotesDialog(item)"
             />
             <v-btn
+              icon="mdi-tag-plus-outline"
+              variant="text"
+              size="small"
+              color="secondary"
+              density="compact"
+              class="mr-1"
+              @click="openCreateRuleFromTransaction(item)"
+            />
+            <v-btn
               icon="mdi-call-split"
               variant="text"
               size="small"
@@ -758,6 +767,125 @@
       </v-card>
     </v-dialog>
 
+    <!-- Create Rule from Transaction Dialog -->
+    <v-dialog v-model="ruleDialog" max-width="520" persistent>
+      <v-card rounded="sm">
+        <v-card-title class="pa-6 pb-4">
+          <div class="d-flex align-center justify-space-between">
+            <div class="d-flex align-center gap-3">
+              <v-icon color="primary" size="20">mdi-tag-multiple-outline</v-icon>
+              <span class="text-h6 font-weight-bold">Create Rule</span>
+            </div>
+            <v-btn icon="mdi-close" variant="text" density="compact" @click="ruleDialog = false" />
+          </div>
+        </v-card-title>
+
+        <v-divider />
+
+        <v-card-text class="pa-6">
+          <v-row>
+            <v-col cols="6">
+              <v-select
+                v-model="ruleForm.field"
+                :items="ruleFieldOptions"
+                item-title="label"
+                item-value="value"
+                label="Field"
+                variant="solo"
+                inset
+                density="comfortable"
+                rounded="sm"
+                hide-details
+              />
+            </v-col>
+            <v-col cols="6">
+              <v-select
+                v-model="ruleForm.operator"
+                :items="ruleOperatorOptions"
+                item-title="label"
+                item-value="value"
+                label="Operator"
+                variant="solo"
+                inset
+                density="comfortable"
+                rounded="sm"
+                hide-details
+              />
+            </v-col>
+            <v-col cols="12" class="mt-3">
+              <v-text-field
+                v-model="ruleForm.value"
+                label="Match value"
+                variant="solo"
+                inset
+                density="comfortable"
+                rounded="sm"
+                persistent-hint
+                :hint="ruleOperatorHint"
+              />
+            </v-col>
+            <v-col cols="8" class="mt-3">
+              <v-combobox
+                v-model="ruleForm.category"
+                :items="allCategoryNames"
+                label="Assign category"
+                variant="solo"
+                inset
+                density="comfortable"
+                rounded="sm"
+                hide-details
+                clearable
+              />
+            </v-col>
+            <v-col cols="4" class="mt-3">
+              <v-text-field
+                v-model.number="ruleForm.priority"
+                label="Priority"
+                type="number"
+                variant="solo"
+                inset
+                density="comfortable"
+                rounded="sm"
+                hide-details
+              />
+            </v-col>
+            <v-col cols="12" class="mt-3">
+              <v-select
+                v-model="ruleForm.type"
+                :items="ruleTypeOptions"
+                item-title="label"
+                item-value="value"
+                label="Assign transaction type (optional)"
+                variant="solo"
+                inset
+                density="comfortable"
+                rounded="sm"
+                hide-details
+                clearable
+              />
+            </v-col>
+          </v-row>
+        </v-card-text>
+
+        <v-card-actions class="pa-6 pt-0">
+          <v-spacer />
+          <v-btn variant="text" @click="ruleDialog = false">Cancel</v-btn>
+          <v-btn
+            color="primary"
+            variant="flat"
+            rounded="sm"
+            :loading="rulesStore.loading"
+            :disabled="
+              !ruleForm.field || !ruleForm.operator || !ruleForm.value || !ruleForm.category
+            "
+            @click="saveRule"
+          >
+            Add Rule
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
     <!-- Delete Confirmation Dialog -->
     <v-dialog v-model="deleteDialog" max-width="400">
       <v-card rounded>
@@ -785,11 +913,13 @@ import { useUserTransactionsStore } from '../stores/userTransactions'
 import { useUserAccountsStore } from '../stores/userAccounts'
 import { useUserSettingsStore } from '../stores/userSettings'
 import { useUserCategoriesStore } from '../stores/userCategories'
+import { useUserRulesStore } from '../stores/userRules'
 
 const store = useUserTransactionsStore()
 const accountsStore = useUserAccountsStore()
 const settingsStore = useUserSettingsStore()
 const categoriesStore = useUserCategoriesStore()
+const rulesStore = useUserRulesStore()
 
 const allCategoryNames = computed(() => categoriesStore.categories.map((c) => c.name))
 
@@ -1225,5 +1355,79 @@ async function saveSplits() {
 
   splitDialog.value = false
   splitTarget.value = null
+}
+
+// ── Create Rule from Transaction ───────────────────────────────────────────────
+const ruleDialog = ref(false)
+const ruleForm = ref({
+  field: 'NAME',
+  operator: 'contains',
+  value: '',
+  category: '',
+  type: null,
+  priority: 0
+})
+
+const ruleFieldOptions = [
+  { label: 'Name (payee)', value: 'NAME' },
+  { label: 'Memo', value: 'MEMO' },
+  { label: 'Amount', value: 'TRNAMT' },
+  { label: 'Tran. type', value: 'TRNTYPE' }
+]
+
+const ruleOperatorOptions = [
+  { label: 'contains', value: 'contains' },
+  { label: 'equals', value: 'equals' },
+  { label: 'starts with', value: 'startsWith' },
+  { label: 'wildcard (*)', value: 'wildcard' },
+  { label: 'whole words', value: 'wholeWord' },
+  { label: '> (greater than)', value: 'gt' },
+  { label: '< (less than)', value: 'lt' }
+]
+
+const ruleTypeOptions = [
+  { label: 'Income', value: 'income' },
+  { label: 'Expense', value: 'expense' },
+  { label: 'Bills', value: 'bills' },
+  { label: 'Variable', value: 'variable' },
+  { label: 'Savings', value: 'savings' }
+]
+
+const ruleOperatorHint = computed(
+  () =>
+    ({
+      contains:
+        'Use wildcard (*) or quoted phrases — e.g. wal* matches "Walmart", "gas station" matches exactly',
+      equals: 'Must match the full field exactly',
+      startsWith: 'e.g. "wal" matches fields that begin with "wal"',
+      wildcard: 'Use * for any characters — e.g. WAL*MART*',
+      wholeWord: 'e.g. "gas" matches "gas station" but not "gasoline"',
+      gt: 'Numeric — e.g. 50 matches amounts greater than 50',
+      lt: 'Numeric — e.g. 50 matches amounts less than 50'
+    })[ruleForm.value.operator] ?? ''
+)
+
+function openCreateRuleFromTransaction(item) {
+  ruleForm.value = {
+    field: 'MEMO',
+    operator: 'contains',
+    value: item.MEMO || '',
+    category: item.category || '',
+    type: null,
+    priority: 0
+  }
+  ruleDialog.value = true
+}
+
+async function saveRule() {
+  await rulesStore.createRule({
+    field: ruleForm.value.field,
+    operator: ruleForm.value.operator,
+    value: ruleForm.value.value,
+    category: ruleForm.value.category,
+    type: ruleForm.value.type || null,
+    priority: ruleForm.value.priority ?? 0
+  })
+  if (!rulesStore.error) ruleDialog.value = false
 }
 </script>
