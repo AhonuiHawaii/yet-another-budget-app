@@ -4,7 +4,7 @@
     <div class="d-flex align-center justify-space-between flex-wrap gap-3 mb-6">
       <div class="d-flex align-center gap-3">
         <v-btn
-          variant="tonal"
+          variant="flat"
           color="secondary"
           prepend-icon="mdi-play-outline"
           :loading="store.loading"
@@ -22,7 +22,7 @@
       <v-alert
         v-if="applyResult !== null"
         :type="applyResult.applied > 0 ? 'success' : 'info'"
-        variant="tonal"
+        variant="flat"
         closable
         class="mb-4"
         @click:close="applyResult = null"
@@ -35,7 +35,7 @@
     <v-alert
       v-if="store.error"
       type="error"
-      variant="tonal"
+      variant="flat"
       closable
       class="mb-4"
       @click:close="store.clearError()"
@@ -70,7 +70,7 @@
       >
         <!-- Field -->
         <template #item.field="{ item }">
-          <v-chip size="x-small" variant="tonal" color="primary" rounded="sm">
+          <v-chip size="x-small" variant="flat" color="primary" rounded="sm">
             {{ item.field }}
           </v-chip>
         </template>
@@ -87,14 +87,14 @@
 
         <!-- Category -->
         <template #item.category="{ item }">
-          <v-chip size="x-small" variant="tonal" color="secondary" rounded="sm">
+          <v-chip size="x-small" variant="flat" color="secondary" rounded="sm">
             {{ item.category }}
           </v-chip>
         </template>
 
         <!-- Type -->
         <template #item.type="{ item }">
-          <v-chip v-if="item.type" size="x-small" variant="tonal" color="info" rounded="sm">
+          <v-chip v-if="item.type" size="x-small" variant="flat" color="info" rounded="sm">
             {{ item.type }}
           </v-chip>
           <span v-else class="text-disabled text-caption">—</span>
@@ -278,7 +278,7 @@
         <v-card-actions class="pa-6 pt-0 gap-2">
           <v-spacer />
           <v-btn variant="text" @click="deleteDialog = false">Cancel</v-btn>
-          <v-btn color="error" variant="tonal" :loading="store.loading" @click="doDelete">
+          <v-btn color="error" variant="flat" :loading="store.loading" @click="doDelete">
             Delete
           </v-btn>
         </v-card-actions>

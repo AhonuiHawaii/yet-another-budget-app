@@ -50,7 +50,7 @@
               >
             </div>
             <div
-              class="text-h5 font-weight-black mb-1"
+              class="text-h5 font-weight-black"
               :class="netCashFlow >= 0 ? 'text-success' : 'text-error'"
             >
               {{ formatCurrency(netCashFlow) }}
@@ -70,7 +70,7 @@
               >
             </div>
             <div
-              class="text-h5 font-weight-black mb-1"
+              class="text-h5 font-weight-black"
               :class="budgetVariance >= 0 ? 'text-success' : 'text-error'"
             >
               {{ formatCurrency(budgetVariance) }}
@@ -278,12 +278,14 @@
 
 <script setup>
 import { computed, onMounted, ref, watch } from 'vue'
+import { useUserAccountsStore } from '../stores/userAccounts'
 import { useUserBudgetsStore } from '../stores/userBudgets'
 import { useUserCategoriesStore } from '../stores/userCategories'
 import { useUserGoalsStore } from '../stores/userGoals'
 import { useUserSettingsStore } from '../stores/userSettings'
 import { useUserTransactionsStore } from '../stores/userTransactions'
 
+const accountsStore = useUserAccountsStore()
 const budgetsStore = useUserBudgetsStore()
 const categoriesStore = useUserCategoriesStore()
 const goalsStore = useUserGoalsStore()
@@ -291,26 +293,117 @@ const settingsStore = useUserSettingsStore()
 const transactionsStore = useUserTransactionsStore()
 const dashboardError = ref(null)
 
-const incomeTransactions = computed(() =>
-  transactionsStore.transactions.filter((transaction) => Number(transaction.TRNAMT) > 0)
+// ── Period bounds — exact copy from Debt.vue ──────────────────────────────────
+const periodBounds = computed(() => {
+  const y = parseInt(settingsStore.selectedMonth.slice(0, 4))
+  const m = parseInt(settingsStore.selectedMonth.slice(4, 6)) - 1
+  return { start: new Date(y, m, 1), end: new Date(y, m + 1, 0, 23, 59, 59, 999) }
+})
+
+// ── currentTransactions — exact copy from Debt.vue ───────────────────────────
+const currentTransactions = computed(() => {
+  const bounds = periodBounds.value
+  if (!bounds) return []
+  return transactionsStore.transactions.filter((t) => {
+    const s = String(t.DTPOSTED || '')
+    const y = parseInt(s.slice(0, 4))
+    const m = parseInt(s.slice(4, 6)) - 1
+    const d = parseInt(s.slice(6, 8))
+    const tDate = new Date(y, m, d)
+    return tDate >= bounds.start && tDate <= bounds.end
+  })
+})
+
+// ── debtAccounts — exact copy from Debt.vue ───────────────────────────────────
+const debtAccounts = computed(() =>
+  accountsStore.accounts.filter((a) => {
+    const t = String(a.ACCTTYPE || '').toLowerCase()
+    return (
+      t.includes('credit') ||
+      t.includes('loan') ||
+      t.includes('mortgage') ||
+      t.includes('buy now pay later') ||
+      t.includes('medical debt') ||
+      t === 'other'
+    )
+  })
 )
 
-const expenseTransactions = computed(() =>
-  transactionsStore.transactions.filter((transaction) => Number(transaction.TRNAMT) < 0)
-)
+// ── paymentsByAccount — exact copy from Debt.vue ─────────────────────────────
+const paymentsByAccount = computed(() => {
+  const payments = new Map()
+  for (const t of currentTransactions.value) {
+    const accountId = t.ACCTID
+    const amount = Number(t.TRNAMT) || 0
+    if (!accountId || amount >= 0) continue
+    payments.set(accountId, (payments.get(accountId) || 0) + Math.abs(amount))
+  }
+  return payments
+})
 
+// ── actualsMap — exact copy from Variable.vue buildActualsMap ─────────────────
+const actualsMap = computed(() => {
+  const map = new Map()
+  for (const t of currentTransactions.value) {
+    const trnAmt = Number(t.TRNAMT)
+    if (t.category)
+      map.set(t.category, (map.get(t.category) || 0) + (trnAmt < 0 ? Math.abs(trnAmt) : 0))
+    if (t.splitCategory1 && t.splitAmount1 > 0)
+      map.set(t.splitCategory1, (map.get(t.splitCategory1) || 0) + t.splitAmount1)
+    if (t.splitCategory2 && t.splitAmount2 > 0)
+      map.set(t.splitCategory2, (map.get(t.splitCategory2) || 0) + t.splitAmount2)
+  }
+  return map
+})
+
+// ── Totals ────────────────────────────────────────────────────────────────────
 const totalIncome = computed(() =>
-  incomeTransactions.value.reduce((sum, transaction) => sum + Number(transaction.TRNAMT), 0)
-)
-
-const totalSpending = computed(() =>
-  expenseTransactions.value.reduce(
-    (sum, transaction) => sum + Math.abs(Number(transaction.TRNAMT)),
+  currentTransactions.value.reduce(
+    (sum, t) => sum + (Number(t.TRNAMT) > 0 ? Number(t.TRNAMT) : 0),
     0
   )
 )
-
+const totalSpending = computed(() =>
+  currentTransactions.value.reduce(
+    (sum, t) => sum + (Number(t.TRNAMT) < 0 ? Math.abs(Number(t.TRNAMT)) : 0),
+    0
+  )
+)
 const netCashFlow = computed(() => totalIncome.value - totalSpending.value)
+
+// ── Budget helpers — exact copy from Variable.vue / Debt.vue ─────────────────
+function sumBudgetByType(type) {
+  if (type === 'debt') {
+    // Debt.vue: budget stored against account.ACCTID, not category UUID
+    return debtAccounts.value.reduce(
+      (sum, a) => sum + (budgetsStore.getBudget(a.ACCTID)?.amount || 0),
+      0
+    )
+  }
+  return categoriesStore.categories
+    .filter((c) => c.type === type)
+    .reduce((sum, c) => sum + budgetsStore.getEffectiveBudget(c.id, settingsStore.selectedMonth), 0)
+}
+
+function sumActualByCategoryType(type) {
+  if (type === 'debt') {
+    // Debt.vue: actual = sum of payments across all debt accounts
+    return debtAccounts.value.reduce(
+      (sum, a) => sum + (paymentsByAccount.value.get(a.ACCTID) || 0),
+      0
+    )
+  }
+  // Variable.vue: actual = sum from actualsMap by category name
+  const names = new Set(
+    categoriesStore.categories.filter((c) => c.type === type).map((c) => c.name)
+  )
+  let total = 0
+  for (const [name, amt] of actualsMap.value) {
+    if (names.has(name)) total += amt
+  }
+  return total
+}
+
 const plannedIncome = computed(() => sumBudgetByType('income'))
 const plannedOutflow = computed(() =>
   ['savings', 'bills', 'variable', 'debt'].reduce((sum, type) => sum + sumBudgetByType(type), 0)
@@ -318,6 +411,7 @@ const plannedOutflow = computed(() =>
 const plannedNet = computed(() => plannedIncome.value - plannedOutflow.value)
 const budgetVariance = computed(() => netCashFlow.value - plannedNet.value)
 
+// ── Group summary ─────────────────────────────────────────────────────────────
 const groupDefinitions = [
   { type: 'income', label: 'Income', color: 'success' },
   { type: 'savings', label: 'Savings', color: 'info' },
@@ -326,13 +420,12 @@ const groupDefinitions = [
   { type: 'variable', label: 'Variable', color: 'secondary' }
 ]
 
-const groupSummary = computed(() => {
-  return groupDefinitions.map((group) => {
+const groupSummary = computed(() =>
+  groupDefinitions.map((group) => {
     const budget = sumBudgetByType(group.type)
     const actual = group.type === 'income' ? totalIncome.value : sumActualByCategoryType(group.type)
     const rawProgress = budget > 0 ? (actual / budget) * 100 : actual > 0 ? 100 : 0
     const remaining = group.type === 'income' ? actual - budget : budget - actual
-
     return {
       ...group,
       budget,
@@ -352,30 +445,26 @@ const groupSummary = computed(() => {
               : group.color
     }
   })
-})
+)
 
-const topSpendingCategories = computed(() => {
-  const totals = new Map()
-  for (const transaction of expenseTransactions.value) {
-    addCategoryTotal(totals, transaction.category, Number(transaction.TRNAMT) || 0)
-    addCategoryTotal(totals, transaction.splitCategory1, Number(transaction.splitAmount1) || 0)
-    addCategoryTotal(totals, transaction.splitCategory2, Number(transaction.splitAmount2) || 0)
-  }
-
-  return [...totals.entries()]
+// ── Top spending ──────────────────────────────────────────────────────────────
+const topSpendingCategories = computed(() =>
+  [...actualsMap.value.entries()]
     .map(([name, total]) => ({ name, total }))
     .sort((a, b) => b.total - a.total)
     .slice(0, 5)
-})
+)
 
-const recentTransactions = computed(() => {
-  return [...transactionsStore.transactions]
+// ── Recent transactions ───────────────────────────────────────────────────────
+const recentTransactions = computed(() =>
+  [...currentTransactions.value]
     .sort((a, b) => String(b.DTPOSTED || '').localeCompare(String(a.DTPOSTED || '')))
     .slice(0, 5)
-})
+)
 
-const goalRows = computed(() => {
-  return goalsStore.goals
+// ── Goals ─────────────────────────────────────────────────────────────────────
+const goalRows = computed(() =>
+  goalsStore.goals
     .map((goal) => {
       const progress = goal.targetAmount > 0 ? (goal.currentAmount / goal.targetAmount) * 100 : 0
       return {
@@ -386,45 +475,9 @@ const goalRows = computed(() => {
     })
     .sort((a, b) => a.priority - b.priority)
     .slice(0, 4)
-})
-
-const overBudgetCount = computed(() => {
-  return categoriesStore.categories.filter((category) => {
-    if (category.type === 'income') return false
-    const budget = budgetsStore.getBudget(category.id)?.amount || 0
-    if (!budget) return false
-    const actual = topSpendingCategories.value.find((row) => row.name === category.name)?.total || 0
-    return actual > budget
-  }).length
-})
-
-const attentionCount = computed(
-  () => transactionsStore.uncategorized.length + overBudgetCount.value
 )
 
-function addCategoryTotal(totals, categoryName, amount) {
-  if (!categoryName || !amount) return
-  totals.set(categoryName, (totals.get(categoryName) || 0) + Math.abs(amount))
-}
-
-function sumBudgetByType(type) {
-  return categoriesStore.categories
-    .filter((category) => category.type === type)
-    .reduce((sum, category) => sum + (budgetsStore.getBudget(category.id)?.amount || 0), 0)
-}
-
-function sumActualByCategoryType(type) {
-  const categoryNames = new Set(
-    categoriesStore.categories
-      .filter((category) => category.type === type)
-      .map((category) => category.name)
-  )
-
-  return topSpendingCategories.value
-    .filter((category) => categoryNames.has(category.name))
-    .reduce((sum, category) => sum + category.total, 0)
-}
-
+// ── Formatters ────────────────────────────────────────────────────────────────
 function formatCurrency(value) {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value || 0)
 }
@@ -432,24 +485,24 @@ function formatCurrency(value) {
 function formatTransactionDate(value) {
   const text = String(value || '')
   if (text.length < 8) return '-'
-  const year = Number(text.slice(0, 4))
-  const month = Number(text.slice(4, 6)) - 1
-  const day = Number(text.slice(6, 8))
-  return new Date(year, month, day).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric'
-  })
+  return new Date(
+    Number(text.slice(0, 4)),
+    Number(text.slice(4, 6)) - 1,
+    Number(text.slice(6, 8))
+  ).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
 }
 
+// ── Data loading — mirrors Debt.vue: static data first, then transactions ─────
 async function loadDashboard() {
   dashboardError.value = null
   try {
     await Promise.all([
+      accountsStore.fetchAccounts(),
       categoriesStore.fetchCategories(),
       budgetsStore.fetchBudgets(),
+      budgetsStore.fetchRollovers(),
       goalsStore.fetchGoals()
     ])
-
     await Promise.all([
       transactionsStore.fetchTransactionsByMonth(settingsStore.selectedMonth),
       transactionsStore.fetchReports(settingsStore.selectedMonth)
@@ -460,11 +513,5 @@ async function loadDashboard() {
 }
 
 onMounted(loadDashboard)
-
-watch(
-  () => settingsStore.selectedMonth,
-  () => {
-    loadDashboard()
-  }
-)
+watch(() => settingsStore.selectedMonth, loadDashboard)
 </script>

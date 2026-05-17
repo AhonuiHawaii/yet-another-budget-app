@@ -57,7 +57,7 @@
       </v-col>
     </v-row>
 
-    <v-alert v-if="store.error" type="error" variant="tonal" class="mb-4">
+    <v-alert v-if="store.error" type="error" variant="flat" class="mb-4">
       {{ store.error }}
     </v-alert>
 
@@ -70,7 +70,7 @@
         <template #append>
           <v-btn
             prepend-icon="mdi-plus"
-            variant="tonal"
+            variant="flat"
             color="primary"
             size="small"
             @click="openNewGoal"
@@ -107,7 +107,7 @@
           >
             <td class="pl-4 font-weight-medium text-body-2">{{ goal.name }}</td>
             <td class="text-center">
-              <v-chip color="primary" variant="tonal" size="x-small" rounded>
+              <v-chip color="primary" variant="flat" size="x-small" rounded>
                 {{ goal.priority }}
               </v-chip>
             </td>
@@ -210,7 +210,7 @@
         <v-card-actions class="pa-6 pt-0">
           <v-spacer />
           <v-btn variant="text" @click="closeGoalDialog">Cancel</v-btn>
-          <v-btn color="primary" variant="tonal" :loading="store.loading" @click="saveGoal">
+          <v-btn color="primary" variant="flat" :loading="store.loading" @click="saveGoal">
             Save
           </v-btn>
         </v-card-actions>

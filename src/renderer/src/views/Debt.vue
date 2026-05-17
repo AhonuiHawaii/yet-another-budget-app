@@ -58,13 +58,13 @@
             <template v-if="focusDebt">
               <div class="text-subtitle-1 font-weight-bold mb-2">{{ focusDebt.name }}</div>
               <div class="d-flex align-center gap-2 flex-wrap">
-                <v-chip color="error" variant="tonal" size="small">
+                <v-chip color="error" variant="flat" size="small">
                   {{ formatPercent(focusDebt.interestRate) }} Annual Percentage Rate
                 </v-chip>
-                <v-chip variant="tonal" size="small">
+                <v-chip variant="flat" size="small">
                   {{ formatCurrency(focusDebt.currentBalance) }}
                 </v-chip>
-                <v-chip color="primary" variant="tonal" size="small">
+                <v-chip color="primary" variant="flat" size="small">
                   {{ formatCurrency(focusPayment) }}/month
                 </v-chip>
               </div>
@@ -137,7 +137,7 @@
             <template #append>
               <v-chip
                 :color="debtsStore.strategy === 'avalanche' ? 'error' : 'info'"
-                variant="tonal"
+                variant="flat"
                 size="small"
                 :prepend-icon="debtsStore.strategy === 'avalanche' ? 'mdi-fire' : 'mdi-snowflake'"
               >
@@ -177,7 +177,7 @@
                   <v-chip
                     v-if="row.priority === 1"
                     color="primary"
-                    variant="tonal"
+                    variant="flat"
                     size="x-small"
                     class="ml-1"
                     >FOCUS</v-chip
@@ -264,7 +264,7 @@
                   <v-chip
                     v-if="row.isFocus"
                     color="primary"
-                    variant="tonal"
+                    variant="flat"
                     size="x-small"
                     class="ml-1"
                     >FOCUS</v-chip

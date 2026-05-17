@@ -281,15 +281,15 @@
     <!-- Data Table -->
     <v-card v-else rounded elevation="2">
       <v-data-table
+        v-model="selectedRows"
         v-model:expanded="expandedRows"
-        v-model:selected="selectedRows"
         show-expand
         show-select
+        return-object
         item-value="FITID"
         :headers="headers"
         :items="filteredTransactions"
         :loading="store.loading"
-        :search="search"
         density="comfortable"
         :items-per-page="25"
         :items-per-page-options="[10, 25, 50, 100]"
@@ -300,11 +300,27 @@
           <span class="text-body-2">{{ formatDate(item.DTPOSTED) }}</span>
         </template>
 
-        <!-- Description column: show notes as subtitle when set -->
+        <!-- Payee column -->
+        <template #item.NAME="{ item }">
+          <div class="d-flex align-center gap-1">
+            <div class="text-body-2 font-weight-medium flex-grow-1 text-truncate">
+              {{ item.NAME }}
+            </div>
+            <v-btn
+              icon="mdi-pencil-outline"
+              variant="text"
+              size="x-small"
+              density="compact"
+              @click="openEditPayee(item)"
+            />
+          </div>
+        </template>
+
+        <!-- Memo column -->
         <template #item.MEMO="{ item }">
           <div>
-            <div class="text-body-2">{{ item.MEMO || item.NAME || '—' }}</div>
-            <div v-if="item.notes" class="text-caption text-medium-emphasis text-truncate">
+            <div class="text-body-2">{{ item.MEMO }}</div>
+            <div v-if="item.notes" class="text-caption text-warning text-truncate">
               {{ item.notes }}
             </div>
           </div>
@@ -322,7 +338,12 @@
 
         <!-- Type column -->
         <template #item.transactionType="{ item }">
-          <v-chip :color="typeColor(item.transactionType)" variant="tonal" size="x-small">
+          <v-chip
+            :color="typeColor(item.transactionType)"
+            :class="`text-on-${typeColor(item.transactionType)} font-weight-medium`"
+            variant="flat"
+            size="small"
+          >
             {{ item.transactionType || item.TRNTYPE || '—' }}
           </v-chip>
         </template>
@@ -333,12 +354,18 @@
             <v-chip
               v-if="item.splitCategory1 || item.splitCategory2"
               color="info"
-              variant="tonal"
-              size="x-small"
+              variant="flat"
+              size="small"
             >
               Split
             </v-chip>
-            <v-chip v-else-if="item.category" color="secondary" variant="tonal" size="x-small">
+            <v-chip
+              v-else-if="item.category"
+              color="secondary"
+              variant="flat"
+              size="small"
+              class="text-on-secondary font-weight-medium"
+            >
               {{ item.category }}
             </v-chip>
             <span v-else class="text-disabled text-caption">Uncategorized</span>
@@ -458,8 +485,9 @@
           <div class="text-body-2 text-medium-emphasis mb-4 text-truncate">
             {{ editTarget?.MEMO || editTarget?.NAME || editTarget?.FITID }}
           </div>
-          <v-text-field
+          <v-autocomplete
             v-model="editCategoryValue"
+            :items="categoriesForTransaction(editTarget)"
             label="Category"
             variant="solo"
             inset
@@ -475,6 +503,53 @@
           <v-spacer />
           <v-btn variant="text" @click="editCategoryDialog = false">Cancel</v-btn>
           <v-btn color="primary" variant="flat" :loading="store.loading" @click="saveCategory">
+            Save
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- Edit Payee Dialog -->
+    <v-dialog v-model="editPayeeDialog" max-width="420">
+      <v-card rounded>
+        <v-card-title class="pa-6 pb-4">
+          <div class="d-flex align-center justify-space-between">
+            <div class="d-flex align-center gap-3">
+              <v-icon color="primary" size="20">mdi-account-outline</v-icon>
+              <span class="text-h6 font-weight-bold">Edit Payee</span>
+            </div>
+            <v-btn
+              icon="mdi-close"
+              variant="text"
+              density="compact"
+              @click="editPayeeDialog = false"
+            />
+          </div>
+        </v-card-title>
+
+        <v-divider />
+
+        <v-card-text class="pa-6">
+          <div class="text-body-2 text-medium-emphasis mb-4 text-truncate">
+            {{ editPayeeTarget?.MEMO || editPayeeTarget?.FITID }}
+          </div>
+          <v-text-field
+            v-model="editPayeeValue"
+            label="Payee"
+            variant="solo"
+            inset
+            density="comfortable"
+            hide-details
+            autofocus
+            clearable
+            @keyup.enter="savePayee"
+          />
+        </v-card-text>
+
+        <v-card-actions class="pa-6 pt-0">
+          <v-spacer />
+          <v-btn variant="text" @click="editPayeeDialog = false">Cancel</v-btn>
+          <v-btn color="primary" variant="flat" :loading="store.loading" @click="savePayee">
             Save
           </v-btn>
         </v-card-actions>
@@ -525,13 +600,15 @@
 
           <!-- Split 1 -->
           <div class="d-flex align-start gap-3 mb-3">
-            <v-text-field
+            <v-autocomplete
               v-model="splitState.category1"
+              :items="categoriesForTransaction(splitTarget)"
               label="Category"
               variant="solo"
               inset
               density="compact"
               hide-details
+              clearable
               class="flex-grow-1"
             />
             <v-text-field
@@ -548,13 +625,15 @@
 
           <!-- Split 2 -->
           <div class="d-flex align-start gap-3">
-            <v-text-field
+            <v-autocomplete
               v-model="splitState.category2"
+              :items="categoriesForTransaction(splitTarget)"
               label="Category"
               variant="solo"
               inset
               density="compact"
               hide-details
+              clearable
               class="flex-grow-1"
             />
             <v-text-field
@@ -653,9 +732,9 @@
               selectedRows.length === 1 ? '' : 's'
             }}.
           </div>
-          <v-combobox
+          <v-autocomplete
             v-model="bulkCategoryValue"
-            :items="allCategoryNames"
+            :items="bulkCategoryItems"
             label="Category"
             variant="solo"
             inset
@@ -664,6 +743,9 @@
             autofocus
             clearable
           />
+          <div v-if="bulkSelectionKind === 'mixed'" class="text-caption text-medium-emphasis mt-2">
+            Selection contains both income and expense — showing all categories.
+          </div>
         </v-card-text>
 
         <v-card-actions class="pa-6 pt-0">
@@ -711,10 +793,42 @@ const categoriesStore = useUserCategoriesStore()
 
 const allCategoryNames = computed(() => categoriesStore.categories.map((c) => c.name))
 
+const incomeCategoryNames = computed(() =>
+  categoriesStore.categories.filter((c) => c.type === 'income').map((c) => c.name)
+)
+
+const nonIncomeCategoryNames = computed(() =>
+  categoriesStore.categories.filter((c) => c.type !== 'income').map((c) => c.name)
+)
+
+function categoriesForTransaction(item) {
+  if (!item) return allCategoryNames.value
+  return Number(item.TRNAMT) >= 0 ? incomeCategoryNames.value : nonIncomeCategoryNames.value
+}
+
 // ── Bulk Recategorization ─────────────────────────────────────────────────────
 const selectedRows = ref([])
 const bulkCategoryDialog = ref(false)
 const bulkCategoryValue = ref('')
+
+const bulkSelectionKind = computed(() => {
+  const rows = selectedRows.value
+  if (!rows.length) return 'mixed'
+  let hasIncome = false
+  let hasExpense = false
+  for (const r of rows) {
+    if (Number(r.TRNAMT) >= 0) hasIncome = true
+    else hasExpense = true
+    if (hasIncome && hasExpense) return 'mixed'
+  }
+  return hasIncome ? 'income' : 'expense'
+})
+
+const bulkCategoryItems = computed(() => {
+  if (bulkSelectionKind.value === 'income') return incomeCategoryNames.value
+  if (bulkSelectionKind.value === 'expense') return nonIncomeCategoryNames.value
+  return allCategoryNames.value
+})
 
 function openBulkCategoryDialog() {
   bulkCategoryValue.value = ''
@@ -756,7 +870,11 @@ async function handleImport() {
 
 // ── On mount ──────────────────────────────────────────────────────────────────
 onMounted(async () => {
-  await Promise.all([accountsStore.fetchAccounts(), store.fetchMonthsWithData()])
+  await Promise.all([
+    accountsStore.fetchAccounts(),
+    store.fetchMonthsWithData(),
+    categoriesStore.fetchCategories()
+  ])
   const selectedMonth = settingsStore.selectedMonth
   pickerYear.value = parseInt(selectedMonth.slice(0, 4)) || new Date().getFullYear()
   selectedPeriodKey.value = selectedMonth
@@ -890,7 +1008,8 @@ const typeOptions = [
 // ── Table headers ─────────────────────────────────────────────────────────────
 const headers = [
   { title: 'Date', key: 'DTPOSTED', width: '120px', sortable: true },
-  { title: 'Description', key: 'MEMO', sortable: false },
+  { title: 'Payee', key: 'NAME', sortable: false },
+  { title: 'Memo', key: 'MEMO', sortable: false },
   { title: 'Amount', key: 'TRNAMT', width: '130px', sortable: true, align: 'end' },
   { title: 'Type', key: 'transactionType', width: '120px', sortable: true },
   { title: 'Category', key: 'category', width: '180px', sortable: true },
@@ -908,6 +1027,14 @@ const filteredTransactions = computed(() => {
       const s = String(t.DTPOSTED || '')
       const ym = s.slice(0, 6)
       return activePeriodMonths.value.includes(ym)
+    })
+  }
+
+  const q = (search.value || '').trim().toLowerCase()
+  if (q) {
+    rows = rows.filter((t) => {
+      const haystack = `${t.MEMO || ''} ${t.NAME || ''}`.toLowerCase()
+      return haystack.includes(q)
     })
   }
 
@@ -985,6 +1112,26 @@ async function saveCategory() {
   })
   editCategoryDialog.value = false
   editTarget.value = null
+}
+
+// ── Edit Payee ────────────────────────────────────────────────────────────────
+const editPayeeDialog = ref(false)
+const editPayeeTarget = ref(null)
+const editPayeeValue = ref('')
+
+function openEditPayee(item) {
+  editPayeeTarget.value = item
+  editPayeeValue.value = item.NAME || ''
+  editPayeeDialog.value = true
+}
+
+async function savePayee() {
+  if (!editPayeeTarget.value) return
+  await store.editTransaction(editPayeeTarget.value.FITID, {
+    NAME: editPayeeValue.value.trim() || null
+  })
+  editPayeeDialog.value = false
+  editPayeeTarget.value = null
 }
 
 // ── Delete ────────────────────────────────────────────────────────────────────

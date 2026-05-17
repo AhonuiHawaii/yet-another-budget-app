@@ -1,25 +1,10 @@
 <template>
-  <v-app-bar
-    density="compact"
-    elevation="0"
-    class="custom-title-bar"
-    @dblclick="handleMaximize"
-  >
+  <v-app-bar density="compact" elevation="0" class="custom-title-bar" @dblclick="handleMaximize">
     <div class="traffic-lights" @dblclick.stop>
-      <button
-        type="button"
-        class="tl tl-close"
-        aria-label="Close"
-        @click="handleClose"
-      >
+      <button type="button" class="tl tl-close" aria-label="Close" @click="handleClose">
         <svg viewBox="0 0 10 10" class="tl-glyph"><path d="M2,2 L8,8 M8,2 L2,8" /></svg>
       </button>
-      <button
-        type="button"
-        class="tl tl-min"
-        aria-label="Minimize"
-        @click="handleMinimize"
-      >
+      <button type="button" class="tl tl-min" aria-label="Minimize" @click="handleMinimize">
         <svg viewBox="0 0 10 10" class="tl-glyph"><path d="M2,5 L8,5" /></svg>
       </button>
       <button
@@ -35,7 +20,7 @@
       </button>
     </div>
 
-    <div class="title-text">My App Title</div>
+    <div class="title-text">Yet Another Budget App</div>
   </v-app-bar>
 </template>
 
@@ -99,11 +84,19 @@ const handleClose = () => window.api.window.close()
   position: relative;
 }
 
-.tl-close { background: #ff5f57; }
-.tl-min   { background: #febc2e; }
-.tl-max   { background: #28c840; }
+.tl-close {
+  background: #ff5f57;
+}
+.tl-min {
+  background: #febc2e;
+}
+.tl-max {
+  background: #28c840;
+}
 
-.tl:hover { filter: brightness(0.92); }
+.tl:hover {
+  filter: brightness(0.92);
+}
 
 /* dim when window unfocused — Electron toggles body class via @electron-toolkit, fallback: always color */
 :global(body.window-blur) .tl {

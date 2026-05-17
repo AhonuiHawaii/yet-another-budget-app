@@ -167,6 +167,11 @@ try {
   }
 }
 
+// Backfill: copy NAME → MEMO for rows where MEMO is missing
+db.exec(
+  `UPDATE Transactions SET MEMO = NAME WHERE (MEMO IS NULL OR MEMO = '') AND NAME IS NOT NULL`
+)
+
 // 1.1: Indexes on hot columns (recreated after any migration, IF NOT EXISTS is idempotent)
 db.exec(`CREATE INDEX IF NOT EXISTS idx_transactions_dtposted ON Transactions(DTPOSTED)`)
 db.exec(`CREATE INDEX IF NOT EXISTS idx_transactions_acctid   ON Transactions(ACCTID)`)
@@ -274,7 +279,7 @@ function createTransaction(txn) {
       (FITID, ACCTID, TRNTYPE, DTPOSTED, DTUSER, TRNAMT, NAME, MEMO,
        CHECKNUM, REFNUM, DTAVAIL, SRVRTID, PAYEEID, EXTDNAME, SIC, ORG, rawTransaction)
     VALUES
-      (@FITID, @ACCTID, @TRNTYPE, @DTPOSTED, @DTUSER, @TRNAMT, @NAME, @MEMO,
+      (@FITID, @ACCTID, @TRNTYPE, @DTPOSTED, @DTUSER, @TRNAMT, @NAME, COALESCE(NULLIF(@MEMO, ''), @NAME),
        @CHECKNUM, @REFNUM, @DTAVAIL, @SRVRTID, @PAYEEID, @EXTDNAME, @SIC, @ORG, @rawTransaction)
   `)
 
@@ -296,7 +301,7 @@ function createTransactions(txns) {
       (FITID, ACCTID, TRNTYPE, DTPOSTED, DTUSER, TRNAMT, NAME, MEMO,
        CHECKNUM, REFNUM, DTAVAIL, SRVRTID, PAYEEID, EXTDNAME, SIC, ORG, rawTransaction)
     VALUES
-      (@FITID, @ACCTID, @TRNTYPE, @DTPOSTED, @DTUSER, @TRNAMT, @NAME, @MEMO,
+      (@FITID, @ACCTID, @TRNTYPE, @DTPOSTED, @DTUSER, @TRNAMT, @NAME, COALESCE(NULLIF(@MEMO, ''), @NAME),
        @CHECKNUM, @REFNUM, @DTAVAIL, @SRVRTID, @PAYEEID, @EXTDNAME, @SIC, @ORG, @rawTransaction)
   `)
 

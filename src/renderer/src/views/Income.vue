@@ -40,7 +40,7 @@
         <template #append>
           <v-btn
             prepend-icon="mdi-plus"
-            variant="tonal"
+            variant="flat"
             color="primary"
             size="small"
             @click="addNewRow"
@@ -104,7 +104,7 @@
                 v-if="budgetsStore.getRolloverAmount(cat.id, settingsStore.selectedMonth) > 0"
                 size="x-small"
                 color="info"
-                variant="tonal"
+                variant="flat"
                 class="mb-1"
               >
                 +{{

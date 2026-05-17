@@ -6,7 +6,7 @@
       </v-chip>
     </div>
 
-    <v-alert v-if="reportError" type="error" variant="tonal" class="mb-4">
+    <v-alert v-if="reportError" type="error" variant="flat" class="mb-4">
       {{ reportError }}
     </v-alert>
 
@@ -18,7 +18,7 @@
         </template>
         <v-card-title class="text-h6 font-weight-bold pl-2">
           Spending Trends
-          <v-chip size="x-small" variant="tonal" color="primary" class="ml-2">All time</v-chip>
+          <v-chip size="small" variant="flat" color="primary" class="ml-2">All time</v-chip>
         </v-card-title>
       </v-card-item>
       <div class="pa-4 pt-2">
@@ -137,7 +137,7 @@
               <tr v-for="row in categoryPerformance" :key="row.key">
                 <td class="pl-5 text-body-2 font-weight-medium">{{ row.name }}</td>
                 <td class="text-center">
-                  <v-chip :color="row.color" variant="tonal" size="x-small" rounded>
+                  <v-chip :color="row.color" variant="flat" size="small" rounded>
                     {{ row.typeLabel }}
                   </v-chip>
                 </td>

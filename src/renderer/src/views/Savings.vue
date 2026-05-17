@@ -92,7 +92,7 @@
             <template #append>
               <v-btn
                 prepend-icon="mdi-plus"
-                variant="tonal"
+                variant="flat"
                 color="primary"
                 size="small"
                 @click="addNewRow"
@@ -160,7 +160,7 @@
                     v-if="budgetsStore.getRolloverAmount(cat.id, settingsStore.selectedMonth) > 0"
                     size="x-small"
                     color="info"
-                    variant="tonal"
+                    variant="flat"
                     class="mb-1"
                   >
                     +{{
@@ -228,7 +228,7 @@
             <template #append>
               <v-btn
                 prepend-icon="mdi-plus"
-                variant="tonal"
+                variant="flat"
                 color="primary"
                 size="small"
                 @click="openNewGoal"
@@ -238,7 +238,7 @@
             </template>
           </v-card-item>
 
-          <v-alert v-if="goalsStore.error" type="error" variant="tonal" class="mx-4 mt-3">
+          <v-alert v-if="goalsStore.error" type="error" variant="flat" class="mx-4 mt-3">
             {{ goalsStore.error }}
           </v-alert>
 
@@ -271,7 +271,7 @@
               >
                 <td class="pl-4 font-weight-medium text-body-2">{{ goal.name }}</td>
                 <td class="text-center">
-                  <v-chip color="primary" variant="tonal" size="x-small" rounded>{{
+                  <v-chip color="primary" variant="flat" size="x-small" rounded>{{
                     goal.priority
                   }}</v-chip>
                 </td>
@@ -377,7 +377,7 @@
         <v-card-actions class="pa-6 pt-0">
           <v-spacer />
           <v-btn variant="text" @click="closeGoalDialog">Cancel</v-btn>
-          <v-btn color="primary" variant="tonal" :loading="goalsStore.loading" @click="saveGoal"
+          <v-btn color="primary" variant="flat" :loading="goalsStore.loading" @click="saveGoal"
             >Save</v-btn
           >
         </v-card-actions>

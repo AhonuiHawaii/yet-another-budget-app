@@ -50,7 +50,7 @@ watch(monthMenu, (isOpen) => {
 
 <template>
   <v-navigation-drawer permanent color="surface-variant">
-    <v-list-item title="Budgeting Tool" subtitle="Version 1.5.1"></v-list-item>
+    <v-list-item title="YABA" subtitle="Version 1.5.1"></v-list-item>
     <v-divider></v-divider>
     <div class="pa-3">
       <v-menu v-model="monthMenu" location="bottom start" :close-on-content-click="false">

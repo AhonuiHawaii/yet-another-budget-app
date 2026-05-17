@@ -82,7 +82,7 @@
     <v-alert
       v-if="budgetsStore.error || categoriesStore.error || loadError"
       type="error"
-      variant="tonal"
+      variant="flat"
       class="mb-4"
     >
       {{ budgetsStore.error || categoriesStore.error || loadError }}
