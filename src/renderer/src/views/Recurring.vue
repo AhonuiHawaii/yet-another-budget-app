@@ -31,9 +31,9 @@
 
         <template v-else>
           <div class="d-flex align-center mb-4">
-            <span class="text-body-2 text-medium-emphasis"
-              >{{ recurringGroups.length }} recurring merchants detected</span
-            >
+            <span class="text-body-2 text-medium-emphasis">
+              {{ recurringGroups.length }} recurring merchants detected
+            </span>
             <v-spacer />
             <v-btn
               size="small"
@@ -46,43 +46,78 @@
             >
           </div>
 
-          <v-list lines="two" class="pa-0">
+          <!-- Column headers -->
+          <div class="recurring-table-header text-caption text-uppercase font-weight-bold text-medium-emphasis px-4 mb-1">
+            <span>Name / Frequency</span>
+            <span>Account</span>
+            <span>Due</span>
+            <span class="text-right">Amount</span>
+          </div>
+
+          <v-list class="pa-0">
             <v-list-item
               v-for="group in recurringGroups"
               :key="group.name"
               rounded="lg"
-              class="mb-2 recurring-item"
+              class="mb-1 recurring-row px-4"
             >
+              <!-- Avatar -->
               <template #prepend>
-                <v-avatar color="primary" variant="tonal" size="40" rounded="sm">
+                <v-avatar color="primary" variant="tonal" size="36" rounded="sm" class="mr-3">
                   <span class="text-caption font-weight-bold">{{ group.initials }}</span>
                 </v-avatar>
               </template>
 
+              <!-- Name + frequency -->
               <template #title>
-                <span class="font-weight-medium">{{ group.name }}</span>
+                <span class="text-body-2 font-weight-medium">{{ group.name }}</span>
               </template>
-
               <template #subtitle>
-                <div class="d-flex align-center gap-2 mt-1">
-                  <v-chip v-if="group.category" size="x-small" variant="tonal" color="primary">
-                    {{ group.category }}
-                  </v-chip>
-                  <span class="text-caption text-medium-emphasis">
-                    {{ group.monthCount }} month{{ group.monthCount !== 1 ? 's' : '' }}
-                  </span>
-                  <span v-if="group.typicalDay" class="text-caption text-medium-emphasis">
-                    · ~day {{ group.typicalDay }}
-                  </span>
-                </div>
+                <span class="text-caption font-weight-medium text-success">{{ group.frequency }}</span>
               </template>
 
               <template #append>
-                <div class="text-right">
-                  <div class="text-body-1 font-weight-bold">
-                    {{ formatCurrency(group.typicalAmount) }}
+                <div class="recurring-row-append">
+                  <!-- Account -->
+                  <div class="recurring-col-account">
+                    <span class="text-caption text-medium-emphasis">{{ group.lastFour ? `••••${group.lastFour}` : '—' }}</span>
                   </div>
-                  <div class="text-caption text-medium-emphasis">/ month</div>
+
+                  <!-- Due -->
+                  <div class="recurring-col-due">
+                    <span
+                      v-if="group.dueLabel"
+                      class="text-caption font-weight-medium"
+                      :class="group.dueUrgent ? 'text-warning' : 'text-medium-emphasis'"
+                    >
+                      {{ group.dueLabel }}
+                    </span>
+                    <span v-else class="text-caption text-medium-emphasis">—</span>
+                  </div>
+
+                  <!-- Amount -->
+                  <div class="recurring-col-amount text-right">
+                    <span class="text-body-2 font-weight-bold">
+                      {{ formatCurrency(group.typicalAmount) }}
+                    </span>
+                  </div>
+
+                  <!-- Menu -->
+                  <v-menu>
+                    <template #activator="{ props: menuProps }">
+                      <v-btn
+                        v-bind="menuProps"
+                        icon="mdi-dots-vertical"
+                        variant="text"
+                        density="compact"
+                        size="small"
+                        class="ml-1"
+                      />
+                    </template>
+                    <v-list density="compact">
+                      <v-list-item title="Mark as not recurring" prepend-icon="mdi-close-circle-outline" />
+                    </v-list>
+                  </v-menu>
                 </div>
               </template>
             </v-list-item>
@@ -484,13 +519,30 @@ function median(arr) {
   return sorted[Math.floor(sorted.length / 2)]
 }
 
+function daysUntil(dayOfMonth) {
+  if (!dayOfMonth) return null
+  const now = new Date()
+  const thisMonth = new Date(now.getFullYear(), now.getMonth(), dayOfMonth)
+  const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, dayOfMonth)
+  const target = thisMonth >= now ? thisMonth : nextMonth
+  return Math.round((target - now) / 86400000)
+}
+
+function dueLabelFromDays(days) {
+  if (days === null) return null
+  if (days === 0) return 'due today'
+  if (days === 1) return 'tomorrow'
+  if (days < 0) return `${Math.abs(days)}d overdue`
+  return `in ${days} days`
+}
+
 const recurringGroups = computed(() => {
   const map = new Map()
 
   for (const tx of recurringTransactions.value) {
     const key = tx.NAME || 'Unknown'
     if (!map.has(key))
-      map.set(key, { name: key, amounts: [], days: [], months: new Set(), categories: [] })
+      map.set(key, { name: key, amounts: [], days: [], months: new Set(), categories: [], acctid: tx.ACCTID || null })
     const g = map.get(key)
     const amt = Math.abs(Number(tx.TRNAMT))
     if (amt > 0) g.amounts.push(amt)
@@ -515,13 +567,27 @@ const recurringGroups = computed(() => {
         .slice(0, 2)
         .map((w) => w[0]?.toUpperCase() ?? '')
         .join('')
+
+      const acct = accountsStore.accounts.find((a) => a.ACCTID === g.acctid)
+      const account = acct?.displayName || acct?.ORG || null
+      const lastFour = g.acctid ? g.acctid.slice(-4) : null
+
+      const days = daysUntil(typicalDay)
+      const dueLabel = dueLabelFromDays(days)
+      const dueUrgent = days !== null && days <= 7
+
       return {
         name: g.name,
         typicalAmount,
         typicalDay,
         monthCount: g.months.size,
+        frequency: 'Monthly',
         category,
-        initials
+        initials,
+        account,
+        lastFour,
+        dueLabel,
+        dueUrgent
       }
     })
     .sort((a, b) => (a.typicalDay ?? 99) - (b.typicalDay ?? 99))
@@ -604,5 +670,40 @@ onMounted(async () => {
   text-overflow: ellipsis;
   white-space: nowrap;
   max-width: 100%;
+}
+
+.recurring-table-header {
+  display: grid;
+  grid-template-columns: 1fr 120px 120px 100px;
+  align-items: center;
+  gap: 8px;
+}
+
+.recurring-row :deep(.v-list-item__append) {
+  width: calc(120px + 120px + 100px + 48px);
+}
+
+.recurring-row-append {
+  display: grid;
+  grid-template-columns: 120px 120px 100px 36px;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.recurring-col-account {
+  display: flex;
+  align-items: center;
+}
+
+.recurring-col-due {
+  display: flex;
+  align-items: center;
+}
+
+.recurring-col-amount {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
 }
 </style>

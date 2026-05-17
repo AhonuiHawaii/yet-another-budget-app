@@ -93,20 +93,10 @@ export const importTransactions = async (ofxData) => {
 
 // ─── Transactions ────────────────────────────────────────────────────────────
 
-import { normalizeMerchant } from './util/normalizeMerchant.js'
-
 export const fetchTransactions = (filters) => {
   try {
     const txs = getTransactions(filters)
-    return ok(txs.map((t) => {
-      if (filters?.recurring === 1) {
-        const { merchant } = normalizeMerchant(t)
-        if (merchant && merchant !== 'Unknown Merchant') {
-          t.NAME = merchant
-        }
-      }
-      return { ...t, ACCTID: maskAcctid(t.ACCTID) }
-    }))
+    return ok(txs.map((t) => ({ ...t, ACCTID: maskAcctid(t.ACCTID) })))
   } catch (e) {
     return fail(e)
   }

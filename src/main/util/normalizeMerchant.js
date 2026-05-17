@@ -71,6 +71,45 @@ const leadingNoisePattern =
 const trailingNoisePattern =
   /\s*\b(?:ACH|POS|DD|DEP|DEPOSIT|PURCHASE|PMT|PAYMENT|CHECK|CHK|ATM|WITHDRAWAL|WD|XFER|TRANSFER|FEE|SERVICE\s+CHARGE)\b$/i
 
+// Merchants that should never be classified as recurring regardless of
+// payment regularity. Walk-in stores, rideshares, and grocery chains where
+// same-amount repeats are coincidence (same combo, same fill-up), not a
+// subscription. The detector skips any tx whose normalized merchant is here.
+export const neverRecurringMerchants = new Set([
+  'Walmart',
+  'Target',
+  'Costco',
+  'Safeway',
+  'Whole Foods',
+  'Home Depot',
+  "Lowe's",
+  'Ross',
+  'TJ Maxx',
+  'Walgreens',
+  'CVS',
+  '7-Eleven',
+  'Shell',
+  'Chevron',
+  'Texaco',
+  "McDonald's",
+  'Starbucks',
+  'DoorDash',
+  'Uber',
+  'Lyft',
+  'Instacart',
+  'Taco Bell',
+  'Jollibee',
+  'Burger King',
+  'KFC',
+  'Subway',
+  "Wendy's",
+  'Panda Express',
+  'Chipotle',
+  'Dunkin',
+  'Foodland',
+  'Longs Drugs'
+])
+
 const merchantAliases = [
   { pattern: /\b(?:WM\s+SUPERCENTER|WAL-?MART|WALMART|WAL\s*MART)\b/i, merchant: 'Walmart' },
   { pattern: /\bTARGET\b/i, merchant: 'Target' },
@@ -101,7 +140,18 @@ const merchantAliases = [
   { pattern: /\bCVS\b/i, merchant: 'CVS' },
   { pattern: /\b7[-\s]?ELEVEN\b/i, merchant: '7-Eleven' },
   { pattern: /\bO'?REILLY'?S?\b/i, merchant: "O'Reilly" },
-  { pattern: /\bCHICK[-\s]?FIL[-\s]?A\b/i, merchant: 'Chick-fil-A' }
+  { pattern: /\bCHICK[-\s]?FIL[-\s]?A\b/i, merchant: 'Chick-fil-A' },
+  { pattern: /\bTACO\s*BELL\b/i, merchant: 'Taco Bell' },
+  { pattern: /\bJOLLIBEE\b/i, merchant: 'Jollibee' },
+  { pattern: /\bBURGER\s*KING\b/i, merchant: 'Burger King' },
+  { pattern: /\bKFC\b/i, merchant: 'KFC' },
+  { pattern: /\bSUBWAY\b/i, merchant: 'Subway' },
+  { pattern: /\bWENDY'?S\b/i, merchant: "Wendy's" },
+  { pattern: /\bPANDA\s*EXPRESS\b/i, merchant: 'Panda Express' },
+  { pattern: /\bCHIPOTLE\b/i, merchant: 'Chipotle' },
+  { pattern: /\bDUNKIN\b/i, merchant: 'Dunkin' },
+  { pattern: /\b(?:FOODLAND|FOOD\s*LAND)\b/i, merchant: 'Foodland' },
+  { pattern: /\bLONGS?\s*DRUGS?\b/i, merchant: 'Longs Drugs' }
 ]
 
 const regexCache = new Map()
@@ -220,17 +270,44 @@ export function removeEdgeNoise(value = '') {
  * @returns {string} The string without transaction noise.
  */
 export function removeTransactionNoise(value = '') {
-  return normalizeText(value)
-    .replace(/\b\d{3}-\d{3}-\d{4}\b/g, ' ')
-    .replace(/\b\d{10}\b/g, ' ')
-    .replace(/\b\d{2}\/\d{2}(?:\/\d{2,4})?\b/g, ' ')
-    .replace(/\b\d{4}-\d{2}-\d{2}\b/g, ' ')
-    .replace(/\b(?:REF|ID|AUTH|TRACE|CONF|CONFIRMATION)\s*#?\s*[A-Z0-9-]{5,}\b/gi, ' ')
-    .replace(/\b(?:STORE|ST|LOC)\s*#?\s*\d{2,6}\b/gi, ' ')
-    .replace(/\b#\s*\d{2,6}\b/g, ' ')
-    .replace(/\b[A-Z]{2}\s+\d{5}(?:-\d{4})?\b/g, ' ')
-    .replace(/\s{2,}/g, ' ')
-    .trim()
+  return (
+    normalizeText(value)
+      .replace(/\b\d{3}-\d{3}-\d{4}\b/g, ' ')
+      .replace(/\b\d{10}\b/g, ' ')
+      .replace(/\b\d{2}\/\d{2}(?:\/\d{2,4})?\b/g, ' ')
+      .replace(/\b\d{4}-\d{2}-\d{2}\b/g, ' ')
+      .replace(/\b(?:REF|ID|AUTH|TRACE|CONF|CONFIRMATION)\s*#?\s*[A-Z0-9-]{5,}\b/gi, ' ')
+      .replace(/\b(?:STORE|ST|LOC)\s*#?\s*\d{2,6}\b/gi, ' ')
+      .replace(/\b#\s*\d{2,6}\b/g, ' ')
+      .replace(/\b[A-Z]{2}\s+\d{5}(?:-\d{4})?\b/g, ' ')
+      // Street addresses: number + words + suffix, then anything that follows
+      // (city, state, country). Catches "615 Waiakamilo Ave Honolulu, Hi, US".
+      .replace(
+        /\b\d{1,6}\s+[\w'.-]+(?:\s+[\w'.-]+)*\s+(?:AVE|AVENUE|ST|STREET|RD|ROAD|BLVD|BOULEVARD|DR|DRIVE|WAY|LN|LANE|HWY|HIGHWAY|PKWY|PARKWAY|CT|COURT|PL|PLACE|TER|TERRACE|CIR|CIRCLE)\b.*$/gi,
+        ' '
+      )
+      // Bare numeric store/location IDs (3–7 digits) left after edge-noise pass.
+      .replace(/\b\d{3,7}\b/g, ' ')
+      // Trailing ", City, ST, US" or ", US" fragments
+      .replace(/,\s*US\s*$/i, ' ')
+      .replace(/,\s*[A-Z]{2}\s*$/i, ' ')
+      .replace(/[,;]/g, ' ')
+      .replace(/\s{2,}/g, ' ')
+      .trim()
+  )
+}
+
+/**
+ * Collapse consecutive repeated phrases. Bank imports sometimes concatenate
+ * NAME and MEMO when MEMO is missing, producing "Foo Foo" or "Foo Foo Foo".
+ * @param {string} [value=''] - The string to dedupe.
+ * @returns {string} The deduped string.
+ */
+export function dedupeRepeatedPhrases(value = '') {
+  const text = normalizeText(value)
+  if (!text) return ''
+  const match = text.match(/^(.+?)(?:\s+\1)+$/)
+  return match ? match[1].trim() : text
 }
 
 /**
@@ -253,12 +330,13 @@ export function stripSymbols(value = '') {
  */
 export function cleanMerchantText(value = '') {
   const text = normalizeText(value)
-  const withoutProcessors = removeProcessors(text)
+  const deduped = dedupeRepeatedPhrases(text)
+  const withoutProcessors = removeProcessors(deduped)
   const withoutEdgeNoise = removeEdgeNoise(withoutProcessors)
   const withoutTransactionNoise = removeTransactionNoise(withoutEdgeNoise)
   const withoutSymbols = stripSymbols(withoutTransactionNoise)
 
-  return normalizeText(withoutSymbols)
+  return dedupeRepeatedPhrases(normalizeText(withoutSymbols))
 }
 
 /**

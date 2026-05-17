@@ -220,18 +220,16 @@ function createTransactions(txns) {
        @CHECKNUM, @REFNUM, @DTAVAIL, @SRVRTID, @PAYEEID, @EXTDNAME, @SIC, @ORG, @rawTransaction, @recurring)
   `)
 
-  const wasEmpty = db.prepare(`SELECT COUNT(*) AS c FROM Transactions`).get().c === 0
-  const history = buildMerchantHistory(db)
-
   let inserted = 0
   db.transaction((rows) => {
     for (const txn of rows) {
-      const recurring = scoreRecurring(txn, history) ? 1 : 0
-      inserted += stmt.run({ ...txn, rawTransaction: JSON.stringify(txn), recurring }).changes
+      inserted += stmt.run({ ...txn, rawTransaction: JSON.stringify(txn), recurring: 0 }).changes
     }
   })(txns)
 
-  if (wasEmpty) rescanRecurring(db)
+  // Authoritative pass — runs after every bulk import so newly-eligible
+  // merchants pick up their flag and stale flags get cleared.
+  rescanRecurring(db)
 
   return { total: txns.length, inserted, skipped: txns.length - inserted }
 }
