@@ -9,7 +9,85 @@
     <v-tabs-window v-model="activeTab">
       <!-- All Recurring Tab -->
       <v-tabs-window-item value="all">
-        <!-- placeholder -->
+        <div v-if="recurringLoading" class="d-flex justify-center pa-12">
+          <v-progress-circular indeterminate color="primary" />
+        </div>
+
+        <div v-else-if="!recurringGroups.length" class="text-center text-medium-emphasis pa-12">
+          <v-icon size="48" class="mb-4 d-block" opacity="0.3">mdi-refresh</v-icon>
+          <div class="text-body-1">No recurring transactions detected yet.</div>
+          <div class="text-caption mt-1">Import more months of history to improve detection.</div>
+          <v-btn
+            class="mt-4"
+            size="small"
+            variant="tonal"
+            prepend-icon="mdi-refresh"
+            rounded="sm"
+            :loading="recurringLoading"
+            @click="rescan"
+            >Rescan</v-btn
+          >
+        </div>
+
+        <template v-else>
+          <div class="d-flex align-center mb-4">
+            <span class="text-body-2 text-medium-emphasis"
+              >{{ recurringGroups.length }} recurring merchants detected</span
+            >
+            <v-spacer />
+            <v-btn
+              size="small"
+              variant="tonal"
+              prepend-icon="mdi-refresh"
+              rounded="sm"
+              :loading="recurringLoading"
+              @click="rescan"
+              >Rescan</v-btn
+            >
+          </div>
+
+          <v-list lines="two" class="pa-0">
+            <v-list-item
+              v-for="group in recurringGroups"
+              :key="group.name"
+              rounded="lg"
+              class="mb-2 recurring-item"
+            >
+              <template #prepend>
+                <v-avatar color="primary" variant="tonal" size="40" rounded="sm">
+                  <span class="text-caption font-weight-bold">{{ group.initials }}</span>
+                </v-avatar>
+              </template>
+
+              <template #title>
+                <span class="font-weight-medium">{{ group.name }}</span>
+              </template>
+
+              <template #subtitle>
+                <div class="d-flex align-center gap-2 mt-1">
+                  <v-chip v-if="group.category" size="x-small" variant="tonal" color="primary">
+                    {{ group.category }}
+                  </v-chip>
+                  <span class="text-caption text-medium-emphasis">
+                    {{ group.monthCount }} month{{ group.monthCount !== 1 ? 's' : '' }}
+                  </span>
+                  <span v-if="group.typicalDay" class="text-caption text-medium-emphasis">
+                    · ~day {{ group.typicalDay }}
+                  </span>
+                </div>
+              </template>
+
+              <template #append>
+                <div class="text-right">
+                  <div class="text-body-1 font-weight-bold">
+                    {{ formatCurrency(group.typicalAmount) }}
+                  </div>
+                  <div class="text-caption text-medium-emphasis">/ month</div>
+                </div>
+              </template>
+            </v-list-item>
+          </v-list>
+        </template>
       </v-tabs-window-item>
 
       <!-- Calendar Tab -->
@@ -182,12 +260,14 @@ import { useUserAccountsStore } from '../stores/userAccounts'
 import { useUserBudgetsStore } from '../stores/userBudgets'
 import { useUserDebtsStore } from '../stores/userDebts'
 import { useUserSettingsStore } from '../stores/userSettings'
+import { useUserTransactionsStore } from '../stores/userTransactions'
 
 const categoriesStore = useUserCategoriesStore()
 const accountsStore = useUserAccountsStore()
 const budgetsStore = useUserBudgetsStore()
 const debtsStore = useUserDebtsStore()
 const settingsStore = useUserSettingsStore()
+const transactionsStore = useUserTransactionsStore()
 
 // ── Navigation ────────────────────────────────────────────────────────────────
 
@@ -380,6 +460,73 @@ const eventsByDay = computed(() => {
   return map
 })
 
+// ── All Recurring ─────────────────────────────────────────────────────────────
+
+const recurringTransactions = ref([])
+const recurringLoading = ref(false)
+
+async function fetchRecurring() {
+  recurringLoading.value = true
+  const result = await window.electron.ipcRenderer.invoke('transactions:fetch', { recurring: 1 })
+  if (result.success) recurringTransactions.value = result.data
+  recurringLoading.value = false
+}
+
+async function rescan() {
+  recurringLoading.value = true
+  await window.electron.ipcRenderer.invoke('transactions:rescanRecurring')
+  await fetchRecurring()
+}
+
+function median(arr) {
+  if (!arr.length) return 0
+  const sorted = [...arr].sort((a, b) => a - b)
+  return sorted[Math.floor(sorted.length / 2)]
+}
+
+const recurringGroups = computed(() => {
+  const map = new Map()
+
+  for (const tx of recurringTransactions.value) {
+    const key = tx.NAME || 'Unknown'
+    if (!map.has(key))
+      map.set(key, { name: key, amounts: [], days: [], months: new Set(), categories: [] })
+    const g = map.get(key)
+    const amt = Math.abs(Number(tx.TRNAMT))
+    if (amt > 0) g.amounts.push(amt)
+    if (tx.DTPOSTED?.length >= 8) g.days.push(parseInt(tx.DTPOSTED.slice(6, 8), 10))
+    if (tx.DTPOSTED?.length >= 6) g.months.add(tx.DTPOSTED.slice(0, 6))
+    if (tx.category) g.categories.push(tx.category)
+  }
+
+  return [...map.values()]
+    .map((g) => {
+      const typicalAmount = median(g.amounts)
+      const typicalDay = g.days.length ? median(g.days) : null
+      const category = g.categories.length
+        ? g.categories.sort(
+            (a, b) =>
+              g.categories.filter((c) => c === b).length -
+              g.categories.filter((c) => c === a).length
+          )[0]
+        : null
+      const initials = g.name
+        .split(/\s+/)
+        .slice(0, 2)
+        .map((w) => w[0]?.toUpperCase() ?? '')
+        .join('')
+      return {
+        name: g.name,
+        typicalAmount,
+        typicalDay,
+        monthCount: g.months.size,
+        category,
+        initials
+      }
+    })
+    .sort((a, b) => (a.typicalDay ?? 99) - (b.typicalDay ?? 99))
+})
+
 // ── Dialog ────────────────────────────────────────────────────────────────────
 
 const activeTab = ref('all')
@@ -406,7 +553,8 @@ onMounted(async () => {
     categoriesStore.fetchCategories(),
     accountsStore.fetchAccounts(),
     budgetsStore.fetchBudgets(),
-    debtsStore.fetchDebtDetails()
+    debtsStore.fetchDebtDetails(),
+    fetchRecurring()
   ])
 })
 </script>

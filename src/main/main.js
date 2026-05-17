@@ -22,7 +22,8 @@ import {
   createRule as dbCreateRule,
   updateRule as dbUpdateRule,
   deleteRule as dbDeleteRule,
-  applyRules
+  applyRules,
+  runRescanRecurring
 } from './db.js'
 
 /*
@@ -92,9 +93,20 @@ export const importTransactions = async (ofxData) => {
 
 // ─── Transactions ────────────────────────────────────────────────────────────
 
+import { normalizeMerchant } from './util/normalizeMerchant.js'
+
 export const fetchTransactions = (filters) => {
   try {
-    return ok(getTransactions(filters).map((t) => ({ ...t, ACCTID: maskAcctid(t.ACCTID) })))
+    const txs = getTransactions(filters)
+    return ok(txs.map((t) => {
+      if (filters?.recurring === 1) {
+        const { merchant } = normalizeMerchant(t)
+        if (merchant && merchant !== 'Unknown Merchant') {
+          t.NAME = merchant
+        }
+      }
+      return { ...t, ACCTID: maskAcctid(t.ACCTID) }
+    }))
   } catch (e) {
     return fail(e)
   }
@@ -277,6 +289,15 @@ export const removeRule = (id) => {
     const changes = dbDeleteRule(id)
     if (!changes) return fail(new Error(`No rule found with id: ${id}`))
     return ok({ id, changes })
+  } catch (e) {
+    return fail(e)
+  }
+}
+
+export const rescanRecurringTransactions = () => {
+  try {
+    const count = runRescanRecurring()
+    return ok({ count })
   } catch (e) {
     return fail(e)
   }

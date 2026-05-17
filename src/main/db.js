@@ -4,7 +4,7 @@ import { app } from 'electron'
 import { join } from 'path'
 import { mkdirSync, readFileSync, writeFileSync, existsSync } from 'fs'
 import { randomBytes } from 'crypto'
-import { buildMerchantHistory, scoreRecurring } from './util/detectRecurring.js'
+import { buildMerchantHistory, scoreRecurring, rescanRecurring } from './util/detectRecurring.js'
 
 /*
   Database initialization
@@ -60,7 +60,7 @@ db.exec(`
     TRNTYPE         TEXT,
     DTPOSTED        TEXT,
     DTUSER          TEXT,
-    TRNAMT          TEXT,
+    TRNAMT          REAL,
     NAME            TEXT,
     MEMO            TEXT,
     CHECKNUM        TEXT,
@@ -70,6 +70,7 @@ db.exec(`
     PAYEEID         TEXT,
     EXTDNAME        TEXT,
     SIC             TEXT,
+    ORG             TEXT,
     rawTransaction  TEXT NOT NULL,
     createdAt       TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     transactionType TEXT,
@@ -82,7 +83,6 @@ db.exec(`
     recurring       INTEGER DEFAULT 0
   )
 `)
-
 
 // 1.1: Indexes on hot columns (recreated after any migration, IF NOT EXISTS is idempotent)
 db.exec(`CREATE INDEX IF NOT EXISTS idx_transactions_dtposted ON Transactions(DTPOSTED)`)
@@ -220,6 +220,7 @@ function createTransactions(txns) {
        @CHECKNUM, @REFNUM, @DTAVAIL, @SRVRTID, @PAYEEID, @EXTDNAME, @SIC, @ORG, @rawTransaction, @recurring)
   `)
 
+  const wasEmpty = db.prepare(`SELECT COUNT(*) AS c FROM Transactions`).get().c === 0
   const history = buildMerchantHistory(db)
 
   let inserted = 0
@@ -229,6 +230,8 @@ function createTransactions(txns) {
       inserted += stmt.run({ ...txn, rawTransaction: JSON.stringify(txn), recurring }).changes
     }
   })(txns)
+
+  if (wasEmpty) rescanRecurring(db)
 
   return { total: txns.length, inserted, skipped: txns.length - inserted }
 }
@@ -697,5 +700,10 @@ export {
   createRule,
   updateRule,
   deleteRule,
-  applyRules
+  applyRules,
+  runRescanRecurring
+}
+
+function runRescanRecurring() {
+  return rescanRecurring(db)
 }

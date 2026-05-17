@@ -22,7 +22,8 @@ import {
   addRule,
   editRule,
   removeRule,
-  applyRulesToMonth
+  applyRulesToMonth,
+  rescanRecurringTransactions
 } from './main.js'
 
 export const setupIpcHandlers = () => {
@@ -75,4 +76,5 @@ export const setupIpcHandlers = () => {
   ipcMain.handle('rules:update', (_, id, updates) => editRule(id, updates))
   ipcMain.handle('rules:delete', (_, id) => removeRule(id))
   ipcMain.handle('rules:applyToMonth', (_, yyyymm) => applyRulesToMonth(yyyymm))
+  ipcMain.handle('transactions:rescanRecurring', () => rescanRecurringTransactions())
 }
