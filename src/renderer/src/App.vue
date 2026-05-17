@@ -8,7 +8,6 @@ import Settings from './views/Settings.vue'
 import Accounts from './views/Accounts.vue'
 import Transactions from './views/Transactions.vue'
 import Spending from './views/Spending.vue'
-import Savings from './views/Savings.vue'
 import Debts from './views/Debt.vue'
 import Budgets from './views/Budgets.vue'
 import NetWorth from './views/NetWorth.vue'
@@ -23,7 +22,6 @@ const views = {
   Accounts,
   Transactions,
   Spending,
-  Savings,
   Debts,
   Budgets,
   NetWorth,

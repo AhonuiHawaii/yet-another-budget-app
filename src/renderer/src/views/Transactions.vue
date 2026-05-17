@@ -934,11 +934,15 @@ const allCategoryItems = computed(() =>
 )
 
 const incomeCategoryItems = computed(() =>
-  categoriesStore.categories.filter((c) => c.type === 'income').map((c) => ({ title: c.name, value: c.id }))
+  categoriesStore.categories
+    .filter((c) => c.type === 'income')
+    .map((c) => ({ title: c.name, value: c.id }))
 )
 
 const nonIncomeCategoryItems = computed(() =>
-  categoriesStore.categories.filter((c) => c.type !== 'income').map((c) => ({ title: c.name, value: c.id }))
+  categoriesStore.categories
+    .filter((c) => c.type !== 'income')
+    .map((c) => ({ title: c.name, value: c.id }))
 )
 
 function categoriesForTransaction(item) {

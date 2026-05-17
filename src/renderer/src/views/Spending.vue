@@ -1,465 +1,306 @@
 <template>
   <v-container fluid class="pa-6">
-    <!-- Summary Header — shows active tab's totals -->
-    <v-card class="mb-6" rounded elevation="2">
-      <v-row no-gutters>
-        <v-col cols="4" class="pa-6 text-center">
-          <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-2">
-            Projected
+    <v-row align="start">
+      <!-- Left: pie + by category -->
+      <v-col cols="12" md="7">
+        <v-card rounded elevation="2">
+          <!-- Doughnut -->
+          <div class="pa-6 pb-4">
+            <div style="position: relative; max-width: 460px; margin: 0 auto">
+              <Doughnut
+                v-if="hasSpending"
+                :data="doughnutData"
+                :options="doughnutOptions"
+                :plugins="[centerPlugin]"
+              />
+              <div v-else class="text-center py-16 text-medium-emphasis">
+                <v-icon size="64" class="mb-4 opacity-20">mdi-chart-donut</v-icon>
+                <div class="text-body-1">No spending recorded this month</div>
+              </div>
+            </div>
           </div>
-          <div class="text-h4 font-weight-black text-white">
-            {{ formatCurrency(activeTotalProjected) }}
-          </div>
-        </v-col>
-        <v-col cols="4" class="pa-6 text-center">
-          <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-2">
-            Actual
-          </div>
-          <div class="text-h4 font-weight-black text-white">
-            {{ formatCurrency(activeTotalActual) }}
-          </div>
-        </v-col>
-        <v-col cols="4" class="pa-6 text-center">
-          <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-2">
-            Difference
-          </div>
+
+          <v-divider />
+
+          <!-- By Category label -->
           <div
-            class="text-h4 font-weight-black"
-            :class="activeTotalActual - activeTotalProjected >= 0 ? 'text-success' : 'text-error'"
+            class="px-5 pt-4 pb-1 text-caption text-uppercase font-weight-bold text-medium-emphasis"
           >
-            {{ formatCurrency(activeTotalActual - activeTotalProjected) }}
+            By Category
           </div>
-        </v-col>
-      </v-row>
-    </v-card>
 
-    <!-- Tabs -->
-    <v-card rounded elevation="2">
-      <v-tabs v-model="activeTab" color="primary" class="px-4 pt-2">
-        <v-tab value="variable" prepend-icon="mdi-shopping">Variable Expenses</v-tab>
-        <v-tab value="bills" prepend-icon="mdi-calendar-month">Bills & Expenses</v-tab>
-      </v-tabs>
+          <!-- Legend / Breakdown -->
+          <div class="pa-5 pt-2">
+            <div
+              v-for="(cat, idx) in allCombinedSorted"
+              :key="cat.id"
+              class="d-flex align-center gap-3 py-2"
+              style="border-bottom: 1px solid rgba(255, 255, 255, 0.06)"
+            >
+              <span
+                class="rounded-circle flex-shrink-0"
+                style="width: 12px; height: 12px"
+                :style="{ backgroundColor: chartColors[idx % chartColors.length] }"
+              />
+              <span class="text-body-2 font-weight-medium flex-grow-1 text-uppercase">{{
+                cat.name
+              }}</span>
+              <span class="text-caption text-medium-emphasis mr-2">
+                {{ formatPercent(cat.actual, totalActual) }}
+              </span>
+              <span class="text-body-2 font-weight-bold">{{ formatCurrency(cat.actual) }}</span>
+            </div>
+            <div
+              v-if="allCombinedSorted.length === 0"
+              class="text-center text-medium-emphasis py-4 text-body-2"
+            >
+              No categories yet
+            </div>
+          </div>
+          <!-- end pa-5 -->
+        </v-card>
+      </v-col>
 
-      <v-divider />
+      <!-- Right: summary + frequent spend -->
+      <v-col cols="12" md="5">
+        <v-card rounded elevation="2">
+          <!-- Income -->
+          <div
+            class="d-flex align-center gap-4 pa-5"
+            style="border-bottom: 1px solid rgba(255, 255, 255, 0.06)"
+          >
+            <div style="width: 28px; display: flex; justify-content: center">
+              <v-icon size="22" class="text-medium-emphasis">mdi-bank</v-icon>
+            </div>
+            <div class="flex-grow-1">
+              <div class="text-body-2 font-weight-bold">Income</div>
+              <div class="text-caption text-medium-emphasis">this month</div>
+            </div>
+            <div class="text-body-1 font-weight-black">+{{ formatCurrency(totalIncome) }}</div>
+          </div>
 
-      <v-window v-model="activeTab">
-        <!-- ── Variable Tab ──────────────────────────────────────────────── -->
-        <v-window-item value="variable">
-          <v-card-item class="pa-4 pb-0">
-            <template #prepend>
-              <v-icon color="secondary" size="20" :opacity="0.7">mdi-shopping</v-icon>
-            </template>
-            <v-card-title class="text-h6 font-weight-bold pl-2">Categories</v-card-title>
-            <template #append>
-              <v-btn
-                prepend-icon="mdi-plus"
-                variant="flat"
-                color="primary"
-                size="small"
-                @click="addNewRow('variable')"
+          <!-- Bills -->
+          <div
+            class="d-flex align-center gap-4 pa-5"
+            style="border-bottom: 1px solid rgba(255, 255, 255, 0.06)"
+          >
+            <div style="width: 28px; display: flex; justify-content: center">
+              <v-icon size="22" class="text-medium-emphasis">mdi-calendar-sync</v-icon>
+            </div>
+            <div class="flex-grow-1">
+              <div class="text-body-2 font-weight-bold">Bills</div>
+              <div class="text-caption text-medium-emphasis">
+                {{ formatCurrency(billsRemaining) }} budget remaining
+              </div>
+            </div>
+            <div class="text-body-1 font-weight-black">
+              {{ formatCurrency(billsActual) }}
+            </div>
+          </div>
+
+          <!-- Spending -->
+          <div class="d-flex align-center gap-4 pa-5">
+            <div style="width: 28px; display: flex; justify-content: center">
+              <v-icon size="22" class="text-medium-emphasis">mdi-cash-multiple</v-icon>
+            </div>
+            <div class="flex-grow-1">
+              <div class="text-body-2 font-weight-bold">Spending</div>
+              <div class="text-caption text-medium-emphasis">
+                {{ formatCurrency(variableRemaining) }} budget remaining
+              </div>
+            </div>
+            <div class="text-body-1 font-weight-black">
+              {{ formatCurrency(variableActual) }}
+            </div>
+          </div>
+        </v-card>
+
+        <!-- Frequent Spend -->
+        <v-card rounded elevation="2" class="mt-4">
+          <div class="pa-5 pb-3">
+            <div class="text-body-2 font-weight-bold mb-4">Frequent Spend</div>
+
+            <!-- Summary sentence -->
+            <div
+              v-if="topMerchant"
+              class="text-body-2 text-medium-emphasis mb-4 pa-3 rounded"
+              style="background: rgba(255, 255, 255, 0.05)"
+            >
+              You've spent at
+              <span class="text-white font-weight-bold">{{ topMerchant.name }}</span>
+              <span class="font-weight-bold text-white"> {{ topMerchant.count }}x</span>
+              this month, averaging {{ formatCurrency(topMerchant.avg) }} per visit.
+            </div>
+
+            <!-- Merchant rows -->
+            <div
+              v-for="(m, idx) in displayedMerchants"
+              :key="m.name"
+              class="d-flex align-center gap-3 py-3"
+              style="border-bottom: 1px solid rgba(255, 255, 255, 0.06)"
+            >
+              <v-avatar
+                :color="merchantColors[idx % merchantColors.length]"
+                variant="tonal"
+                size="38"
+                class="text-caption font-weight-black flex-shrink-0"
               >
-                Add Category
-              </v-btn>
-            </template>
-          </v-card-item>
+                {{ m.count }}x
+              </v-avatar>
+              <div class="flex-grow-1 min-width-0">
+                <div class="text-body-2 font-weight-bold text-truncate">{{ m.name }}</div>
+                <div class="text-caption text-medium-emphasis">
+                  Average {{ formatCurrency(m.avg) }}
+                </div>
+              </div>
+              <div class="text-body-2 font-weight-black flex-shrink-0">
+                {{ formatCurrency(m.total) }}
+              </div>
+            </div>
 
-          <v-table density="comfortable" class="mt-2">
-            <thead>
-              <tr>
-                <th class="text-start font-weight-bold text-uppercase text-caption pl-4">
-                  Category
-                </th>
-                <th
-                  class="text-center font-weight-bold text-uppercase text-caption"
-                  style="width: 150px"
-                >
-                  Actual
-                  <div class="text-body-2 font-weight-bold">
-                    {{ formatCurrency(variableTotalActual) }}
-                  </div>
-                </th>
-                <th
-                  class="text-center font-weight-bold text-uppercase text-caption"
-                  style="width: 150px"
-                >
-                  Projected
-                  <div class="text-body-2 font-weight-bold">
-                    {{ formatCurrency(variableTotalProjected) }}
-                  </div>
-                </th>
-                <th
-                  class="text-center font-weight-bold text-uppercase text-caption"
-                  style="width: 150px"
-                >
-                  Diff
-                  <div class="text-body-2 font-weight-bold">
-                    {{ formatCurrency(variableTotalActual - variableTotalProjected) }}
-                  </div>
-                </th>
-                <th style="width: 100px"></th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(cat, idx) in variableCombined" :key="cat.id">
-                <td class="font-weight-medium text-body-2 text-uppercase pl-4">
-                  <div class="d-flex align-center position-relative w-100">
-                    <span class="position-absolute left-0 text-medium-emphasis text-caption">{{
-                      idx + 1
-                    }}</span>
-                    <div v-if="editingCatId === cat.id" class="w-100">
-                      <v-text-field
-                        v-model="editingCatName"
-                        variant="solo-filled"
-                        flat
-                        density="compact"
-                        hide-details
-                        @keyup.enter="saveCategoryEdit"
-                        @blur="saveCategoryEdit"
-                        autofocus
-                        class="text-start"
-                      />
-                    </div>
-                    <div v-else>
-                      <span class="cursor-pointer" @click="startCategoryEdit(cat)">{{
-                        cat.name
-                      }}</span>
-                    </div>
-                  </div>
-                </td>
-                <td class="text-center font-weight-bold">{{ formatCurrency(cat.actual) }}</td>
-                <td class="text-center">
-                  <v-chip
-                    v-if="budgetsStore.getRolloverAmount(cat.id, settingsStore.selectedMonth) > 0"
-                    size="x-small"
-                    color="info"
-                    variant="flat"
-                    class="mb-1"
-                  >
-                    +{{
-                      formatCurrency(
-                        budgetsStore.getRolloverAmount(cat.id, settingsStore.selectedMonth)
-                      )
-                    }}
-                    rollover
-                  </v-chip>
-                  <v-text-field
-                    :model-value="cat.projected"
-                    @update:model-value="(val) => updateBudgetInline(cat.id, val)"
-                    type="number"
-                    prefix="$"
-                    variant="solo"
-                    flat
-                    density="compact"
-                    hide-details
-                    class="text-center font-weight-bold"
-                  />
-                </td>
-                <td
-                  class="text-center font-weight-bold"
-                  :class="cat.actual - cat.projected >= 0 ? 'text-success' : 'text-error'"
-                >
-                  {{ formatCurrency(cat.actual - cat.projected) }}
-                </td>
-                <td class="text-center px-0">
-                  <v-btn
-                    :color="budgetsStore.getBudget(cat.id)?.rolloverEnabled ? 'info' : 'default'"
-                    icon="mdi-reload"
-                    variant="text"
-                    size="small"
-                    density="compact"
-                    class="opacity-70 mr-1"
-                    title="Toggle rollover"
-                    @click="
-                      budgetsStore.toggleRolloverEnabled(
-                        cat.id,
-                        !budgetsStore.getBudget(cat.id)?.rolloverEnabled
-                      )
-                    "
-                  />
-                  <v-btn
-                    icon="mdi-delete"
-                    variant="text"
-                    size="small"
-                    color="error"
-                    class="opacity-50"
-                    @click="categoriesStore.deleteCategory(cat.id)"
-                  />
-                </td>
-              </tr>
-            </tbody>
-          </v-table>
-        </v-window-item>
+            <div
+              v-if="frequentMerchants.length === 0"
+              class="text-center text-medium-emphasis py-4 text-body-2"
+            >
+              No transactions this month
+            </div>
+          </div>
 
-        <!-- ── Bills Tab ─────────────────────────────────────────────────── -->
-        <v-window-item value="bills">
-          <v-card-item class="pa-4 pb-0">
-            <template #prepend>
-              <v-icon color="warning" size="20" :opacity="0.7">mdi-calendar-month</v-icon>
-            </template>
-            <v-card-title class="text-h6 font-weight-bold pl-2">Categories</v-card-title>
-            <template #append>
-              <v-btn
-                prepend-icon="mdi-plus"
-                variant="flat"
-                color="primary"
-                size="small"
-                @click="addNewRow('bills')"
+          <!-- See more -->
+          <div v-if="frequentMerchants.length > 3" class="pa-3 pt-0">
+            <v-btn
+              variant="outlined"
+              block
+              size="small"
+              @click="showAllMerchants = !showAllMerchants"
+            >
+              {{ showAllMerchants ? 'Show less' : 'See more' }}
+            </v-btn>
+          </div>
+        </v-card>
+        <!-- Largest Purchases -->
+        <v-card rounded elevation="2" class="mt-4">
+          <div class="pa-5 pb-3">
+            <div class="text-body-2 font-weight-bold mb-4">Largest Purchases</div>
+
+            <!-- Summary sentence -->
+            <div
+              v-if="topPurchase"
+              class="text-body-2 text-medium-emphasis mb-4 pa-3 rounded"
+              style="background: rgba(255, 255, 255, 0.05)"
+            >
+              Your biggest purchase was
+              <span class="text-white font-weight-bold">{{ topPurchase.name }}</span>
+              at
+              <span class="text-white font-weight-bold">{{
+                formatCurrency(topPurchase.amount)
+              }}</span
+              >.
+            </div>
+
+            <!-- Purchase rows -->
+            <div
+              v-for="(p, idx) in displayedPurchases"
+              :key="p.FITID"
+              class="d-flex align-center gap-3 py-3"
+              style="border-bottom: 1px solid rgba(255, 255, 255, 0.06)"
+            >
+              <v-avatar
+                :color="merchantColors[idx % merchantColors.length]"
+                variant="tonal"
+                size="38"
+                class="text-caption font-weight-black flex-shrink-0"
               >
-                Add Category
-              </v-btn>
-            </template>
-          </v-card-item>
+                #{{ idx + 1 }}
+              </v-avatar>
+              <div class="flex-grow-1 min-width-0">
+                <div class="text-body-2 font-weight-bold text-truncate">{{ p.name }}</div>
+                <div class="text-caption text-medium-emphasis">{{ p.dateLabel }}</div>
+              </div>
+              <div class="text-body-2 font-weight-black flex-shrink-0">
+                {{ formatCurrency(p.amount) }}
+              </div>
+            </div>
 
-          <v-table density="comfortable" class="mt-2">
-            <thead>
-              <tr>
-                <th class="text-start font-weight-bold text-uppercase text-caption pl-4">
-                  Category
-                </th>
-                <th
-                  class="text-center font-weight-bold text-uppercase text-caption"
-                  style="width: 220px"
-                >
-                  Due Date
-                </th>
-                <th
-                  class="text-center font-weight-bold text-uppercase text-caption"
-                  style="width: 150px"
-                >
-                  Actual
-                  <div class="text-body-2 font-weight-bold">
-                    {{ formatCurrency(billsTotalActual) }}
-                  </div>
-                </th>
-                <th
-                  class="text-center font-weight-bold text-uppercase text-caption"
-                  style="width: 150px"
-                >
-                  Projected
-                  <div class="text-body-2 font-weight-bold">
-                    {{ formatCurrency(billsTotalProjected) }}
-                  </div>
-                </th>
-                <th
-                  class="text-center font-weight-bold text-uppercase text-caption"
-                  style="width: 150px"
-                >
-                  Diff
-                  <div class="text-body-2 font-weight-bold">
-                    {{ formatCurrency(billsTotalActual - billsTotalProjected) }}
-                  </div>
-                </th>
-                <th style="width: 100px"></th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(cat, idx) in billsCombined" :key="cat.id">
-                <td class="font-weight-medium text-body-2 text-uppercase pl-4">
-                  <div class="d-flex align-center position-relative w-100">
-                    <span class="position-absolute left-0 text-medium-emphasis text-caption">{{
-                      idx + 1
-                    }}</span>
-                    <div v-if="editingCatId === cat.id" class="w-100">
-                      <v-text-field
-                        v-model="editingCatName"
-                        variant="solo-filled"
-                        flat
-                        density="compact"
-                        hide-details
-                        @keyup.enter="saveCategoryEdit"
-                        @blur="saveCategoryEdit"
-                        autofocus
-                        class="text-start"
-                      />
-                    </div>
-                    <div v-else>
-                      <span class="cursor-pointer" @click="startCategoryEdit(cat)">{{
-                        cat.name
-                      }}</span>
-                    </div>
-                  </div>
-                </td>
-                <td class="text-center px-1">
-                  <v-menu :close-on-content-click="false" location="bottom end">
-                    <template #activator="{ props }">
-                      <v-text-field
-                        v-bind="props"
-                        :model-value="formatDisplayDate(cat.dueDate)"
-                        readonly
-                        clearable
-                        @click:clear="categoriesStore.updateCategory(cat.id, { dueDate: null })"
-                        variant="solo"
-                        flat
-                        density="compact"
-                        hide-details
-                        class="text-center cursor-pointer"
-                        placeholder="Select Date"
-                        append-inner-icon="mdi-calendar"
-                      />
-                    </template>
-                    <template #default="{ isActive }">
-                      <v-date-picker
-                        :model-value="parseDateForPicker(cat.dueDate)"
-                        @update:model-value="
-                          (val) => {
-                            if (!val) {
-                              categoriesStore.updateCategory(cat.id, { dueDate: null })
-                            } else {
-                              const d = new Date(val)
-                              const localDate = new Date(
-                                d.getTime() - d.getTimezoneOffset() * 60000
-                              )
-                                .toISOString()
-                                .split('T')[0]
-                              categoriesStore.updateCategory(cat.id, { dueDate: localDate })
-                            }
-                            isActive.value = false
-                          }
-                        "
-                        color="primary"
-                        hide-header
-                        show-adjacent-months
-                      />
-                    </template>
-                  </v-menu>
-                </td>
-                <td class="text-center font-weight-bold">{{ formatCurrency(cat.actual) }}</td>
-                <td class="text-center">
-                  <v-chip
-                    v-if="budgetsStore.getRolloverAmount(cat.id, settingsStore.selectedMonth) > 0"
-                    size="x-small"
-                    color="info"
-                    variant="flat"
-                    class="mb-1"
-                  >
-                    +{{
-                      formatCurrency(
-                        budgetsStore.getRolloverAmount(cat.id, settingsStore.selectedMonth)
-                      )
-                    }}
-                    rollover
-                  </v-chip>
-                  <v-text-field
-                    :model-value="cat.projected"
-                    @update:model-value="(val) => updateBudgetInline(cat.id, val)"
-                    type="number"
-                    prefix="$"
-                    variant="solo"
-                    flat
-                    density="compact"
-                    hide-details
-                    class="text-center font-weight-bold"
-                  />
-                </td>
-                <td
-                  class="text-center font-weight-bold"
-                  :class="cat.actual - cat.projected >= 0 ? 'text-success' : 'text-error'"
-                >
-                  {{ formatCurrency(cat.actual - cat.projected) }}
-                </td>
-                <td class="text-center px-0">
-                  <v-btn
-                    :color="budgetsStore.getBudget(cat.id)?.rolloverEnabled ? 'info' : 'default'"
-                    icon="mdi-reload"
-                    variant="text"
-                    size="small"
-                    density="compact"
-                    class="opacity-70 mr-1"
-                    title="Toggle rollover"
-                    @click="
-                      budgetsStore.toggleRolloverEnabled(
-                        cat.id,
-                        !budgetsStore.getBudget(cat.id)?.rolloverEnabled
-                      )
-                    "
-                  />
-                  <v-btn
-                    icon="mdi-delete"
-                    variant="text"
-                    size="small"
-                    color="error"
-                    class="opacity-50"
-                    @click="categoriesStore.deleteCategory(cat.id)"
-                  />
-                </td>
-              </tr>
-            </tbody>
-          </v-table>
-        </v-window-item>
-      </v-window>
-    </v-card>
+            <div
+              v-if="largestPurchases.length === 0"
+              class="text-center text-medium-emphasis py-4 text-body-2"
+            >
+              No transactions this month
+            </div>
+          </div>
+
+          <div v-if="largestPurchases.length > 3" class="pa-3 pt-0">
+            <v-btn
+              variant="outlined"
+              block
+              size="small"
+              @click="showAllPurchases = !showAllPurchases"
+            >
+              {{ showAllPurchases ? 'Show less' : 'See more' }}
+            </v-btn>
+          </div>
+        </v-card>
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
+import { Doughnut } from 'vue-chartjs'
+import { Chart as ChartJS, ArcElement, Tooltip } from 'chart.js'
 import { useUserCategoriesStore } from '../stores/userCategories'
 import { useUserBudgetsStore } from '../stores/userBudgets'
 import { useUserSettingsStore } from '../stores/userSettings'
 import { useUserTransactionsStore } from '../stores/userTransactions'
+
+ChartJS.register(ArcElement, Tooltip)
 
 const categoriesStore = useUserCategoriesStore()
 const budgetsStore = useUserBudgetsStore()
 const settingsStore = useUserSettingsStore()
 const transactionsStore = useUserTransactionsStore()
 
-// ── Tab State ─────────────────────────────────────────────────────────────────
-const activeTab = ref('variable')
+const chartColors = [
+  '#3B82F6',
+  '#7C3AED',
+  '#EC4899',
+  '#F59E0B',
+  '#10B981',
+  '#EF4444',
+  '#06B6D4',
+  '#84CC16',
+  '#F97316',
+  '#8B5CF6',
+  '#14B8A6',
+  '#FB923C',
+  '#A78BFA',
+  '#34D399',
+  '#F472B6'
+]
 
-// ── Period Picker Logic ───────────────────────────────────────────────────────
+// ── Period ────────────────────────────────────────────────────────────────────
 const periodBounds = computed(() => {
   const y = parseInt(settingsStore.selectedMonth.slice(0, 4))
   const m = parseInt(settingsStore.selectedMonth.slice(4, 6)) - 1
-  return {
-    start: new Date(y, m, 1),
-    end: new Date(y, m + 1, 0, 23, 59, 59, 999)
-  }
+  return { start: new Date(y, m, 1), end: new Date(y, m + 1, 0, 23, 59, 59, 999) }
 })
 
 async function applyPeriod() {
   await transactionsStore.fetchTransactionsByMonth(settingsStore.selectedMonth)
 }
 
-// ── Categories Management ─────────────────────────────────────────────────────
-const editingCatId = ref(null)
-const editingCatName = ref('')
-
-const variableCategories = computed(() => categoriesStore.getCategoriesByType('variable'))
-const billsCategories = computed(() => categoriesStore.getCategoriesByType('bills'))
-
-async function addNewRow(type) {
-  const newCat = await categoriesStore.addCategory({ name: 'New Category', type })
-  startCategoryEdit(newCat)
-}
-
-function startCategoryEdit(cat) {
-  editingCatId.value = cat.id
-  editingCatName.value = cat.name
-}
-
-async function saveCategoryEdit() {
-  if (editingCatId.value && editingCatName.value.trim()) {
-    await categoriesStore.updateCategory(editingCatId.value, { name: editingCatName.value.trim() })
-  }
-  editingCatId.value = null
-  editingCatName.value = ''
-}
-
-// ── Budgets Management ────────────────────────────────────────────────────────
-async function updateBudgetInline(categoryId, amount) {
-  await budgetsStore.upsertBudget(categoryId, Number(amount) || 0)
-}
-
-// ── Data Aggregation ──────────────────────────────────────────────────────────
+// ── Transactions ──────────────────────────────────────────────────────────────
 const currentTransactions = computed(() => {
   const bounds = periodBounds.value
-  if (!bounds) return []
   return transactionsStore.transactions.filter((t) => {
     const s = String(t.DTPOSTED || '')
-    const y = parseInt(s.slice(0, 4))
-    const m = parseInt(s.slice(4, 6)) - 1
-    const d = parseInt(s.slice(6, 8))
-    const tDate = new Date(y, m, d)
+    const tDate = new Date(
+      parseInt(s.slice(0, 4)),
+      parseInt(s.slice(4, 6)) - 1,
+      parseInt(s.slice(6, 8))
+    )
     return tDate >= bounds.start && tDate <= bounds.end
   })
 })
@@ -482,48 +323,160 @@ function buildActualsMap(catList) {
   }))
 }
 
-const variableCombined = computed(() => buildActualsMap(variableCategories.value))
-const billsCombined = computed(() => {
-  return buildActualsMap(billsCategories.value).sort((a, b) => {
-    const aDue = a.dueDate ? new Date(a.dueDate).getTime() : 9999999999999
-    const bDue = b.dueDate ? new Date(b.dueDate).getTime() : 9999999999999
-    return aDue - bDue || a.name.localeCompare(b.name)
-  })
+const allCombinedSorted = computed(() => {
+  const variable = buildActualsMap(categoriesStore.getCategoriesByType('variable'))
+  const bills = buildActualsMap(categoriesStore.getCategoriesByType('bills'))
+  return [...variable, ...bills].filter((c) => c.actual > 0).sort((a, b) => b.actual - a.actual)
 })
 
-const variableTotalProjected = computed(() =>
+const totalActual = computed(() => allCombinedSorted.value.reduce((s, c) => s + c.actual, 0))
+const hasSpending = computed(() => totalActual.value > 0)
+
+// ── Summary card computed ──────────────────────────────────────────────────────
+const totalIncome = computed(() =>
+  currentTransactions.value.reduce((s, t) => {
+    const amt = Number(t.TRNAMT)
+    return s + (amt > 0 ? amt : 0)
+  }, 0)
+)
+
+const variableCombined = computed(() =>
+  buildActualsMap(categoriesStore.getCategoriesByType('variable'))
+)
+const billsCombinedAll = computed(() =>
+  buildActualsMap(categoriesStore.getCategoriesByType('bills'))
+)
+
+const variableActual = computed(() => variableCombined.value.reduce((s, c) => s + c.actual, 0))
+const variableProjected = computed(() =>
   variableCombined.value.reduce((s, c) => s + c.projected, 0)
 )
-const variableTotalActual = computed(() => variableCombined.value.reduce((s, c) => s + c.actual, 0))
-const billsTotalProjected = computed(() => billsCombined.value.reduce((s, c) => s + c.projected, 0))
-const billsTotalActual = computed(() => billsCombined.value.reduce((s, c) => s + c.actual, 0))
+const variableRemaining = computed(() => variableProjected.value - variableActual.value)
 
-// Active tab totals drive the summary header
-const activeTotalProjected = computed(() =>
-  activeTab.value === 'variable' ? variableTotalProjected.value : billsTotalProjected.value
-)
-const activeTotalActual = computed(() =>
-  activeTab.value === 'variable' ? variableTotalActual.value : billsTotalActual.value
+const billsActual = computed(() => billsCombinedAll.value.reduce((s, c) => s + c.actual, 0))
+const billsProjected = computed(() => billsCombinedAll.value.reduce((s, c) => s + c.projected, 0))
+const billsRemaining = computed(() => billsProjected.value - billsActual.value)
+
+// ── Frequent spend ─────────────────────────────────────────────────────────────
+const merchantColors = ['primary', 'secondary', 'warning', 'success', 'error', 'info']
+const showAllMerchants = ref(false)
+
+const frequentMerchants = computed(() => {
+  const map = new Map()
+  for (const t of currentTransactions.value) {
+    const amt = Number(t.TRNAMT)
+    if (amt >= 0) continue
+    const name = t.NAME || t.MEMO || 'Unknown'
+    const entry = map.get(name) || { name, count: 0, total: 0 }
+    entry.count++
+    entry.total += Math.abs(amt)
+    map.set(name, entry)
+  }
+  return Array.from(map.values())
+    .map((m) => ({ ...m, avg: m.total / m.count }))
+    .sort((a, b) => b.count - a.count)
+})
+
+const topMerchant = computed(() => frequentMerchants.value[0] ?? null)
+const displayedMerchants = computed(() =>
+  showAllMerchants.value ? frequentMerchants.value : frequentMerchants.value.slice(0, 3)
 )
 
-// ── Shared Utilities ──────────────────────────────────────────────────────────
+// ── Largest purchases ─────────────────────────────────────────────────────────
+const showAllPurchases = ref(false)
+
+const largestPurchases = computed(() =>
+  currentTransactions.value
+    .filter((t) => Number(t.TRNAMT) < 0)
+    .map((t) => {
+      const s = String(t.DTPOSTED || '')
+      const d = new Date(
+        parseInt(s.slice(0, 4)),
+        parseInt(s.slice(4, 6)) - 1,
+        parseInt(s.slice(6, 8))
+      )
+      return {
+        FITID: t.FITID,
+        name: t.NAME || t.MEMO || 'Unknown',
+        amount: Math.abs(Number(t.TRNAMT)),
+        dateLabel: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+      }
+    })
+    .sort((a, b) => b.amount - a.amount)
+)
+
+const topPurchase = computed(() => largestPurchases.value[0] ?? null)
+const displayedPurchases = computed(() =>
+  showAllPurchases.value ? largestPurchases.value : largestPurchases.value.slice(0, 3)
+)
+
+// ── Center plugin ─────────────────────────────────────────────────────────────
+const centerPlugin = {
+  id: 'centerText',
+  afterDraw(chart) {
+    const { ctx } = chart
+    const { width, height, top, left } = chart.chartArea
+    const cx = left + width / 2
+    const cy = top + height / 2
+
+    ctx.save()
+
+    ctx.font = '500 11px sans-serif'
+    ctx.fillStyle = 'rgba(255,255,255,0.45)'
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
+    ctx.fillText('TOTAL SPEND', cx, cy - 20)
+
+    const amount = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(
+      totalActual.value || 0
+    )
+    ctx.font = 'bold 26px sans-serif'
+    ctx.fillStyle = 'rgba(255,255,255,0.95)'
+    ctx.fillText(amount, cx, cy + 6)
+
+    ctx.restore()
+  }
+}
+
+// ── Doughnut data ─────────────────────────────────────────────────────────────
+const doughnutData = computed(() => {
+  const cats = allCombinedSorted.value.filter((c) => c.actual > 0)
+  return {
+    labels: cats.map((c) => c.name),
+    datasets: [
+      {
+        data: cats.map((c) => c.actual),
+        backgroundColor: cats.map((_, i) => chartColors[i % chartColors.length]),
+        borderWidth: 2,
+        borderColor: '#1e1e2e',
+        hoverOffset: 10
+      }
+    ]
+  }
+})
+
+const doughnutOptions = {
+  responsive: true,
+  maintainAspectRatio: true,
+  cutout: '62%',
+  plugins: {
+    legend: { display: false },
+    tooltip: {
+      callbacks: {
+        label: (ctx) => ` ${ctx.label}: ${formatCurrency(ctx.parsed)}`
+      }
+    }
+  }
+}
+
+// ── Utilities ─────────────────────────────────────────────────────────────────
 function formatCurrency(val) {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(val || 0)
 }
 
-function formatDisplayDate(dateStr) {
-  if (!dateStr) return ''
-  if (!isNaN(dateStr) && String(dateStr).length < 3) return `Day ${dateStr}`
-  const d = new Date(dateStr + 'T12:00:00')
-  if (isNaN(d.getTime())) return String(dateStr)
-  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-}
-
-function parseDateForPicker(dateStr) {
-  if (!dateStr) return null
-  if (!isNaN(dateStr) && String(dateStr).length < 3) return null
-  const d = new Date(dateStr + 'T12:00:00')
-  return isNaN(d.getTime()) ? null : d
+function formatPercent(val, total) {
+  if (!total) return '0%'
+  return `${((val / total) * 100).toFixed(1)}%`
 }
 
 onMounted(async () => {

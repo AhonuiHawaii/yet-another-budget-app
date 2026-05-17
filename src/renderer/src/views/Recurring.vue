@@ -1,72 +1,88 @@
 <template>
   <v-container fluid class="pa-6">
-    <!-- Navigation -->
-    <div class="d-flex align-center gap-3 mb-6">
-      <v-btn icon="mdi-chevron-left" variant="text" density="comfortable" @click="prevMonth" />
-      <span class="text-h6 font-weight-bold calendar-title">{{ monthTitle }}</span>
-      <v-btn icon="mdi-chevron-right" variant="text" density="comfortable" @click="nextMonth" />
-      <v-btn size="small" variant="tonal" rounded="sm" @click="goToday">Today</v-btn>
-      <v-spacer />
-      <!-- Legend -->
-      <div class="d-flex align-center gap-3">
-        <v-chip color="warning" variant="flat" size="small" prepend-icon="mdi-calendar-month"
-          >Bill</v-chip
-        >
-        <v-chip color="error" variant="flat" size="small" prepend-icon="mdi-credit-card-outline"
-          >Debt</v-chip
-        >
-      </div>
-    </div>
+    <!-- Tabs -->
+    <v-tabs v-model="activeTab" density="compact" class="mb-4">
+      <v-tab value="all">All Recurring</v-tab>
+      <v-tab value="calendar">Calendar</v-tab>
+    </v-tabs>
 
-    <!-- Day-of-week headers -->
-    <div class="cal-grid mb-1">
-      <div
-        v-for="d in ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']"
-        :key="d"
-        class="text-caption text-center text-uppercase font-weight-bold text-medium-emphasis py-2"
-      >
-        {{ d }}
-      </div>
-    </div>
+    <v-tabs-window v-model="activeTab">
+      <!-- All Recurring Tab -->
+      <v-tabs-window-item value="all">
+        <!-- placeholder -->
+      </v-tabs-window-item>
 
-    <!-- Calendar cells -->
-    <div class="cal-grid">
-      <div
-        v-for="day in calendarDays"
-        :key="day.key"
-        class="cal-cell"
-        :class="{
-          'cal-cell--other': !day.currentMonth,
-          'cal-cell--today': day.isToday
-        }"
-      >
-        <div
-          class="cal-day-num text-caption font-weight-bold mb-1"
-          :class="day.isToday ? 'text-primary' : 'text-medium-emphasis'"
-        >
-          <span v-if="day.isToday">
-            <v-avatar color="primary" size="20" class="text-caption font-weight-bold">
-              {{ day.date.getDate() }}
-            </v-avatar>
-          </span>
-          <span v-else>{{ day.date.getDate() }}</span>
+      <!-- Calendar Tab -->
+      <v-tabs-window-item value="calendar">
+        <!-- Navigation -->
+        <div class="d-flex align-center gap-3 mb-6">
+          <v-btn icon="mdi-chevron-left" variant="text" density="comfortable" @click="prevMonth" />
+          <span class="text-h6 font-weight-bold calendar-title">{{ monthTitle }}</span>
+          <v-btn icon="mdi-chevron-right" variant="text" density="comfortable" @click="nextMonth" />
+          <v-btn size="small" variant="tonal" rounded="sm" @click="goToday">Today</v-btn>
+          <v-spacer />
+          <!-- Legend -->
+          <div class="d-flex align-center gap-3">
+            <v-chip color="warning" variant="flat" size="small" prepend-icon="mdi-calendar-month"
+              >Bill</v-chip
+            >
+            <v-chip color="error" variant="flat" size="small" prepend-icon="mdi-credit-card-outline"
+              >Debt</v-chip
+            >
+          </div>
         </div>
 
-        <template v-if="day.currentMonth">
-          <v-chip
-            v-for="evt in eventsByDay.get(day.key) || []"
-            :key="evt.id"
-            :color="evt.color"
-            size="x-small"
-            variant="flat"
-            class="cal-chip mb-1 cursor-pointer"
-            @click.stop="openEvent(evt)"
+        <!-- Day-of-week headers -->
+        <div class="cal-grid mb-1">
+          <div
+            v-for="d in ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']"
+            :key="d"
+            class="text-caption text-center text-uppercase font-weight-bold text-medium-emphasis py-2"
           >
-            <span class="cal-chip-label">{{ evt.name }}</span>
-          </v-chip>
-        </template>
-      </div>
-    </div>
+            {{ d }}
+          </div>
+        </div>
+
+        <!-- Calendar cells -->
+        <div class="cal-grid">
+          <div
+            v-for="day in calendarDays"
+            :key="day.key"
+            class="cal-cell"
+            :class="{
+              'cal-cell--other': !day.currentMonth,
+              'cal-cell--today': day.isToday
+            }"
+          >
+            <div
+              class="cal-day-num text-caption font-weight-bold mb-1"
+              :class="day.isToday ? 'text-primary' : 'text-medium-emphasis'"
+            >
+              <span v-if="day.isToday">
+                <v-avatar color="primary" size="20" class="text-caption font-weight-bold">
+                  {{ day.date.getDate() }}
+                </v-avatar>
+              </span>
+              <span v-else>{{ day.date.getDate() }}</span>
+            </div>
+
+            <template v-if="day.currentMonth">
+              <v-chip
+                v-for="evt in eventsByDay.get(day.key) || []"
+                :key="evt.id"
+                :color="evt.color"
+                size="x-small"
+                variant="flat"
+                class="cal-chip mb-1 cursor-pointer"
+                @click.stop="openEvent(evt)"
+              >
+                <span class="cal-chip-label">{{ evt.name }}</span>
+              </v-chip>
+            </template>
+          </div>
+        </div>
+      </v-tabs-window-item>
+    </v-tabs-window>
 
     <!-- Event Detail Dialog -->
     <v-dialog v-model="dialogOpen" max-width="420">
@@ -365,6 +381,8 @@ const eventsByDay = computed(() => {
 })
 
 // ── Dialog ────────────────────────────────────────────────────────────────────
+
+const activeTab = ref('all')
 
 const dialogOpen = ref(false)
 const selectedEvent = ref(null)

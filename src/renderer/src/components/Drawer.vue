@@ -8,7 +8,6 @@ const navItems = [
   { title: 'Spending', value: 'Spending', icon: 'mdi-cash-multiple' },
   { title: 'Debts', value: 'Debts', icon: 'mdi-cash-remove' },
   { title: 'Recurring', value: 'Recurring', icon: 'mdi-calendar-sync' },
-  { title: 'Savings', value: 'Savings', icon: 'mdi-piggy-bank' },
   { title: 'Budgets', value: 'Budgets', icon: 'mdi-calculator-variant-outline' },
   { title: 'Net Worth', value: 'NetWorth', icon: 'mdi-chart-bar' },
   { title: 'Transactions', value: 'Transactions', icon: 'mdi-magnify' },

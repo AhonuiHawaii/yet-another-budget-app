@@ -146,7 +146,10 @@
               <v-icon :color="section.color" size="20" :opacity="0.7">{{ section.icon }}</v-icon>
             </template>
             <v-card-title class="text-h6 font-weight-bold pl-2">{{ section.label }}</v-card-title>
-            <template v-if="['income', 'bills', 'variable', 'savings'].includes(section.type)" #append>
+            <template
+              v-if="['income', 'bills', 'variable', 'savings'].includes(section.type)"
+              #append
+            >
               <v-btn
                 variant="text"
                 size="small"
@@ -171,12 +174,18 @@
                 >
                   Due
                 </th>
-                <th class="text-center text-caption text-medium-emphasis" style="width: 120px">Actual</th>
-                <th class="text-center text-caption text-medium-emphasis" style="width: 150px">Budget</th>
+                <th class="text-center text-caption text-medium-emphasis" style="width: 120px">
+                  Actual
+                </th>
+                <th class="text-center text-caption text-medium-emphasis" style="width: 150px">
+                  Budget
+                </th>
                 <th class="text-center text-caption text-medium-emphasis" style="width: 120px">
                   {{ section.type === 'income' ? 'Variance' : 'Remaining' }}
                 </th>
-                <th class="text-center text-caption text-medium-emphasis pr-5" style="width: 160px">Used</th>
+                <th class="text-center text-caption text-medium-emphasis pr-5" style="width: 160px">
+                  Used
+                </th>
                 <th style="width: 40px"></th>
               </tr>
             </thead>
@@ -219,7 +228,11 @@
                   <v-menu
                     :model-value="openDueDateId === row.id"
                     :close-on-content-click="false"
-                    @update:model-value="(v) => { if (!v) openDueDateId = null }"
+                    @update:model-value="
+                      (v) => {
+                        if (!v) openDueDateId = null
+                      }
+                    "
                   >
                     <template #activator="{ props }">
                       <v-btn
@@ -247,7 +260,12 @@
                       hide-header
                       color="primary"
                       elevation="4"
-                      @update:model-value="(d) => { updateDueDate(row.id, d); openDueDateId = null }"
+                      @update:model-value="
+                        (d) => {
+                          updateDueDate(row.id, d)
+                          openDueDateId = null
+                        }
+                      "
                     />
                   </v-menu>
                 </td>
@@ -366,10 +384,10 @@ watch(monthMenu, (isOpen) => {
 })
 
 const categoryTypeOptions = [
-  { label: 'Income', value: 'income', icon: 'mdi-trending-up', color: 'success' },
-  { label: 'Savings', value: 'savings', icon: 'mdi-piggy-bank', color: 'info' },
-  { label: 'Bills', value: 'bills', icon: 'mdi-calendar-month', color: 'warning' },
-  { label: 'Variable', value: 'variable', icon: 'mdi-shopping', color: 'secondary' },
+  { label: 'Earnings', value: 'income', icon: 'mdi-trending-up', color: 'success' },
+  { label: 'Savings Goals', value: 'savings', icon: 'mdi-piggy-bank', color: 'info' },
+  { label: 'Expenses & Bills', value: 'bills', icon: 'mdi-calendar-month', color: 'warning' },
+  { label: 'Variable Expenses', value: 'variable', icon: 'mdi-shopping', color: 'secondary' },
   { label: 'Debt', value: 'debt', icon: 'mdi-cash-remove', color: 'error' }
 ]
 

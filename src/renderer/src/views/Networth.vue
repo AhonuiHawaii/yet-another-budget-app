@@ -91,12 +91,9 @@
               <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis"
                 >Monthly Change</span
               >
-              <v-icon
-                :color="monthlyChange >= 0 ? 'success' : 'error'"
-                size="18"
-                :opacity="0.4"
-                >{{ monthlyChange >= 0 ? 'mdi-trending-up' : 'mdi-trending-down' }}</v-icon
-              >
+              <v-icon :color="monthlyChange >= 0 ? 'success' : 'error'" size="18" :opacity="0.4">{{
+                monthlyChange >= 0 ? 'mdi-trending-up' : 'mdi-trending-down'
+              }}</v-icon>
             </div>
             <div
               class="text-h5 font-weight-black"
@@ -232,9 +229,7 @@ const ASSET_TYPES = new Set(['Checking', 'Savings', 'Money Market'])
 const netWorthHistory = computed(() => transactionsStore.netWorthHistory)
 
 const latest = computed(() => netWorthHistory.value[netWorthHistory.value.length - 1] || null)
-const previous = computed(
-  () => netWorthHistory.value[netWorthHistory.value.length - 2] || null
-)
+const previous = computed(() => netWorthHistory.value[netWorthHistory.value.length - 2] || null)
 
 const netWorth = computed(() => latest.value?.netWorth ?? 0)
 const monthlyChange = computed(() => {
@@ -258,21 +253,15 @@ const accountBalances = computed(() => {
 })
 
 const assetRows = computed(() =>
-  accountBalances.value
-    .filter((a) => a.isAsset)
-    .sort((a, b) => b.balance - a.balance)
+  accountBalances.value.filter((a) => a.isAsset).sort((a, b) => b.balance - a.balance)
 )
 
 const liabilityRows = computed(() =>
-  accountBalances.value
-    .filter((a) => !a.isAsset)
-    .sort((a, b) => b.balance - a.balance)
+  accountBalances.value.filter((a) => !a.isAsset).sort((a, b) => b.balance - a.balance)
 )
 
 const totalAssets = computed(() => assetRows.value.reduce((sum, a) => sum + a.balance, 0))
-const totalLiabilities = computed(() =>
-  liabilityRows.value.reduce((sum, a) => sum + a.balance, 0)
-)
+const totalLiabilities = computed(() => liabilityRows.value.reduce((sum, a) => sum + a.balance, 0))
 
 function formatCurrency(value) {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value || 0)
