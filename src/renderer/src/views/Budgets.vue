@@ -1,5 +1,55 @@
 <template>
   <v-container fluid class="pa-6">
+    <div class="d-flex align-center mb-6">
+      <v-menu v-model="monthMenu" location="bottom start" :close-on-content-click="false">
+        <template #activator="{ props }">
+          <v-btn
+            v-bind="props"
+            variant="tonal"
+            color="primary"
+            prepend-icon="mdi-calendar-month-outline"
+          >
+            {{ monthLabel(selectedMonth) }}
+            <v-icon end size="16">mdi-chevron-down</v-icon>
+          </v-btn>
+        </template>
+
+        <v-card min-width="260" rounded="lg" elevation="8" class="pa-3">
+          <div class="d-flex align-center justify-space-between mb-2">
+            <v-btn
+              icon="mdi-chevron-left"
+              variant="text"
+              size="small"
+              aria-label="Previous year"
+              @click="pickerYear--"
+            />
+            <div class="text-subtitle-1 font-weight-bold">{{ pickerYear }}</div>
+            <v-btn
+              icon="mdi-chevron-right"
+              variant="text"
+              size="small"
+              aria-label="Next year"
+              @click="pickerYear++"
+            />
+          </div>
+
+          <v-row dense>
+            <v-col v-for="month in monthOptions" :key="month.value" cols="4">
+              <v-btn
+                block
+                size="small"
+                variant="text"
+                :color="month.value === selectedMonth ? 'primary' : undefined"
+                @click="selectMonth(month.value)"
+              >
+                {{ month.label }}
+              </v-btn>
+            </v-col>
+          </v-row>
+        </v-card>
+      </v-menu>
+    </div>
+
     <v-row class="mb-6">
       <v-col cols="12" sm="6" lg="3">
         <v-card class="h-100" rounded elevation="2">
@@ -167,15 +217,44 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { useUserBudgetsStore } from '../stores/userBudgets'
 import { useUserCategoriesStore } from '../stores/userCategories'
-import { useUserSettingsStore } from '../stores/userSettings'
 
 const budgetsStore = useUserBudgetsStore()
 const categoriesStore = useUserCategoriesStore()
-const settingsStore = useUserSettingsStore()
 
 const ipc = window.electron?.ipcRenderer
 const transactions = ref([])
 const loadError = ref(null)
+
+function currentMonthValue() {
+  const now = new Date()
+  return `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}`
+}
+
+function monthLabel(yyyymm) {
+  const year = Number(yyyymm.slice(0, 4))
+  const month = Number(yyyymm.slice(4)) - 1
+  return new Date(year, month, 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+}
+
+const selectedMonth = ref(currentMonthValue())
+const monthMenu = ref(false)
+const pickerYear = ref(new Date().getFullYear())
+
+const monthOptions = computed(() =>
+  Array.from({ length: 12 }, (_, i) => ({
+    label: new Date(pickerYear.value, i, 1).toLocaleDateString('en-US', { month: 'short' }),
+    value: `${pickerYear.value}${String(i + 1).padStart(2, '0')}`
+  }))
+)
+
+function selectMonth(month) {
+  selectedMonth.value = month
+  monthMenu.value = false
+}
+
+watch(monthMenu, (isOpen) => {
+  if (isOpen) pickerYear.value = Number(selectedMonth.value.slice(0, 4)) || new Date().getFullYear()
+})
 
 const categoryTypeOptions = [
   { label: 'Income', value: 'income', icon: 'mdi-trending-up', color: 'success' },
@@ -184,8 +263,6 @@ const categoryTypeOptions = [
   { label: 'Variable', value: 'variable', icon: 'mdi-shopping', color: 'secondary' },
   { label: 'Debt', value: 'debt', icon: 'mdi-cash-remove', color: 'error' }
 ]
-
-const selectedMonth = computed(() => settingsStore.selectedMonth)
 
 const categoryMeta = computed(() => {
   return Object.fromEntries(categoryTypeOptions.map((type) => [type.value, type]))
@@ -301,10 +378,5 @@ onMounted(async () => {
   await loadMonth()
 })
 
-watch(
-  () => settingsStore.selectedMonth,
-  () => {
-    loadMonth()
-  }
-)
+watch(selectedMonth, () => loadMonth())
 </script>

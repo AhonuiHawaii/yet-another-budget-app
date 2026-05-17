@@ -17,6 +17,7 @@ import {
   getAccountSummary,
   getMonthsWithData,
   getMonthlyTotals,
+  getNetWorthHistory,
   getRules,
   createRule as dbCreateRule,
   updateRule as dbUpdateRule,
@@ -230,6 +231,14 @@ export const fetchMonthsWithData = () => {
 export const fetchMonthlyTotals = () => {
   try {
     return ok(getMonthlyTotals())
+  } catch (e) {
+    return fail(e)
+  }
+}
+
+export const fetchNetWorthHistory = () => {
+  try {
+    return ok(getNetWorthHistory())
   } catch (e) {
     return fail(e)
   }

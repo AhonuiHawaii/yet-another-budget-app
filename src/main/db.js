@@ -700,6 +700,40 @@ function getAccountSummary() {
 }
 
 /**
+ * Cumulative month-end assets, liabilities, and net worth across all accounts.
+ * Asset types: Checking, Savings, Money Market.
+ * Liabilities reported as positive owed amounts (negated raw transaction sum).
+ * @returns {{ month: string, assets: number, liabilities: number, netWorth: number }[]}
+ */
+function getNetWorthHistory() {
+  return db
+    .prepare(
+      `
+      WITH monthly AS (
+        SELECT
+          SUBSTR(t.DTPOSTED, 1, 6) AS month,
+          SUM(CASE WHEN a.ACCTTYPE IN ('Checking','Savings','Money Market')
+                   THEN CAST(t.TRNAMT AS REAL) ELSE 0 END) AS asset_delta,
+          SUM(CASE WHEN a.ACCTTYPE NOT IN ('Checking','Savings','Money Market')
+                   THEN CAST(t.TRNAMT AS REAL) ELSE 0 END) AS liability_delta
+        FROM Transactions t
+        JOIN Accounts a ON t.ACCTID = a.ACCTID
+        WHERE t.DTPOSTED IS NOT NULL
+        GROUP BY month
+      )
+      SELECT
+        month,
+        SUM(asset_delta) OVER (ORDER BY month)            AS assets,
+        -SUM(liability_delta) OVER (ORDER BY month)       AS liabilities,
+        SUM(asset_delta + liability_delta) OVER (ORDER BY month) AS netWorth
+      FROM monthly
+      ORDER BY month
+    `
+    )
+    .all()
+}
+
+/**
  * @returns {string[]} Distinct yyyymm strings that have transaction data, ascending.
  */
 function getMonthsWithData() {
@@ -739,6 +773,7 @@ export {
   getMonthsWithData,
   // Reporting (cont.)
   getMonthlyTotals,
+  getNetWorthHistory,
   // Rules
   getRules,
   createRule,

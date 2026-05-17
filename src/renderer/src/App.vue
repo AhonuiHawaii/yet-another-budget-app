@@ -8,14 +8,14 @@ import Settings from './views/Settings.vue'
 import Accounts from './views/Accounts.vue'
 import Transactions from './views/Transactions.vue'
 import Income from './views/Income.vue'
-import Variable from './views/Variable.vue'
+import Spending from './views/Spending.vue'
 import Savings from './views/Savings.vue'
 import Debts from './views/Debt.vue'
 import Budgets from './views/Budgets.vue'
-import Reports from './views/Reports.vue'
+import NetWorth from './views/NetWorth.vue'
 import Goals from './views/Goals.vue'
 import Rules from './views/Rules.vue'
-import Calendar from './views/Calendar.vue'
+import Recurring from './views/Recurring.vue'
 import AppBar from './components/AppBar.vue'
 
 const views = {
@@ -24,14 +24,14 @@ const views = {
   Accounts,
   Transactions,
   Income,
-  Variable,
+  Spending,
   Savings,
   Debts,
   Budgets,
-  Reports,
+  NetWorth,
   Goals,
   Rules,
-  Calendar
+  Recurring
 }
 
 const currentView = ref('Dashboard')

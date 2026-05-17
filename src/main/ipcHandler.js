@@ -17,6 +17,7 @@ import {
   fetchAccountSummary,
   fetchMonthsWithData,
   fetchMonthlyTotals,
+  fetchNetWorthHistory,
   fetchRules,
   addRule,
   editRule,
@@ -67,6 +68,7 @@ export const setupIpcHandlers = () => {
   ipcMain.handle('reports:accountSummary', () => fetchAccountSummary())
   ipcMain.handle('reports:monthsWithData', () => fetchMonthsWithData())
   ipcMain.handle('reports:monthlyTotals', () => fetchMonthlyTotals())
+  ipcMain.handle('reports:netWorthHistory', () => fetchNetWorthHistory())
 
   ipcMain.handle('rules:fetch', () => fetchRules())
   ipcMain.handle('rules:create', (_, rule) => addRule(rule))

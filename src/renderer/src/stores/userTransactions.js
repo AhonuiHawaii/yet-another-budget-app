@@ -16,6 +16,7 @@ export const useUserTransactionsStore = defineStore('userTransactions', () => {
   const uncategorized = ref([]) // Transaction[]
   const accountSummary = ref([]) // [{ ACCTID, count, total }]
   const monthlyTotals = ref([]) // [{ month, income, spending }]
+  const netWorthHistory = ref([]) // [{ month, assets, liabilities, netWorth }]
 
   const loadingCount = ref(0)
   const loading = computed(() => loadingCount.value > 0)
@@ -230,6 +231,20 @@ export const useUserTransactionsStore = defineStore('userTransactions', () => {
     }
   }
 
+  async function fetchNetWorthHistory() {
+    loadingCount.value++
+    error.value = null
+    try {
+      const result = await ipc.invoke('reports:netWorthHistory')
+      if (!result.success) throw new Error(result.error)
+      netWorthHistory.value = result.data
+    } catch (err) {
+      setError(err)
+    } finally {
+      loadingCount.value--
+    }
+  }
+
   /**
    * Load the list of months that have transaction data.
    * Sets activeMonth to the most recent month if not already set.
@@ -263,6 +278,7 @@ export const useUserTransactionsStore = defineStore('userTransactions', () => {
     uncategorized,
     accountSummary,
     monthlyTotals,
+    netWorthHistory,
     loading,
     error,
     // Transactions
@@ -278,6 +294,7 @@ export const useUserTransactionsStore = defineStore('userTransactions', () => {
     fetchAccountSummary,
     fetchMonthsWithData,
     fetchMonthlyTotals,
+    fetchNetWorthHistory,
     // Util
     clearError
   }

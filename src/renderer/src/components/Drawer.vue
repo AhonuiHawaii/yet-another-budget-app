@@ -5,14 +5,14 @@ import { useUserSettingsStore } from '../stores/userSettings'
 const navItems = [
   { title: 'Dashboard', value: 'Dashboard', icon: 'mdi-view-dashboard' },
   { title: 'Accounts', value: 'Accounts', icon: 'mdi-bank' },
-  { title: 'Transactions', value: 'Transactions', icon: 'mdi-swap-horizontal' },
+  { title: 'Spending', value: 'Spending', icon: 'mdi-cash-multiple' },
   { title: 'Income', value: 'Income', icon: 'mdi-trending-up' },
-  { title: 'Savings & Goals', value: 'Savings', icon: 'mdi-piggy-bank' },
-  { title: 'Expenses', value: 'Variable', icon: 'mdi-shopping' },
   { title: 'Debts', value: 'Debts', icon: 'mdi-cash-remove' },
-  { title: 'Calendar', value: 'Calendar', icon: 'mdi-calendar' },
-  { title: 'Budgets', value: 'Budgets', icon: 'mdi-chart-donut' },
-  { title: 'Reports', value: 'Reports', icon: 'mdi-chart-bar' },
+  { title: 'Recurring', value: 'Recurring', icon: 'mdi-calendar-sync' },
+  { title: 'Savings', value: 'Savings', icon: 'mdi-piggy-bank' },
+  { title: 'Budgets', value: 'Budgets', icon: 'mdi-calculator-variant-outline' },
+  { title: 'Net Worth', value: 'NetWorth', icon: 'mdi-chart-bar' },
+  { title: 'Transactions', value: 'Transactions', icon: 'mdi-magnify' },
   { title: 'Auto-Rules', value: 'Rules', icon: 'mdi-tag-multiple-outline' }
 ]
 
