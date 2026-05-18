@@ -157,9 +157,10 @@ function merchantKey(tx) {
     }
     // Subscriptions on otherwise-walk-in brands get their own bucket so
     // Walmart+ Member doesn't cluster with everyday Walmart purchases.
-    const key = isSubscription && neverRecurringMerchants.has(merchant)
-      ? `${merchant} (Subscription)`
-      : merchant
+    const key =
+      isSubscription && neverRecurringMerchants.has(merchant)
+        ? `${merchant} (Subscription)`
+        : merchant
     return { key, memoType }
   }
   const fallback = (cleanedText || tx.NAME || '').slice(0, 24).trim().toUpperCase()
@@ -242,9 +243,10 @@ export function scoreRecurring(transaction, history) {
  * is best-effort; this is the source of truth.
  *
  * @param {import('better-sqlite3').Database} db
+ * @param {Set<string>} [customFitids] - FITIDs matched by custom recurring entries; always marked on, never marked off.
  * @returns {number} Count of transactions marked recurring.
  */
-export function rescanRecurring(db) {
+export function rescanRecurring(db, customFitids = new Set()) {
   const rows = db
     .prepare(
       `SELECT FITID, NAME, MEMO, TRNAMT, DTPOSTED FROM Transactions WHERE DTPOSTED >= ? AND TRNAMT < 0`
@@ -259,7 +261,7 @@ export function rescanRecurring(db) {
     merchantMap.get(key).txs.push(buildTxRecord(row))
   }
 
-  const recurringFitids = new Set()
+  const recurringFitids = new Set(customFitids)
   for (const [, entry] of merchantMap) {
     const flagged = classifyMerchant(entry.txs, entry.memoType)
     for (const fitid of flagged) recurringFitids.add(fitid)
@@ -271,7 +273,7 @@ export function rescanRecurring(db) {
   db.transaction(() => {
     for (const row of rows) {
       if (recurringFitids.has(row.FITID)) markOn.run(row.FITID)
-      else markOff.run(row.FITID)
+      else if (!customFitids.has(row.FITID)) markOff.run(row.FITID)
     }
   })()
 

@@ -23,7 +23,11 @@ import {
   updateRule as dbUpdateRule,
   deleteRule as dbDeleteRule,
   applyRules,
-  runRescanRecurring
+  runRescanRecurring,
+  getCustomRecurring,
+  createCustomRecurring as dbCreateCustomRecurring,
+  updateCustomRecurring as dbUpdateCustomRecurring,
+  deleteCustomRecurring as dbDeleteCustomRecurring
 } from './db.js'
 
 /*
@@ -76,6 +80,17 @@ export const importTransactions = async (ofxData) => {
     }
 
     const result = createTransactions(transactions)
+
+    // Mark transactions matching custom recurring entries (before rule application)
+    const customEntries = getCustomRecurring()
+    if (customEntries.length) {
+      for (const tx of transactions) {
+        const memo = (tx.MEMO || '').toLowerCase()
+        if (customEntries.some((e) => memo.includes(e.name.toLowerCase()))) {
+          updateTransaction(tx.FITID, { recurring: 1 })
+        }
+      }
+    }
 
     // Auto-categorize newly inserted transactions using saved rules
     const patches = applyRules(transactions)
@@ -288,6 +303,44 @@ export const rescanRecurringTransactions = () => {
   try {
     const count = runRescanRecurring()
     return ok({ count })
+  } catch (e) {
+    return fail(e)
+  }
+}
+
+// Custom Recurring
+
+export const fetchCustomRecurring = () => {
+  try {
+    return ok(getCustomRecurring())
+  } catch (e) {
+    return fail(e)
+  }
+}
+
+export const addCustomRecurring = (entry) => {
+  try {
+    return ok(dbCreateCustomRecurring(entry))
+  } catch (e) {
+    return fail(e)
+  }
+}
+
+export const editCustomRecurring = (id, updates) => {
+  try {
+    const changes = dbUpdateCustomRecurring(id, updates)
+    if (!changes) return fail(new Error(`No custom recurring entry found with id: ${id}`))
+    return ok({ id, changes })
+  } catch (e) {
+    return fail(e)
+  }
+}
+
+export const removeCustomRecurring = (id) => {
+  try {
+    const changes = dbDeleteCustomRecurring(id)
+    if (!changes) return fail(new Error(`No custom recurring entry found with id: ${id}`))
+    return ok({ id, changes })
   } catch (e) {
     return fail(e)
   }

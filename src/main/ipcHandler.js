@@ -23,7 +23,11 @@ import {
   editRule,
   removeRule,
   applyRulesToMonth,
-  rescanRecurringTransactions
+  rescanRecurringTransactions,
+  fetchCustomRecurring,
+  addCustomRecurring,
+  editCustomRecurring,
+  removeCustomRecurring
 } from './main.js'
 
 export const setupIpcHandlers = () => {
@@ -77,4 +81,9 @@ export const setupIpcHandlers = () => {
   ipcMain.handle('rules:delete', (_, id) => removeRule(id))
   ipcMain.handle('rules:applyToMonth', (_, yyyymm) => applyRulesToMonth(yyyymm))
   ipcMain.handle('transactions:rescanRecurring', () => rescanRecurringTransactions())
+
+  ipcMain.handle('customRecurring:fetch', () => fetchCustomRecurring())
+  ipcMain.handle('customRecurring:create', (_, entry) => addCustomRecurring(entry))
+  ipcMain.handle('customRecurring:update', (_, id, updates) => editCustomRecurring(id, updates))
+  ipcMain.handle('customRecurring:delete', (_, id) => removeCustomRecurring(id))
 }

@@ -499,6 +499,39 @@ function applyRules(transactions) {
   return patches
 }
 
+// ── Custom Recurring ─────────────────────────────────────────────────────────
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS CustomRecurring (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    name        TEXT NOT NULL,
+    createdAt   TEXT DEFAULT CURRENT_TIMESTAMP
+  )
+`)
+
+function getCustomRecurring() {
+  return db.prepare('SELECT * FROM CustomRecurring ORDER BY name ASC').all()
+}
+
+function createCustomRecurring(entry) {
+  const stmt = db.prepare(`INSERT INTO CustomRecurring (name) VALUES (@name)`)
+  const info = stmt.run({ name: entry.name })
+  return db.prepare('SELECT * FROM CustomRecurring WHERE id = ?').get(info.lastInsertRowid)
+}
+
+function updateCustomRecurring(id, updates) {
+  const ALLOWED = new Set(['name'])
+  const entries = Object.entries(updates).filter(([col]) => ALLOWED.has(col))
+  if (entries.length === 0) return 0
+  const setClause = entries.map(([col]) => `${col} = ?`).join(', ')
+  const values = entries.map(([, val]) => val)
+  return db.prepare(`UPDATE CustomRecurring SET ${setClause} WHERE id = ?`).run(...values, id).changes
+}
+
+function deleteCustomRecurring(id) {
+  return db.prepare('DELETE FROM CustomRecurring WHERE id = ?').run(id).changes
+}
+
 // ── Reporting ────────────────────────────────────────────────────────────────
 
 // TRNAMT is stored as TEXT (OFX format) — cast to REAL in SQL for aggregation
@@ -699,9 +732,29 @@ export {
   updateRule,
   deleteRule,
   applyRules,
-  runRescanRecurring
+  runRescanRecurring,
+  // Custom Recurring
+  getCustomRecurring,
+  createCustomRecurring,
+  updateCustomRecurring,
+  deleteCustomRecurring
 }
 
 function runRescanRecurring() {
-  return rescanRecurring(db)
+  const customEntries = getCustomRecurring()
+  const customFitids = new Set()
+
+  if (customEntries.length) {
+    const rows = db
+      .prepare(`SELECT FITID, MEMO FROM Transactions WHERE TRNAMT < 0`)
+      .all()
+    for (const row of rows) {
+      const memo = (row.MEMO || '').toLowerCase()
+      if (customEntries.some((e) => memo.includes(e.name.toLowerCase()))) {
+        customFitids.add(row.FITID)
+      }
+    }
+  }
+
+  return rescanRecurring(db, customFitids)
 }

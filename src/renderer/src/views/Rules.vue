@@ -286,6 +286,140 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <!-- ── Custom Recurring ──────────────────────────────────────────────── -->
+    <div class="d-flex align-center justify-space-between flex-wrap gap-3 mt-8 mb-6">
+      <div>
+        <div class="text-h6 font-weight-bold">Custom Recurring</div>
+        <div class="text-body-2 text-medium-emphasis">
+          Manually tracked recurring payments not in your transaction history.
+        </div>
+      </div>
+      <v-btn color="primary" prepend-icon="mdi-plus" @click="crOpenAdd">Add Recurring</v-btn>
+    </div>
+
+    <v-alert
+      v-if="crStore.error"
+      type="error"
+      variant="flat"
+      closable
+      class="mb-4"
+      @click:close="crStore.clearError()"
+    >
+      {{ crStore.error }}
+    </v-alert>
+
+    <v-card v-if="!crStore.loading && crStore.entries.length === 0" rounded elevation="2">
+      <v-card-text class="pa-12 text-center">
+        <v-icon size="60" class="mb-4 text-disabled">mdi-refresh</v-icon>
+        <div class="text-h6 font-weight-medium mb-2">No custom recurring entries</div>
+        <div class="text-body-2 text-medium-emphasis mb-6">
+          Add subscriptions, rent, or any fixed payment you want tracked on the calendar.
+        </div>
+        <v-btn color="primary" prepend-icon="mdi-plus" @click="crOpenAdd">Add First Entry</v-btn>
+      </v-card-text>
+    </v-card>
+
+    <v-card v-else rounded elevation="2">
+      <v-data-table
+        :headers="crHeaders"
+        :items="crStore.entries"
+        :loading="crStore.loading"
+        density="comfortable"
+        :items-per-page="25"
+        :items-per-page-options="[10, 25, 50]"
+        hover
+      >
+        <template #item.actions="{ item }">
+          <div class="d-flex align-center justify-end gap-1">
+            <v-btn
+              icon="mdi-pencil-outline"
+              variant="text"
+              size="small"
+              density="compact"
+              @click="crOpenEdit(item)"
+            />
+            <v-btn
+              icon="mdi-delete-outline"
+              variant="text"
+              size="small"
+              color="error"
+              density="compact"
+              @click="crConfirmDelete(item)"
+            />
+          </div>
+        </template>
+
+        <template #loading>
+          <v-skeleton-loader type="table-row@3" />
+        </template>
+      </v-data-table>
+    </v-card>
+
+    <!-- Add / Edit Custom Recurring Dialog -->
+    <v-dialog v-model="crDialog" max-width="480" persistent>
+      <v-card rounded="sm">
+        <v-card-title class="pa-6 pb-4">
+          <div class="d-flex align-center justify-space-between">
+            <div class="d-flex align-center gap-3">
+              <v-icon color="primary" size="20">mdi-refresh</v-icon>
+              <span class="text-h6 font-weight-bold">{{
+                crEditTarget ? 'Edit Recurring' : 'Add Recurring'
+              }}</span>
+            </div>
+            <v-btn icon="mdi-close" variant="text" density="compact" @click="crClose" />
+          </div>
+        </v-card-title>
+
+        <v-divider />
+
+        <v-card-text class="pa-6">
+          <v-text-field
+            v-model="crForm.name"
+            label="Match phrase"
+            variant="solo"
+            inset
+            density="comfortable"
+            rounded="sm"
+            hide-details
+            autofocus
+            hint="Matches against transaction name/memo (case-insensitive)"
+          />
+        </v-card-text>
+
+        <v-card-actions class="pa-6 pt-0">
+          <v-spacer />
+          <v-btn variant="text" @click="crClose">Cancel</v-btn>
+          <v-btn
+            color="primary"
+            variant="flat"
+            rounded="sm"
+            :loading="crStore.loading"
+            :disabled="!crForm.name"
+            @click="crSave"
+          >
+            {{ crEditTarget ? 'Save' : 'Add' }}
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- Delete Custom Recurring Confirmation -->
+    <v-dialog v-model="crDeleteDialog" max-width="400">
+      <v-card rounded="sm">
+        <v-card-title class="text-h6 pa-6 pb-2">Delete Entry</v-card-title>
+        <v-card-text class="pa-6 pt-2 text-body-2 text-medium-emphasis">
+          Delete <strong>{{ crDeleteTarget?.name }}</strong>? This cannot be undone.
+        </v-card-text>
+        <v-card-actions class="pa-6 pt-0 gap-2">
+          <v-spacer />
+          <v-btn variant="text" @click="crDeleteDialog = false">Cancel</v-btn>
+          <v-btn color="error" variant="flat" :loading="crStore.loading" @click="crDoDelete">
+            Delete
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -295,13 +429,18 @@ import { useUserRulesStore } from '../stores/userRules'
 import { useUserCategoriesStore } from '../stores/userCategories'
 import { useUserTransactionsStore } from '../stores/userTransactions'
 import { useUserSettingsStore } from '../stores/userSettings'
+import { useUserCustomRecurringStore } from '../stores/userCustomRecurring'
 
 const store = useUserRulesStore()
 const categoriesStore = useUserCategoriesStore()
 const transactionsStore = useUserTransactionsStore()
 const settingsStore = useUserSettingsStore()
+const crStore = useUserCustomRecurringStore()
 
-onMounted(() => store.fetchRules())
+onMounted(() => {
+  store.fetchRules()
+  crStore.fetchCustomRecurring()
+})
 
 const allCategoryNames = computed(() => categoriesStore.categories.map((c) => c.name))
 
@@ -442,5 +581,57 @@ async function applyToCurrentMonth() {
     applyResult.value = result.data
     await transactionsStore.fetchTransactionsByMonth(settingsStore.selectedMonth)
   }
+}
+
+// ── Custom Recurring ──────────────────────────────────────────────────────────
+
+const crHeaders = [
+  { title: 'Match phrase', key: 'name', sortable: true },
+  { title: '', key: 'actions', width: '80px', sortable: false, align: 'end' }
+]
+
+const crDialog = ref(false)
+const crEditTarget = ref(null)
+const crForm = ref({ name: '' })
+
+function crOpenAdd() {
+  crEditTarget.value = null
+  crForm.value = { name: '' }
+  crDialog.value = true
+}
+
+function crOpenEdit(item) {
+  crEditTarget.value = item
+  crForm.value = { name: item.name }
+  crDialog.value = true
+}
+
+function crClose() {
+  crDialog.value = false
+  crEditTarget.value = null
+}
+
+async function crSave() {
+  if (crEditTarget.value) {
+    await crStore.editEntry(crEditTarget.value.id, { name: crForm.value.name })
+  } else {
+    await crStore.createEntry({ name: crForm.value.name })
+  }
+  if (!crStore.error) crClose()
+}
+
+const crDeleteDialog = ref(false)
+const crDeleteTarget = ref(null)
+
+function crConfirmDelete(item) {
+  crDeleteTarget.value = item
+  crDeleteDialog.value = true
+}
+
+async function crDoDelete() {
+  if (!crDeleteTarget.value) return
+  await crStore.removeEntry(crDeleteTarget.value.id)
+  crDeleteDialog.value = false
+  crDeleteTarget.value = null
 }
 </script>

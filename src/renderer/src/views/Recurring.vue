@@ -47,7 +47,9 @@
           </div>
 
           <!-- Column headers -->
-          <div class="recurring-table-header text-caption text-uppercase font-weight-bold text-medium-emphasis px-4 mb-1">
+          <div
+            class="recurring-table-header text-caption text-uppercase font-weight-bold text-medium-emphasis px-4 mb-1"
+          >
             <span>Name / Frequency</span>
             <span>Account</span>
             <span>Due</span>
@@ -73,14 +75,18 @@
                 <span class="text-body-2 font-weight-medium">{{ group.name }}</span>
               </template>
               <template #subtitle>
-                <span class="text-caption font-weight-medium text-success">{{ group.frequency }}</span>
+                <span class="text-caption font-weight-medium text-success">{{
+                  group.frequency
+                }}</span>
               </template>
 
               <template #append>
                 <div class="recurring-row-append">
                   <!-- Account -->
                   <div class="recurring-col-account">
-                    <span class="text-caption text-medium-emphasis">{{ group.lastFour ? `••••${group.lastFour}` : '—' }}</span>
+                    <span class="text-caption text-medium-emphasis">{{
+                      group.lastFour ? `••••${group.lastFour}` : '—'
+                    }}</span>
                   </div>
 
                   <!-- Due -->
@@ -115,7 +121,10 @@
                       />
                     </template>
                     <v-list density="compact">
-                      <v-list-item title="Mark as not recurring" prepend-icon="mdi-close-circle-outline" />
+                      <v-list-item
+                        title="Mark as not recurring"
+                        prepend-icon="mdi-close-circle-outline"
+                      />
                     </v-list>
                   </v-menu>
                 </div>
@@ -141,6 +150,9 @@
             >
             <v-chip color="error" variant="flat" size="small" prepend-icon="mdi-credit-card-outline"
               >Debt</v-chip
+            >
+            <v-chip color="primary" variant="flat" size="small" prepend-icon="mdi-refresh"
+              >Recurring</v-chip
             >
           </div>
         </div>
@@ -207,7 +219,9 @@
                 {{
                   selectedEvent.eventType === 'bill'
                     ? 'mdi-calendar-month'
-                    : 'mdi-credit-card-outline'
+                    : selectedEvent.eventType === 'debt'
+                      ? 'mdi-credit-card-outline'
+                      : 'mdi-refresh'
                 }}
               </v-icon>
               <span class="text-h6 font-weight-bold">{{ selectedEvent.name }}</span>
@@ -219,7 +233,13 @@
         <v-card-text class="pa-6">
           <div class="d-flex align-center justify-space-between mb-3">
             <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis">
-              {{ selectedEvent.eventType === 'bill' ? 'Budgeted Amount' : 'Min. Payment' }}
+              {{
+                selectedEvent.eventType === 'bill'
+                  ? 'Budgeted Amount'
+                  : selectedEvent.eventType === 'debt'
+                    ? 'Min. Payment'
+                    : 'Typical Amount'
+              }}
             </div>
             <div class="text-h6 font-weight-bold" :class="`text-${selectedEvent.color}`">
               {{ formatCurrency(selectedEvent.amount) }}
@@ -276,6 +296,19 @@
             <div v-if="selectedEvent.institution" class="d-flex align-center justify-space-between">
               <span class="text-body-2 font-weight-medium">Lender</span>
               <span class="text-body-2 text-medium-emphasis">{{ selectedEvent.institution }}</span>
+            </div>
+          </template>
+
+          <template v-if="selectedEvent.eventType === 'recurring'">
+            <div v-if="selectedEvent.category" class="d-flex align-center justify-space-between mb-2">
+              <span class="text-body-2 font-weight-medium">Category</span>
+              <span class="text-body-2 text-medium-emphasis">{{ selectedEvent.category }}</span>
+            </div>
+            <div v-if="selectedEvent.account" class="d-flex align-center justify-space-between mb-2">
+              <span class="text-body-2 font-weight-medium">Account</span>
+              <span class="text-body-2 text-medium-emphasis">
+                {{ selectedEvent.account }} <span v-if="selectedEvent.lastFour">(••••{{ selectedEvent.lastFour }})</span>
+              </span>
             </div>
           </template>
         </v-card-text>
@@ -492,6 +525,24 @@ const eventsByDay = computed(() => {
     }
   }
 
+  // ── Recurring Transactions ───────────────────────────────────────────────
+  for (const group of recurringGroups.value) {
+    if (group.typicalDay) {
+      addEvent(group.typicalDay, {
+        id: `recurring-${group.name}`,
+        name: group.name,
+        eventType: 'recurring',
+        color: 'primary',
+        amount: group.typicalAmount,
+        dueLabel: `${new Date(y, m, group.typicalDay).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`,
+        typeLabel: 'Recurring Transaction',
+        category: group.category,
+        account: group.account,
+        lastFour: group.lastFour
+      })
+    }
+  }
+
   return map
 })
 
@@ -542,7 +593,14 @@ const recurringGroups = computed(() => {
   for (const tx of recurringTransactions.value) {
     const key = tx.NAME || 'Unknown'
     if (!map.has(key))
-      map.set(key, { name: key, amounts: [], days: [], months: new Set(), categories: [], acctid: tx.ACCTID || null })
+      map.set(key, {
+        name: key,
+        amounts: [],
+        days: [],
+        months: new Set(),
+        categories: [],
+        acctid: tx.ACCTID || null
+      })
     const g = map.get(key)
     const amt = Math.abs(Number(tx.TRNAMT))
     if (amt > 0) g.amounts.push(amt)
