@@ -2,6 +2,10 @@
 import { computed, ref, watch } from 'vue'
 import { useUserSettingsStore } from '../stores/userSettings'
 
+const isRail = ref(false)
+const appName = window.api?.name ?? ''
+const appVersion = window.api?.version ?? ''
+
 const navItems = [
   { title: 'Dashboard', value: 'Dashboard', icon: 'mdi-view-dashboard' },
   { title: 'Accounts', value: 'Accounts', icon: 'mdi-bank' },
@@ -47,10 +51,20 @@ watch(monthMenu, (isOpen) => {
 </script>
 
 <template>
-  <v-navigation-drawer permanent color="surface-variant">
-    <v-list-item title="YABA" subtitle="Version 1.5.1"></v-list-item>
+  <v-navigation-drawer permanent color="surface-variant" :rail="isRail">
+    <v-list-item
+      :prepend-icon="isRail ? 'mdi-menu-close' : undefined"
+      :title="isRail ? '' : `${appName}`"
+      :subtitle="isRail ? '' : `Version ${appVersion}`"
+      v-bind="isRail ? { style: 'cursor:pointer', onClick: () => (isRail = false) } : {}"
+    >
+      <template v-if="!isRail" #append>
+        <v-icon icon="mdi-menu-open" style="cursor: pointer" @click.stop="isRail = true" />
+      </template>
+    </v-list-item>
     <v-divider></v-divider>
-    <div class="pa-3">
+
+    <div v-if="!isRail" class="pa-3">
       <v-menu v-model="monthMenu" location="bottom start" :close-on-content-click="false">
         <template #activator="{ props }">
           <v-btn
@@ -100,6 +114,15 @@ watch(monthMenu, (isOpen) => {
         </v-card>
       </v-menu>
     </div>
+    <div v-else class="d-flex justify-center pa-2">
+      <v-btn
+        icon="mdi-calendar-month-outline"
+        variant="text"
+        size="small"
+        @click="isRail = false"
+      />
+    </div>
+
     <v-divider></v-divider>
 
     <v-list density="compact" nav>

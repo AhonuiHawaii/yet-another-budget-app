@@ -509,16 +509,22 @@ db.exec(`
     createdAt   TEXT DEFAULT CURRENT_TIMESTAMP
   )
 `)
-try { db.exec(`ALTER TABLE CustomRecurring ADD COLUMN operator TEXT NOT NULL DEFAULT 'contains'`) } catch {}
+try {
+  db.exec(`ALTER TABLE CustomRecurring ADD COLUMN operator TEXT NOT NULL DEFAULT 'contains'`)
+} catch {}
 
 function matchesCustomEntry(memo, entry) {
   const haystack = (memo || '').toLowerCase()
   const needle = (entry.name || '').toLowerCase()
   switch (entry.operator) {
-    case 'equals':    return haystack === needle
-    case 'startsWith': return haystack.startsWith(needle)
-    case 'wholeWord': return new RegExp(`\\b${needle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`).test(haystack)
-    default:          return haystack.includes(needle) // contains
+    case 'equals':
+      return haystack === needle
+    case 'startsWith':
+      return haystack.startsWith(needle)
+    case 'wholeWord':
+      return new RegExp(`\\b${needle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`).test(haystack)
+    default:
+      return haystack.includes(needle) // contains
   }
 }
 
@@ -538,7 +544,8 @@ function updateCustomRecurring(id, updates) {
   if (entries.length === 0) return 0
   const setClause = entries.map(([col]) => `${col} = ?`).join(', ')
   const values = entries.map(([, val]) => val)
-  return db.prepare(`UPDATE CustomRecurring SET ${setClause} WHERE id = ?`).run(...values, id).changes
+  return db.prepare(`UPDATE CustomRecurring SET ${setClause} WHERE id = ?`).run(...values, id)
+    .changes
 }
 
 function deleteCustomRecurring(id) {
@@ -759,9 +766,7 @@ function runRescanRecurring() {
   const customFitids = new Set()
 
   if (customEntries.length) {
-    const rows = db
-      .prepare(`SELECT FITID, MEMO FROM Transactions WHERE TRNAMT < 0`)
-      .all()
+    const rows = db.prepare(`SELECT FITID, MEMO FROM Transactions WHERE TRNAMT < 0`).all()
     for (const row of rows) {
       if (customEntries.some((e) => matchesCustomEntry(row.MEMO, e))) {
         customFitids.add(row.FITID)

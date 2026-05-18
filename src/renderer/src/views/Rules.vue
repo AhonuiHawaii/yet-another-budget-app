@@ -450,7 +450,8 @@
       <v-card rounded="sm">
         <v-card-title class="text-h6 pa-6 pb-2">Delete Entry</v-card-title>
         <v-card-text class="pa-6 pt-2 text-body-2 text-medium-emphasis">
-          Delete <strong>{{ crDeleteTarget?.name }}</strong>? This cannot be undone.
+          Delete <strong>{{ crDeleteTarget?.name }}</strong
+          >? This cannot be undone.
         </v-card-text>
         <v-card-actions class="pa-6 pt-0 gap-2">
           <v-spacer />

@@ -20,12 +20,15 @@
       </button>
     </div>
 
-    <div class="title-text">Yet Another Budget App</div>
+    <div class="title-text">{{ productName }} {{ appVersion }} </div>
   </v-app-bar>
 </template>
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue'
+const appName = window.api?.name ?? ''
+const appVersion = window.api?.version ?? ''
+const productName = window.api?.productName ?? ''
 
 const isMaximized = ref(false)
 let unsubscribe = null

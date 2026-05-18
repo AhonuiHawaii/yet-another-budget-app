@@ -300,14 +300,21 @@
           </template>
 
           <template v-if="selectedEvent.eventType === 'recurring'">
-            <div v-if="selectedEvent.category" class="d-flex align-center justify-space-between mb-2">
+            <div
+              v-if="selectedEvent.category"
+              class="d-flex align-center justify-space-between mb-2"
+            >
               <span class="text-body-2 font-weight-medium">Category</span>
               <span class="text-body-2 text-medium-emphasis">{{ selectedEvent.category }}</span>
             </div>
-            <div v-if="selectedEvent.account" class="d-flex align-center justify-space-between mb-2">
+            <div
+              v-if="selectedEvent.account"
+              class="d-flex align-center justify-space-between mb-2"
+            >
               <span class="text-body-2 font-weight-medium">Account</span>
               <span class="text-body-2 text-medium-emphasis">
-                {{ selectedEvent.account }} <span v-if="selectedEvent.lastFour">(••••{{ selectedEvent.lastFour }})</span>
+                {{ selectedEvent.account }}
+                <span v-if="selectedEvent.lastFour">(••••{{ selectedEvent.lastFour }})</span>
               </span>
             </div>
           </template>

@@ -421,7 +421,9 @@
         <template #expanded-row="{ columns, item }">
           <tr>
             <td :colspan="columns.length" class="px-4 py-2 bg-surface-light">
-              <div class="text-caption mb-3 text-center" style="font-family: monospace">{{ item.MEMO || '—' }}</div>
+              <div class="text-caption mb-3 text-center" style="font-family: monospace">
+                {{ item.MEMO || '—' }}
+              </div>
 
               <template v-if="item.splitCategory1 || item.splitCategory2">
                 <div class="text-caption text-uppercase text-medium-emphasis mb-2 font-weight-bold">
@@ -1041,9 +1043,7 @@ function openBulkPayeeDialog() {
 
 async function saveBulkPayee() {
   const NAME = bulkPayeeValue.value.trim() || null
-  await Promise.all(
-    selectedRows.value.map((item) => store.editTransaction(item.FITID, { NAME }))
-  )
+  await Promise.all(selectedRows.value.map((item) => store.editTransaction(item.FITID, { NAME })))
   bulkPayeeDialog.value = false
   selectedRows.value = []
 }

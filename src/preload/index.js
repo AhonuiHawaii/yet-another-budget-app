@@ -1,7 +1,11 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
+import { name, version, productName } from '../../package.json'
 
 const api = {
+  name,
+  version,
+  productName,
   platform: process.platform,
   window: {
     minimize: () => ipcRenderer.send('window-minimize'),
