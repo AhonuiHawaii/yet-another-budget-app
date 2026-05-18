@@ -54,31 +54,20 @@
       <v-col cols="12" sm="6" lg="3">
         <v-card class="h-100" rounded elevation="2">
           <v-card-text class="pa-4">
-            <div class="d-flex align-start justify-space-between mb-3">
-              <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis"
-                >Planned Income</span
-              >
-              <v-icon color="success" size="18" :opacity="0.4">mdi-trending-up</v-icon>
-            </div>
-            <div class="text-h5 font-weight-black">{{ formatCurrency(plannedIncome) }}</div>
-            <div class="text-caption text-medium-emphasis mt-1">
-              Actual {{ formatCurrency(actualIncome) }}
-            </div>
-          </v-card-text>
-        </v-card>
-      </v-col>
-      <v-col cols="12" sm="6" lg="3">
-        <v-card class="h-100" rounded elevation="2">
-          <v-card-text class="pa-4">
-            <div class="d-flex align-start justify-space-between mb-3">
-              <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis"
-                >Planned Outflow</span
-              >
-              <v-icon color="error" size="18" :opacity="0.4">mdi-arrow-up-circle-outline</v-icon>
-            </div>
-            <div class="text-h5 font-weight-black">{{ formatCurrency(plannedOutflow) }}</div>
-            <div class="text-caption text-medium-emphasis mt-1">
-              Actual {{ formatCurrency(actualOutflow) }}
+            <div class="d-flex align-center justify-space-between">
+              <div class="flex-grow-1">
+                <div class="d-flex align-center mb-2">
+                  <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis"
+                    >Planned Income</span
+                  >
+                  <v-spacer />
+                  <v-icon color="success" size="16" :opacity="0.4">mdi-trending-up</v-icon>
+                </div>
+                <div class="text-h5 font-weight-black">{{ formatCurrency(plannedIncome) }}</div>
+              </div>
+              <div style="width: 68px; height: 68px; flex-shrink: 0; margin-left: 12px">
+                <Doughnut :data="budgetIncomeChartData" :options="miniChartOptions" />
+              </div>
             </div>
           </v-card-text>
         </v-card>
@@ -86,22 +75,22 @@
       <v-col cols="12" sm="6" lg="3">
         <v-card class="h-100" rounded elevation="2">
           <v-card-text class="pa-4">
-            <div class="d-flex align-start justify-space-between mb-3">
-              <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis"
-                >Planned Net</span
-              >
-              <v-icon :color="plannedNet >= 0 ? 'success' : 'error'" size="18" :opacity="0.4"
-                >mdi-trending-up</v-icon
-              >
-            </div>
-            <div
-              class="text-h5 font-weight-black"
-              :class="plannedNet >= 0 ? 'text-success' : 'text-error'"
-            >
-              {{ formatCurrency(plannedNet) }}
-            </div>
-            <div class="text-caption text-medium-emphasis mt-1">
-              Actual {{ formatCurrency(actualNet) }}
+            <div class="d-flex align-center justify-space-between">
+              <div class="flex-grow-1">
+                <div class="d-flex align-center mb-2">
+                  <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis"
+                    >Planned Outflow</span
+                  >
+                  <v-spacer />
+                  <v-icon color="error" size="16" :opacity="0.4"
+                    >mdi-arrow-up-circle-outline</v-icon
+                  >
+                </div>
+                <div class="text-h5 font-weight-black">{{ formatCurrency(plannedOutflow) }}</div>
+              </div>
+              <div style="width: 68px; height: 68px; flex-shrink: 0; margin-left: 12px">
+                <Doughnut :data="budgetOutflowChartData" :options="miniChartOptions" />
+              </div>
             </div>
           </v-card-text>
         </v-card>
@@ -109,21 +98,59 @@
       <v-col cols="12" sm="6" lg="3">
         <v-card class="h-100" rounded elevation="2">
           <v-card-text class="pa-4">
-            <div class="d-flex align-start justify-space-between mb-3">
-              <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis"
-                >Budget Variance</span
-              >
-              <v-icon :color="budgetVariance >= 0 ? 'success' : 'warning'" size="18" :opacity="0.4"
-                >mdi-wallet-outline</v-icon
-              >
+            <div class="d-flex align-center justify-space-between">
+              <div class="flex-grow-1">
+                <div class="d-flex align-center mb-2">
+                  <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis"
+                    >Planned Net</span
+                  >
+                  <v-spacer />
+                  <v-icon :color="plannedNet >= 0 ? 'success' : 'error'" size="16" :opacity="0.4"
+                    >mdi-trending-up</v-icon
+                  >
+                </div>
+                <div
+                  class="text-h5 font-weight-black"
+                  :class="plannedNet >= 0 ? 'text-success' : 'text-error'"
+                >
+                  {{ formatCurrency(plannedNet) }}
+                </div>
+              </div>
+              <div style="width: 68px; height: 68px; flex-shrink: 0; margin-left: 12px">
+                <Doughnut :data="budgetNetChartData" :options="miniChartOptions" />
+              </div>
             </div>
-            <div
-              class="text-h5 font-weight-black"
-              :class="budgetVariance >= 0 ? 'text-success' : 'text-error'"
-            >
-              {{ formatCurrency(budgetVariance) }}
+          </v-card-text>
+        </v-card>
+      </v-col>
+      <v-col cols="12" sm="6" lg="3">
+        <v-card class="h-100" rounded elevation="2">
+          <v-card-text class="pa-4">
+            <div class="d-flex align-center justify-space-between">
+              <div class="flex-grow-1">
+                <div class="d-flex align-center mb-2">
+                  <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis"
+                    >Budget Variance</span
+                  >
+                  <v-spacer />
+                  <v-icon
+                    :color="budgetVariance >= 0 ? 'success' : 'warning'"
+                    size="16"
+                    :opacity="0.4"
+                    >mdi-wallet-outline</v-icon
+                  >
+                </div>
+                <div
+                  class="text-h5 font-weight-black"
+                  :class="budgetVariance >= 0 ? 'text-success' : 'text-error'"
+                >
+                  {{ formatCurrency(budgetVariance) }}
+                </div>
+              </div>
+              <div style="width: 68px; height: 68px; flex-shrink: 0; margin-left: 12px">
+                <Doughnut :data="budgetVarianceChartData" :options="miniChartOptions" />
+              </div>
             </div>
-            <div class="text-caption text-medium-emphasis mt-1">Actual net vs planned net</div>
           </v-card-text>
         </v-card>
       </v-col>
@@ -342,6 +369,10 @@
 
 <script setup>
 import { computed, onMounted, ref, watch } from 'vue'
+import { Chart as ChartJS, ArcElement, Tooltip } from 'chart.js'
+import { Doughnut } from 'vue-chartjs'
+
+ChartJS.register(ArcElement, Tooltip)
 import { useUserBudgetsStore } from '../stores/userBudgets'
 import { useUserCategoriesStore } from '../stores/userCategories'
 
@@ -464,6 +495,80 @@ const actualOutflow = computed(() =>
 const plannedNet = computed(() => plannedIncome.value - plannedOutflow.value)
 const actualNet = computed(() => actualIncome.value - actualOutflow.value)
 const budgetVariance = computed(() => actualNet.value - plannedNet.value)
+
+const miniChartOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  cutout: '72%',
+  plugins: { legend: { display: false }, tooltip: { enabled: false } },
+  animation: { duration: 300 }
+}
+
+function makePieData(actual, budget, mainColor) {
+  const dim = 'rgba(255,255,255,0.08)'
+  if (budget <= 0 && actual <= 0)
+    return { datasets: [{ data: [1], backgroundColor: [dim], borderWidth: 0 }] }
+  if (budget <= 0)
+    return { datasets: [{ data: [actual], backgroundColor: [mainColor], borderWidth: 0 }] }
+  const remaining = Math.max(0, budget - actual)
+  const over = Math.max(0, actual - budget)
+  if (over > 0)
+    return {
+      datasets: [{ data: [budget, over], backgroundColor: [mainColor, '#ffa726'], borderWidth: 0 }]
+    }
+  return {
+    datasets: [
+      {
+        data: [actual || 0.001, remaining || 0.001],
+        backgroundColor: [mainColor, dim],
+        borderWidth: 0
+      }
+    ]
+  }
+}
+
+const budgetIncomeChartData = computed(() =>
+  makePieData(actualIncome.value, plannedIncome.value, '#4caf50')
+)
+const budgetOutflowChartData = computed(() =>
+  makePieData(actualOutflow.value, plannedOutflow.value, '#ef5350')
+)
+const budgetNetChartData = computed(() => {
+  const i = actualIncome.value
+  const s = actualOutflow.value
+  if (i <= 0 && s <= 0)
+    return {
+      datasets: [{ data: [1], backgroundColor: ['rgba(255,255,255,0.08)'], borderWidth: 0 }]
+    }
+  return {
+    datasets: [
+      { data: [i || 0.001, s || 0.001], backgroundColor: ['#4caf50', '#ef5350'], borderWidth: 0 }
+    ]
+  }
+})
+const budgetVarianceChartData = computed(() => {
+  const budget = plannedOutflow.value
+  const actual = actualOutflow.value
+  const dim = 'rgba(255,255,255,0.08)'
+  const used = 'rgba(255,255,255,0.15)'
+  if (budget <= 0 && actual <= 0)
+    return { datasets: [{ data: [1], backgroundColor: [dim], borderWidth: 0 }] }
+  const remaining = Math.max(0, budget - actual)
+  const over = Math.max(0, actual - budget)
+  if (over > 0)
+    return {
+      datasets: [{ data: [budget, over], backgroundColor: [used, '#ef5350'], borderWidth: 0 }]
+    }
+  return {
+    datasets: [
+      {
+        data: [actual || 0.001, remaining || 0.001],
+        backgroundColor: [used, '#4caf50'],
+        borderWidth: 0
+      }
+    ]
+  }
+})
 
 function addActual(actuals, categoryName, rawAmount) {
   if (!categoryName || !rawAmount) return

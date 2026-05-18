@@ -74,7 +74,6 @@
             </div>
             <div class="flex-grow-1">
               <div class="text-body-2 font-weight-bold">Income</div>
-              <div class="text-caption text-medium-emphasis">this month</div>
             </div>
             <div class="text-body-1 font-weight-black">+{{ formatCurrency(totalIncome) }}</div>
           </div>
@@ -89,9 +88,6 @@
             </div>
             <div class="flex-grow-1">
               <div class="text-body-2 font-weight-bold">Bills</div>
-              <div class="text-caption text-medium-emphasis">
-                {{ formatCurrency(billsRemaining) }} budget remaining
-              </div>
             </div>
             <div class="text-body-1 font-weight-black">
               {{ formatCurrency(billsActual) }}
@@ -105,9 +101,6 @@
             </div>
             <div class="flex-grow-1">
               <div class="text-body-2 font-weight-bold">Spending</div>
-              <div class="text-caption text-medium-emphasis">
-                {{ formatCurrency(variableRemaining) }} budget remaining
-              </div>
             </div>
             <div class="text-body-1 font-weight-black">
               {{ formatCurrency(variableActual) }}

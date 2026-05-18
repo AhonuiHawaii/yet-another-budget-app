@@ -1,215 +1,232 @@
 <template>
   <v-container fluid class="pa-6">
-    <!-- Tabs -->
-    <v-tabs v-model="activeTab" density="compact" class="mb-4">
-      <v-tab value="all">All Recurring</v-tab>
-      <v-tab value="calendar">Calendar</v-tab>
-    </v-tabs>
+    <v-sheet rounded elevation="2" class="pa-0">
+      <v-tabs v-model="activeTab" bg-color="surface-bright" color="on-surface" class="mb-4" grow>
+        <v-tab value="all">All Recurring</v-tab>
+        <v-tab value="calendar">Calendar</v-tab>
+      </v-tabs>
 
-    <v-tabs-window v-model="activeTab">
-      <!-- All Recurring Tab -->
-      <v-tabs-window-item value="all">
-        <div v-if="recurringLoading" class="d-flex justify-center pa-12">
-          <v-progress-circular indeterminate color="primary" />
-        </div>
-
-        <v-card v-else-if="!recurringGroups.length" rounded elevation="2">
-          <v-card-text class="d-flex flex-column align-center text-medium-emphasis pa-12">
-            <v-icon size="48" class="mb-4" style="opacity: 0.3" icon="mdi-calendar-sync" />
-            <div class="text-body-1">No recurring transactions detected yet.</div>
-            <div class="text-caption mt-1">Import more months of history to improve detection.</div>
-            <v-btn
-              class="mt-4"
-              size="small"
-              variant="tonal"
-              prepend-icon="mdi-refresh"
-              rounded="sm"
-              :loading="recurringLoading"
-              @click="rescan"
-              >Rescan</v-btn
-            >
-          </v-card-text>
-        </v-card>
-
-        <template v-else>
-          <div class="d-flex align-center mb-4">
-            <span class="text-body-2 text-medium-emphasis">
-              {{ recurringGroups.length }} recurring merchants detected
-            </span>
-            <v-spacer />
-            <v-btn
-              size="small"
-              variant="tonal"
-              prepend-icon="mdi-refresh"
-              rounded="sm"
-              :loading="recurringLoading"
-              @click="rescan"
-              >Rescan</v-btn
-            >
+      <v-tabs-window v-model="activeTab">
+        <!-- All Recurring Tab -->
+        <v-tabs-window-item value="all">
+          <div v-if="recurringLoading" class="d-flex justify-center pa-12">
+            <v-progress-circular indeterminate color="primary" />
           </div>
 
-          <!-- Column headers -->
-          <div
-            class="recurring-table-header text-caption text-uppercase font-weight-bold text-medium-emphasis px-4 mb-1"
-          >
-            <span>Name / Frequency</span>
-            <span>Account</span>
-            <span>Due</span>
-            <span class="text-right">Amount</span>
-          </div>
+          <v-card v-else-if="!recurringGroups.length" rounded elevation="2">
+            <v-card-text class="d-flex flex-column align-center text-medium-emphasis pa-12">
+              <v-icon size="48" class="mb-4" style="opacity: 0.3" icon="mdi-calendar-sync" />
+              <div class="text-body-1">No recurring transactions detected yet.</div>
+              <div class="text-caption mt-1">
+                Import more months of history to improve detection.
+              </div>
+              <v-btn
+                class="mt-4"
+                size="small"
+                variant="tonal"
+                prepend-icon="mdi-refresh"
+                rounded="sm"
+                :loading="recurringLoading"
+                @click="rescan"
+                >Rescan</v-btn
+              >
+            </v-card-text>
+          </v-card>
 
-          <v-list class="pa-0">
-            <v-list-item
-              v-for="group in recurringGroups"
-              :key="group.name"
-              rounded="lg"
-              class="mb-1 recurring-row px-4"
-            >
-              <!-- Avatar -->
-              <template #prepend>
-                <v-avatar color="primary" variant="tonal" size="36" rounded="sm" class="mr-3">
-                  <span class="text-caption font-weight-bold">{{ group.initials }}</span>
-                </v-avatar>
-              </template>
-
-              <!-- Name + frequency -->
-              <template #title>
-                <span class="text-body-2 font-weight-medium">{{ group.name }}</span>
-              </template>
-              <template #subtitle>
-                <span class="text-caption font-weight-medium text-success">{{
-                  group.frequency
-                }}</span>
-              </template>
-
-              <template #append>
-                <div class="recurring-row-append">
-                  <!-- Account -->
-                  <div class="recurring-col-account">
-                    <span class="text-caption text-medium-emphasis">{{
-                      group.lastFour ? `••••${group.lastFour}` : '—'
-                    }}</span>
-                  </div>
-
-                  <!-- Due -->
-                  <div class="recurring-col-due">
-                    <span
-                      v-if="group.dueLabel"
-                      class="text-caption font-weight-medium"
-                      :class="group.dueUrgent ? 'text-warning' : 'text-medium-emphasis'"
-                    >
-                      {{ group.dueLabel }}
-                    </span>
-                    <span v-else class="text-caption text-medium-emphasis">—</span>
-                  </div>
-
-                  <!-- Amount -->
-                  <div class="recurring-col-amount text-right">
-                    <span class="text-body-2 font-weight-bold">
-                      {{ formatCurrency(group.typicalAmount) }}
-                    </span>
-                  </div>
-
-                  <!-- Menu -->
-                  <v-menu>
-                    <template #activator="{ props: menuProps }">
-                      <v-btn
-                        v-bind="menuProps"
-                        icon="mdi-dots-vertical"
-                        variant="text"
-                        density="compact"
-                        size="small"
-                        class="ml-1"
-                      />
-                    </template>
-                    <v-list density="compact">
-                      <v-list-item
-                        title="Mark as not recurring"
-                        prepend-icon="mdi-close-circle-outline"
-                      />
-                    </v-list>
-                  </v-menu>
-                </div>
-              </template>
-            </v-list-item>
-          </v-list>
-        </template>
-      </v-tabs-window-item>
-
-      <!-- Calendar Tab -->
-      <v-tabs-window-item value="calendar">
-        <!-- Navigation -->
-        <div class="d-flex align-center gap-3 mb-6">
-          <v-btn icon="mdi-chevron-left" variant="text" density="comfortable" @click="prevMonth" />
-          <span class="text-h6 font-weight-bold calendar-title">{{ monthTitle }}</span>
-          <v-btn icon="mdi-chevron-right" variant="text" density="comfortable" @click="nextMonth" />
-          <v-btn size="small" variant="tonal" rounded="sm" @click="goToday">Today</v-btn>
-          <v-spacer />
-          <!-- Legend -->
-          <div class="d-flex align-center gap-3">
-            <v-chip color="warning" variant="flat" size="small" prepend-icon="mdi-calendar-month"
-              >Bill</v-chip
-            >
-            <v-chip color="error" variant="flat" size="small" prepend-icon="mdi-credit-card-outline"
-              >Debt</v-chip
-            >
-            <v-chip color="primary" variant="flat" size="small" prepend-icon="mdi-refresh"
-              >Recurring</v-chip
-            >
-          </div>
-        </div>
-
-        <!-- Day-of-week headers -->
-        <div class="cal-grid mb-1">
-          <div
-            v-for="d in ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']"
-            :key="d"
-            class="text-caption text-center text-uppercase font-weight-bold text-medium-emphasis py-2"
-          >
-            {{ d }}
-          </div>
-        </div>
-
-        <!-- Calendar cells -->
-        <div class="cal-grid">
-          <div
-            v-for="day in calendarDays"
-            :key="day.key"
-            class="cal-cell"
-            :class="{
-              'cal-cell--other': !day.currentMonth,
-              'cal-cell--today': day.isToday
-            }"
-          >
-            <div
-              class="cal-day-num text-caption font-weight-bold mb-1"
-              :class="day.isToday ? 'text-primary' : 'text-medium-emphasis'"
-            >
-              <span v-if="day.isToday">
-                <v-avatar color="primary" size="20" class="text-caption font-weight-bold">
-                  {{ day.date.getDate() }}
-                </v-avatar>
+          <template v-else>
+            <div class="d-flex align-center mb-4">
+              <span class="text-body-2 text-medium-emphasis">
+                {{ recurringGroups.length }} recurring merchants detected
               </span>
-              <span v-else>{{ day.date.getDate() }}</span>
+              <v-spacer />
+              <v-btn
+                size="small"
+                variant="tonal"
+                prepend-icon="mdi-refresh"
+                rounded="sm"
+                :loading="recurringLoading"
+                @click="rescan"
+                >Rescan</v-btn
+              >
             </div>
 
-            <template v-if="day.currentMonth">
-              <v-chip
-                v-for="evt in eventsByDay.get(day.key) || []"
-                :key="evt.id"
-                :color="evt.color"
-                size="x-small"
-                variant="flat"
-                class="cal-chip mb-1 cursor-pointer"
-                @click.stop="openEvent(evt)"
+            <!-- Column headers -->
+            <div
+              class="recurring-table-header text-caption text-uppercase font-weight-bold text-medium-emphasis px-4 mb-1"
+            >
+              <span>Name / Frequency</span>
+              <span>Account</span>
+              <span>Due</span>
+              <span class="text-right">Amount</span>
+            </div>
+
+            <v-list class="pa-0">
+              <v-list-item
+                v-for="group in recurringGroups"
+                :key="group.name"
+                rounded="lg"
+                class="mb-1 recurring-row px-4"
               >
-                <span class="cal-chip-label">{{ evt.name }}</span>
-              </v-chip>
-            </template>
+                <!-- Avatar -->
+                <template #prepend>
+                  <v-avatar color="primary" variant="tonal" size="36" rounded="sm" class="mr-3">
+                    <span class="text-caption font-weight-bold">{{ group.initials }}</span>
+                  </v-avatar>
+                </template>
+
+                <!-- Name + frequency -->
+                <template #title>
+                  <span class="text-body-2 font-weight-medium">{{ group.name }}</span>
+                </template>
+                <template #subtitle>
+                  <span class="text-caption font-weight-medium text-success">{{
+                    group.frequency
+                  }}</span>
+                </template>
+
+                <template #append>
+                  <div class="recurring-row-append">
+                    <!-- Account -->
+                    <div class="recurring-col-account">
+                      <span class="text-caption text-medium-emphasis">{{
+                        group.lastFour ? `••••${group.lastFour}` : '—'
+                      }}</span>
+                    </div>
+
+                    <!-- Due -->
+                    <div class="recurring-col-due">
+                      <span
+                        v-if="group.dueLabel"
+                        class="text-caption font-weight-medium"
+                        :class="group.dueUrgent ? 'text-warning' : 'text-medium-emphasis'"
+                      >
+                        {{ group.dueLabel }}
+                      </span>
+                      <span v-else class="text-caption text-medium-emphasis">—</span>
+                    </div>
+
+                    <!-- Amount -->
+                    <div class="recurring-col-amount text-right">
+                      <span class="text-body-2 font-weight-bold">
+                        {{ formatCurrency(group.typicalAmount) }}
+                      </span>
+                    </div>
+
+                    <!-- Menu -->
+                    <v-menu>
+                      <template #activator="{ props: menuProps }">
+                        <v-btn
+                          v-bind="menuProps"
+                          icon="mdi-dots-vertical"
+                          variant="text"
+                          density="compact"
+                          size="small"
+                          class="ml-1"
+                        />
+                      </template>
+                      <v-list density="compact">
+                        <v-list-item
+                          title="Mark as not recurring"
+                          prepend-icon="mdi-close-circle-outline"
+                        />
+                      </v-list>
+                    </v-menu>
+                  </div>
+                </template>
+              </v-list-item>
+            </v-list>
+          </template>
+        </v-tabs-window-item>
+
+        <!-- Calendar Tab -->
+        <v-tabs-window-item value="calendar">
+          <!-- Navigation -->
+          <div class="d-flex align-center gap-3 mb-6">
+            <v-btn
+              icon="mdi-chevron-left"
+              variant="text"
+              density="comfortable"
+              @click="prevMonth"
+            />
+            <span class="text-h6 font-weight-bold calendar-title">{{ monthTitle }}</span>
+            <v-btn
+              icon="mdi-chevron-right"
+              variant="text"
+              density="comfortable"
+              @click="nextMonth"
+            />
+            <v-btn size="small" variant="tonal" rounded="sm" @click="goToday">Today</v-btn>
+            <v-spacer />
+            <!-- Legend -->
+            <div class="d-flex align-center gap-3">
+              <v-chip color="warning" variant="flat" size="small" prepend-icon="mdi-calendar-month"
+                >Bill</v-chip
+              >
+              <v-chip
+                color="error"
+                variant="flat"
+                size="small"
+                prepend-icon="mdi-credit-card-outline"
+                >Debt</v-chip
+              >
+              <v-chip color="primary" variant="flat" size="small" prepend-icon="mdi-refresh"
+                >Recurring</v-chip
+              >
+            </div>
           </div>
-        </div>
-      </v-tabs-window-item>
-    </v-tabs-window>
+
+          <!-- Day-of-week headers -->
+          <div class="cal-grid mb-1">
+            <div
+              v-for="d in ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']"
+              :key="d"
+              class="text-caption text-center text-uppercase font-weight-bold text-medium-emphasis py-2"
+            >
+              {{ d }}
+            </div>
+          </div>
+
+          <!-- Calendar cells -->
+          <div class="cal-grid">
+            <div
+              v-for="day in calendarDays"
+              :key="day.key"
+              class="cal-cell"
+              :class="{
+                'cal-cell--other': !day.currentMonth,
+                'cal-cell--today': day.isToday
+              }"
+            >
+              <div
+                class="cal-day-num text-caption font-weight-bold mb-1"
+                :class="day.isToday ? 'text-primary' : 'text-medium-emphasis'"
+              >
+                <span v-if="day.isToday">
+                  <v-avatar color="primary" size="20" class="text-caption font-weight-bold">
+                    {{ day.date.getDate() }}
+                  </v-avatar>
+                </span>
+                <span v-else>{{ day.date.getDate() }}</span>
+              </div>
+
+              <template v-if="day.currentMonth">
+                <v-chip
+                  v-for="evt in eventsByDay.get(day.key) || []"
+                  :key="evt.id"
+                  :color="evt.color"
+                  size="x-small"
+                  variant="flat"
+                  class="cal-chip mb-1 cursor-pointer"
+                  @click.stop="openEvent(evt)"
+                >
+                  <span class="cal-chip-label">{{ evt.name }}</span>
+                </v-chip>
+              </template>
+            </div>
+          </div>
+        </v-tabs-window-item>
+      </v-tabs-window>
+    </v-sheet>
 
     <!-- Event Detail Dialog -->
     <v-dialog v-model="dialogOpen" max-width="420">

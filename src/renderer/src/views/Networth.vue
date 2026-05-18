@@ -1,9 +1,7 @@
 <template>
   <v-container fluid class="pa-6">
     <div class="d-flex align-center flex-wrap gap-3 mb-6">
-      <v-chip v-if="netWorthHistory.length === 0" variant="outlined" size="small">
-        No transaction history yet
-      </v-chip>
+
     </div>
 
     <v-alert v-if="reportError" type="error" variant="flat" class="mb-4">
@@ -30,38 +28,27 @@
       <v-col cols="12" sm="6" lg="3">
         <v-card class="h-100" rounded elevation="2">
           <v-card-text class="pa-4">
-            <div class="d-flex align-start justify-space-between mb-3">
-              <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis"
-                >Net Worth</span
-              >
-              <v-icon :color="netWorth >= 0 ? 'success' : 'error'" size="18" :opacity="0.4"
-                >mdi-scale-balance</v-icon
-              >
-            </div>
-            <div
-              class="text-h5 font-weight-black"
-              :class="netWorth >= 0 ? 'text-success' : 'text-error'"
-            >
-              {{ formatCurrency(netWorth) }}
-            </div>
-            <div class="text-caption text-medium-emphasis mt-1">Assets minus liabilities</div>
-          </v-card-text>
-        </v-card>
-      </v-col>
-      <v-col cols="12" sm="6" lg="3">
-        <v-card class="h-100" rounded elevation="2">
-          <v-card-text class="pa-4">
-            <div class="d-flex align-start justify-space-between mb-3">
-              <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis"
-                >Total Assets</span
-              >
-              <v-icon color="success" size="18" :opacity="0.4">mdi-bank-outline</v-icon>
-            </div>
-            <div class="text-h5 font-weight-black text-success">
-              {{ formatCurrency(totalAssets) }}
-            </div>
-            <div class="text-caption text-medium-emphasis mt-1">
-              {{ assetRows.length }} {{ assetRows.length === 1 ? 'account' : 'accounts' }}
+            <div class="d-flex align-center justify-space-between">
+              <div class="flex-grow-1">
+                <div class="d-flex align-center mb-2">
+                  <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis"
+                    >Net Worth</span
+                  >
+                  <v-spacer />
+                  <v-icon :color="netWorth >= 0 ? 'success' : 'error'" size="16" :opacity="0.4"
+                    >mdi-scale-balance</v-icon
+                  >
+                </div>
+                <div
+                  class="text-h5 font-weight-black"
+                  :class="netWorth >= 0 ? 'text-success' : 'text-error'"
+                >
+                  {{ formatCurrency(netWorth) }}
+                </div>
+              </div>
+              <div style="width: 68px; height: 68px; flex-shrink: 0; margin-left: 12px">
+                <Doughnut :data="netWorthChartData" :options="miniChartOptions" />
+              </div>
             </div>
           </v-card-text>
         </v-card>
@@ -69,17 +56,22 @@
       <v-col cols="12" sm="6" lg="3">
         <v-card class="h-100" rounded elevation="2">
           <v-card-text class="pa-4">
-            <div class="d-flex align-start justify-space-between mb-3">
-              <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis"
-                >Total Liabilities</span
-              >
-              <v-icon color="error" size="18" :opacity="0.4">mdi-credit-card-outline</v-icon>
-            </div>
-            <div class="text-h5 font-weight-black text-error">
-              {{ formatCurrency(totalLiabilities) }}
-            </div>
-            <div class="text-caption text-medium-emphasis mt-1">
-              {{ liabilityRows.length }} {{ liabilityRows.length === 1 ? 'account' : 'accounts' }}
+            <div class="d-flex align-center justify-space-between">
+              <div class="flex-grow-1">
+                <div class="d-flex align-center mb-2">
+                  <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis"
+                    >Total Assets</span
+                  >
+                  <v-spacer />
+                  <v-icon color="success" size="16" :opacity="0.4">mdi-bank-outline</v-icon>
+                </div>
+                <div class="text-h5 font-weight-black text-success">
+                  {{ formatCurrency(totalAssets) }}
+                </div>
+              </div>
+              <div style="width: 68px; height: 68px; flex-shrink: 0; margin-left: 12px">
+                <Doughnut :data="assetsChartData" :options="miniChartOptions" />
+              </div>
             </div>
           </v-card-text>
         </v-card>
@@ -87,21 +79,54 @@
       <v-col cols="12" sm="6" lg="3">
         <v-card class="h-100" rounded elevation="2">
           <v-card-text class="pa-4">
-            <div class="d-flex align-start justify-space-between mb-3">
-              <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis"
-                >Monthly Change</span
-              >
-              <v-icon :color="monthlyChange >= 0 ? 'success' : 'error'" size="18" :opacity="0.4">{{
-                monthlyChange >= 0 ? 'mdi-trending-up' : 'mdi-trending-down'
-              }}</v-icon>
+            <div class="d-flex align-center justify-space-between">
+              <div class="flex-grow-1">
+                <div class="d-flex align-center mb-2">
+                  <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis"
+                    >Total Liabilities</span
+                  >
+                  <v-spacer />
+                  <v-icon color="error" size="16" :opacity="0.4">mdi-credit-card-outline</v-icon>
+                </div>
+                <div class="text-h5 font-weight-black text-error">
+                  {{ formatCurrency(totalLiabilities) }}
+                </div>
+              </div>
+              <div style="width: 68px; height: 68px; flex-shrink: 0; margin-left: 12px">
+                <Doughnut :data="liabilitiesChartData" :options="miniChartOptions" />
+              </div>
             </div>
-            <div
-              class="text-h5 font-weight-black"
-              :class="monthlyChange >= 0 ? 'text-success' : 'text-error'"
-            >
-              {{ monthlyChange >= 0 ? '+' : '' }}{{ formatCurrency(monthlyChange) }}
+          </v-card-text>
+        </v-card>
+      </v-col>
+      <v-col cols="12" sm="6" lg="3">
+        <v-card class="h-100" rounded elevation="2">
+          <v-card-text class="pa-4">
+            <div class="d-flex align-center justify-space-between">
+              <div class="flex-grow-1">
+                <div class="d-flex align-center mb-2">
+                  <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis"
+                    >Monthly Change</span
+                  >
+                  <v-spacer />
+                  <v-icon
+                    :color="monthlyChange >= 0 ? 'success' : 'error'"
+                    size="16"
+                    :opacity="0.4"
+                    >{{ monthlyChange >= 0 ? 'mdi-trending-up' : 'mdi-trending-down' }}</v-icon
+                  >
+                </div>
+                <div
+                  class="text-h5 font-weight-black"
+                  :class="monthlyChange >= 0 ? 'text-success' : 'text-error'"
+                >
+                  {{ monthlyChange >= 0 ? '+' : '' }}{{ formatCurrency(monthlyChange) }}
+                </div>
+              </div>
+              <div style="width: 68px; height: 68px; flex-shrink: 0; margin-left: 12px">
+                <Doughnut :data="monthlyChangeChartData" :options="miniChartOptions" />
+              </div>
             </div>
-            <div class="text-caption text-medium-emphasis mt-1">vs. previous month</div>
           </v-card-text>
         </v-card>
       </v-col>
@@ -193,9 +218,10 @@
 
 <script setup>
 import { computed, onMounted, ref } from 'vue'
-import { Line } from 'vue-chartjs'
+import { Line, Doughnut } from 'vue-chartjs'
 import {
   Chart as ChartJS,
+  ArcElement,
   CategoryScale,
   LinearScale,
   PointElement,
@@ -209,6 +235,7 @@ import { useUserAccountsStore } from '../stores/userAccounts'
 import { useUserTransactionsStore } from '../stores/userTransactions'
 
 ChartJS.register(
+  ArcElement,
   CategoryScale,
   LinearScale,
   PointElement,
@@ -262,6 +289,71 @@ const liabilityRows = computed(() =>
 
 const totalAssets = computed(() => assetRows.value.reduce((sum, a) => sum + a.balance, 0))
 const totalLiabilities = computed(() => liabilityRows.value.reduce((sum, a) => sum + a.balance, 0))
+
+const miniChartOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  cutout: '72%',
+  plugins: { legend: { display: false }, tooltip: { enabled: false } },
+  animation: { duration: 300 }
+}
+
+const netWorthChartData = computed(() => {
+  const a = totalAssets.value
+  const l = totalLiabilities.value
+  const dim = 'rgba(255,255,255,0.08)'
+  if (a <= 0 && l <= 0) return { datasets: [{ data: [1], backgroundColor: [dim], borderWidth: 0 }] }
+  return {
+    datasets: [
+      { data: [a || 0.001, l || 0.001], backgroundColor: ['#4caf50', '#ef5350'], borderWidth: 0 }
+    ]
+  }
+})
+
+const assetsChartData = computed(() => {
+  const a = totalAssets.value
+  const l = totalLiabilities.value
+  const dim = 'rgba(255,255,255,0.08)'
+  const total = a + l
+  if (total <= 0) return { datasets: [{ data: [1], backgroundColor: [dim], borderWidth: 0 }] }
+  return {
+    datasets: [
+      { data: [a || 0.001, l || 0.001], backgroundColor: ['#4caf50', dim], borderWidth: 0 }
+    ]
+  }
+})
+
+const liabilitiesChartData = computed(() => {
+  const a = totalAssets.value
+  const l = totalLiabilities.value
+  const dim = 'rgba(255,255,255,0.08)'
+  const total = a + l
+  if (total <= 0) return { datasets: [{ data: [1], backgroundColor: [dim], borderWidth: 0 }] }
+  return {
+    datasets: [
+      { data: [l || 0.001, a || 0.001], backgroundColor: ['#ef5350', dim], borderWidth: 0 }
+    ]
+  }
+})
+
+const monthlyChangeChartData = computed(() => {
+  const change = monthlyChange.value
+  const dim = 'rgba(255,255,255,0.08)'
+  const prev = netWorth.value - change
+  const base = Math.abs(prev)
+  if (base <= 0 && Math.abs(change) <= 0)
+    return { datasets: [{ data: [1], backgroundColor: [dim], borderWidth: 0 }] }
+  const color = change >= 0 ? '#4caf50' : '#ef5350'
+  return {
+    datasets: [
+      {
+        data: [Math.abs(change) || 0.001, base || 0.001],
+        backgroundColor: [color, dim],
+        borderWidth: 0
+      }
+    ]
+  }
+})
 
 function formatCurrency(value) {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value || 0)
