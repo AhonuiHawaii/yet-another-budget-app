@@ -13,21 +13,23 @@
           <v-progress-circular indeterminate color="primary" />
         </div>
 
-        <div v-else-if="!recurringGroups.length" class="text-center text-medium-emphasis pa-12">
-          <v-icon size="48" class="mb-4 d-block" opacity="0.3">mdi-refresh</v-icon>
-          <div class="text-body-1">No recurring transactions detected yet.</div>
-          <div class="text-caption mt-1">Import more months of history to improve detection.</div>
-          <v-btn
-            class="mt-4"
-            size="small"
-            variant="tonal"
-            prepend-icon="mdi-refresh"
-            rounded="sm"
-            :loading="recurringLoading"
-            @click="rescan"
-            >Rescan</v-btn
-          >
-        </div>
+        <v-card v-else-if="!recurringGroups.length" rounded="lg" variant="tonal">
+          <v-card-text class="d-flex flex-column align-center text-medium-emphasis pa-12">
+            <v-icon size="48" class="mb-4" style="opacity: 0.3" icon="mdi-calendar-sync" />
+            <div class="text-body-1">No recurring transactions detected yet.</div>
+            <div class="text-caption mt-1">Import more months of history to improve detection.</div>
+            <v-btn
+              class="mt-4"
+              size="small"
+              variant="tonal"
+              prepend-icon="mdi-refresh"
+              rounded="sm"
+              :loading="recurringLoading"
+              @click="rescan"
+              >Rescan</v-btn
+            >
+          </v-card-text>
+        </v-card>
 
         <template v-else>
           <div class="d-flex align-center mb-4">

@@ -131,10 +131,17 @@ watch(monthMenu, (isOpen) => {
         :key="item.value"
         link
         :title="item.title"
-        :prepend-icon="item.icon"
         :active="item.value === currentView"
         @click="emit('change-view', item.value)"
-      />
+      >
+        <template #prepend>
+          <v-tooltip :text="item.title" location="right">
+            <template #activator="{ props: tipProps }">
+              <v-icon v-bind="tipProps" :icon="item.icon" />
+            </template>
+          </v-tooltip>
+        </template>
+      </v-list-item>
     </v-list>
 
     <template #append> </template>
