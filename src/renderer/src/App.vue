@@ -15,6 +15,7 @@ import Goals from './views/Goals.vue'
 import Rules from './views/Rules.vue'
 import Recurring from './views/Recurring.vue'
 import AppBar from './components/AppBar.vue'
+import AppFooter from './components/AppFooter.vue'
 
 const views = {
   Dashboard,
@@ -27,7 +28,8 @@ const views = {
   NetWorth,
   Goals,
   Rules,
-  Recurring
+  Recurring,
+  AppFooter
 }
 
 const currentView = ref('Dashboard')
@@ -69,5 +71,6 @@ onErrorCaptured((err) => {
       </v-alert>
       <component v-else :is="currentComponent" />
     </v-main>
+    <AppFooter />
   </v-app>
 </template>

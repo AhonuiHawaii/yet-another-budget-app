@@ -20,13 +20,13 @@
       </button>
     </div>
 
-    <div class="title-text">{{ productName }} {{ appVersion }} </div>
+    <div class="title-text">{{ productName }} {{ appVersion }}</div>
   </v-app-bar>
 </template>
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue'
-const appName = window.api?.name ?? ''
+// const appName = window.api?.name ?? ''
 const appVersion = window.api?.version ?? ''
 const productName = window.api?.productName ?? ''
 

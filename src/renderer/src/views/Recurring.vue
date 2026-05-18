@@ -13,7 +13,7 @@
           <v-progress-circular indeterminate color="primary" />
         </div>
 
-        <v-card v-else-if="!recurringGroups.length" rounded="lg" variant="tonal">
+        <v-card v-else-if="!recurringGroups.length" rounded elevation="2">
           <v-card-text class="d-flex flex-column align-center text-medium-emphasis pa-12">
             <v-icon size="48" class="mb-4" style="opacity: 0.3" icon="mdi-calendar-sync" />
             <div class="text-body-1">No recurring transactions detected yet.</div>
