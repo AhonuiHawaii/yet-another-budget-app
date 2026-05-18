@@ -230,18 +230,17 @@
     <v-slide-y-transition>
       <div v-if="selectedRows.length > 0" class="mb-3">
         <v-sheet rounded color="primary" class="pa-3 d-flex align-center gap-3">
-          <v-chip color="white" variant="flat" size="small" class="font-weight-bold">
-            {{ selectedRows.length }} selected
-          </v-chip>
-          <v-btn
-            size="small"
-            variant="flat"
-            color="white"
-            prepend-icon="mdi-tag-multiple-outline"
-            @click="openBulkCategoryDialog"
-          >
-            Set Category
-          </v-btn>
+          <v-btn-group variant="flat" color="white" size="small" divided>
+            <v-btn class="font-weight-bold" style="pointer-events: none">
+              {{ selectedRows.length }} selected
+            </v-btn>
+            <v-btn prepend-icon="mdi-tag-multiple-outline" @click="openBulkCategoryDialog">
+              Set Category
+            </v-btn>
+            <v-btn prepend-icon="mdi-account-edit-outline" @click="openBulkPayeeDialog">
+              Set Payee
+            </v-btn>
+          </v-btn-group>
           <v-spacer />
           <v-btn
             icon="mdi-close"
@@ -313,16 +312,6 @@
               density="compact"
               @click="openEditPayee(item)"
             />
-          </div>
-        </template>
-
-        <!-- Memo column -->
-        <template #item.MEMO="{ item }">
-          <div>
-            <div class="text-body-2">{{ item.MEMO }}</div>
-            <div v-if="item.notes" class="text-caption text-warning text-truncate">
-              {{ item.notes }}
-            </div>
           </div>
         </template>
 
@@ -428,37 +417,41 @@
           </div>
         </template>
 
-        <!-- Expanded Row for Splits -->
+        <!-- Expanded Row -->
         <template #expanded-row="{ columns, item }">
-          <tr v-if="item.splitCategory1 || item.splitCategory2">
-            <td :colspan="columns.length" class="pa-4 bg-surface-light">
-              <div class="text-caption text-uppercase text-medium-emphasis mb-2 font-weight-bold">
-                Split Details
-              </div>
-              <v-table density="compact" class="bg-transparent">
-                <tbody>
-                  <tr v-if="item.splitCategory1 || item.splitAmount1">
-                    <td class="pl-0 text-body-2">
-                      <v-chip color="secondary" variant="tonal" size="x-small">
-                        {{ categoryName(item.splitCategory1) || 'Uncategorized' }}
-                      </v-chip>
-                    </td>
-                    <td class="text-body-2 font-weight-medium">
-                      {{ formatCurrency(Math.abs(item.splitAmount1 || 0)) }}
-                    </td>
-                  </tr>
-                  <tr v-if="item.splitCategory2 || item.splitAmount2">
-                    <td class="pl-0 text-body-2">
-                      <v-chip color="secondary" variant="tonal" size="x-small">
-                        {{ categoryName(item.splitCategory2) || 'Uncategorized' }}
-                      </v-chip>
-                    </td>
-                    <td class="text-body-2 font-weight-medium">
-                      {{ formatCurrency(Math.abs(item.splitAmount2 || 0)) }}
-                    </td>
-                  </tr>
-                </tbody>
-              </v-table>
+          <tr>
+            <td :colspan="columns.length" class="px-4 py-2 bg-surface-light">
+              <div class="text-caption mb-3 text-center" style="font-family: monospace">{{ item.MEMO || '—' }}</div>
+
+              <template v-if="item.splitCategory1 || item.splitCategory2">
+                <div class="text-caption text-uppercase text-medium-emphasis mb-2 font-weight-bold">
+                  Split Details
+                </div>
+                <v-table density="compact" class="bg-transparent">
+                  <tbody>
+                    <tr v-if="item.splitCategory1 || item.splitAmount1">
+                      <td class="pl-0 text-body-2">
+                        <v-chip color="secondary" variant="tonal" size="x-small">
+                          {{ categoryName(item.splitCategory1) || 'Uncategorized' }}
+                        </v-chip>
+                      </td>
+                      <td class="text-body-2 font-weight-medium">
+                        {{ formatCurrency(Math.abs(item.splitAmount1 || 0)) }}
+                      </td>
+                    </tr>
+                    <tr v-if="item.splitCategory2 || item.splitAmount2">
+                      <td class="pl-0 text-body-2">
+                        <v-chip color="secondary" variant="tonal" size="x-small">
+                          {{ categoryName(item.splitCategory2) || 'Uncategorized' }}
+                        </v-chip>
+                      </td>
+                      <td class="text-body-2 font-weight-medium">
+                        {{ formatCurrency(Math.abs(item.splitAmount2 || 0)) }}
+                      </td>
+                    </tr>
+                  </tbody>
+                </v-table>
+              </template>
             </td>
           </tr>
         </template>
@@ -767,6 +760,55 @@
       </v-card>
     </v-dialog>
 
+    <!-- Bulk Payee Dialog -->
+    <v-dialog v-model="bulkPayeeDialog" max-width="420">
+      <v-card rounded>
+        <v-card-title class="pa-6 pb-4">
+          <div class="d-flex align-center justify-space-between">
+            <div class="d-flex align-center gap-3">
+              <v-icon color="primary" size="20">mdi-account-edit-outline</v-icon>
+              <span class="text-h6 font-weight-bold">Set Payee</span>
+            </div>
+            <v-btn
+              icon="mdi-close"
+              variant="text"
+              density="compact"
+              @click="bulkPayeeDialog = false"
+            />
+          </div>
+        </v-card-title>
+
+        <v-divider />
+
+        <v-card-text class="pa-6">
+          <div class="text-body-2 text-medium-emphasis mb-4">
+            Apply to <strong>{{ selectedRows.length }}</strong> selected transaction{{
+              selectedRows.length === 1 ? '' : 's'
+            }}.
+          </div>
+          <v-text-field
+            v-model="bulkPayeeValue"
+            label="Payee"
+            variant="solo"
+            inset
+            density="comfortable"
+            hide-details
+            autofocus
+            clearable
+            @keyup.enter="saveBulkPayee"
+          />
+        </v-card-text>
+
+        <v-card-actions class="pa-6 pt-0">
+          <v-spacer />
+          <v-btn variant="text" @click="bulkPayeeDialog = false">Cancel</v-btn>
+          <v-btn color="primary" variant="flat" :loading="store.loading" @click="saveBulkPayee">
+            Apply
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
     <!-- Create Rule from Transaction Dialog -->
     <v-dialog v-model="ruleDialog" max-width="520" persistent>
       <v-card rounded="sm">
@@ -988,6 +1030,24 @@ async function saveBulkCategory() {
   selectedRows.value = []
 }
 
+// ── Bulk Payee ────────────────────────────────────────────────────────────────
+const bulkPayeeDialog = ref(false)
+const bulkPayeeValue = ref('')
+
+function openBulkPayeeDialog() {
+  bulkPayeeValue.value = ''
+  bulkPayeeDialog.value = true
+}
+
+async function saveBulkPayee() {
+  const NAME = bulkPayeeValue.value.trim() || null
+  await Promise.all(
+    selectedRows.value.map((item) => store.editTransaction(item.FITID, { NAME }))
+  )
+  bulkPayeeDialog.value = false
+  selectedRows.value = []
+}
+
 // ── Import dialog ────────────────────────────────────────────────────────────
 const importDialog = ref(false)
 const selectedFile = ref(null)
@@ -1153,7 +1213,6 @@ const typeOptions = [
 const headers = [
   { title: 'Date', key: 'DTPOSTED', width: '120px', sortable: true },
   { title: 'Payee', key: 'NAME', sortable: false },
-  { title: 'Memo', key: 'MEMO', sortable: false },
   { title: 'Amount', key: 'TRNAMT', width: '130px', sortable: true, align: 'end' },
   { title: 'Type', key: 'transactionType', width: '120px', sortable: true },
   { title: 'Category', key: 'category', width: '180px', sortable: true },
