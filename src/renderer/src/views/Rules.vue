@@ -330,6 +330,14 @@
         :items-per-page-options="[10, 25, 50]"
         hover
       >
+        <template #item.operator="{ item }">
+          <span class="text-body-2 text-medium-emphasis font-italic">{{ item.operator }}</span>
+        </template>
+
+        <template #item.name="{ item }">
+          <span class="text-body-2 font-weight-medium">"{{ item.name }}"</span>
+        </template>
+
         <template #item.actions="{ item }">
           <div class="d-flex align-center justify-end gap-1">
             <v-btn
@@ -374,17 +382,50 @@
         <v-divider />
 
         <v-card-text class="pa-6">
-          <v-text-field
-            v-model="crForm.name"
-            label="Match phrase"
-            variant="solo"
-            inset
-            density="comfortable"
-            rounded="sm"
-            hide-details
-            autofocus
-            hint="Matches against transaction name/memo (case-insensitive)"
-          />
+          <v-row>
+            <v-col cols="6">
+              <v-select
+                model-value="MEMO"
+                :items="['MEMO']"
+                label="Field"
+                variant="solo"
+                inset
+                density="comfortable"
+                rounded="sm"
+                hide-details
+                disabled
+              />
+            </v-col>
+
+            <v-col cols="6">
+              <v-select
+                v-model="crForm.operator"
+                :items="crOperatorOptions"
+                item-title="label"
+                item-value="value"
+                label="Operator"
+                variant="solo"
+                inset
+                density="comfortable"
+                rounded="sm"
+                hide-details
+              />
+            </v-col>
+
+            <v-col cols="12" class="mt-3">
+              <v-text-field
+                v-model="crForm.name"
+                label="Match value"
+                variant="solo"
+                inset
+                density="comfortable"
+                rounded="sm"
+                persistent-hint
+                :hint="crOperatorHint"
+                autofocus
+              />
+            </v-col>
+          </v-row>
         </v-card-text>
 
         <v-card-actions class="pa-6 pt-0">
@@ -586,23 +627,43 @@ async function applyToCurrentMonth() {
 // ── Custom Recurring ──────────────────────────────────────────────────────────
 
 const crHeaders = [
+  { title: 'Operator', key: 'operator', width: '120px', sortable: false },
   { title: 'Match phrase', key: 'name', sortable: true },
   { title: '', key: 'actions', width: '80px', sortable: false, align: 'end' }
 ]
 
+const crOperatorOptions = [
+  { label: 'contains', value: 'contains' },
+  { label: 'equals', value: 'equals' },
+  { label: 'starts with', value: 'startsWith' },
+  { label: 'whole words', value: 'wholeWord' }
+]
+
+const crOperatorHint = computed(
+  () =>
+    ({
+      contains: 'Memo contains this phrase anywhere — e.g. "GOOGLE *SPOTIFY" matches the full memo',
+      equals: 'Must match the full memo exactly',
+      startsWith: 'Memo must begin with this value',
+      wholeWord: 'e.g. "gas" matches "gas station" but not "gasoline"'
+    })[crForm.value.operator] ?? ''
+)
+
+const crBlankForm = () => ({ name: '', operator: 'contains' })
+
 const crDialog = ref(false)
 const crEditTarget = ref(null)
-const crForm = ref({ name: '' })
+const crForm = ref(crBlankForm())
 
 function crOpenAdd() {
   crEditTarget.value = null
-  crForm.value = { name: '' }
+  crForm.value = crBlankForm()
   crDialog.value = true
 }
 
 function crOpenEdit(item) {
   crEditTarget.value = item
-  crForm.value = { name: item.name }
+  crForm.value = { name: item.name, operator: item.operator ?? 'contains' }
   crDialog.value = true
 }
 
@@ -612,10 +673,11 @@ function crClose() {
 }
 
 async function crSave() {
+  const payload = { name: crForm.value.name, operator: crForm.value.operator }
   if (crEditTarget.value) {
-    await crStore.editEntry(crEditTarget.value.id, { name: crForm.value.name })
+    await crStore.editEntry(crEditTarget.value.id, payload)
   } else {
-    await crStore.createEntry({ name: crForm.value.name })
+    await crStore.createEntry(payload)
   }
   if (!crStore.error) crClose()
 }

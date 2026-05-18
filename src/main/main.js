@@ -27,7 +27,8 @@ import {
   getCustomRecurring,
   createCustomRecurring as dbCreateCustomRecurring,
   updateCustomRecurring as dbUpdateCustomRecurring,
-  deleteCustomRecurring as dbDeleteCustomRecurring
+  deleteCustomRecurring as dbDeleteCustomRecurring,
+  matchesCustomEntry
 } from './db.js'
 
 /*
@@ -85,8 +86,7 @@ export const importTransactions = async (ofxData) => {
     const customEntries = getCustomRecurring()
     if (customEntries.length) {
       for (const tx of transactions) {
-        const memo = (tx.MEMO || '').toLowerCase()
-        if (customEntries.some((e) => memo.includes(e.name.toLowerCase()))) {
+        if (customEntries.some((e) => matchesCustomEntry(tx.MEMO, e))) {
           updateTransaction(tx.FITID, { recurring: 1 })
         }
       }

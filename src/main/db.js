@@ -505,22 +505,35 @@ db.exec(`
   CREATE TABLE IF NOT EXISTS CustomRecurring (
     id          INTEGER PRIMARY KEY AUTOINCREMENT,
     name        TEXT NOT NULL,
+    operator    TEXT NOT NULL DEFAULT 'contains',
     createdAt   TEXT DEFAULT CURRENT_TIMESTAMP
   )
 `)
+try { db.exec(`ALTER TABLE CustomRecurring ADD COLUMN operator TEXT NOT NULL DEFAULT 'contains'`) } catch {}
+
+function matchesCustomEntry(memo, entry) {
+  const haystack = (memo || '').toLowerCase()
+  const needle = (entry.name || '').toLowerCase()
+  switch (entry.operator) {
+    case 'equals':    return haystack === needle
+    case 'startsWith': return haystack.startsWith(needle)
+    case 'wholeWord': return new RegExp(`\\b${needle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`).test(haystack)
+    default:          return haystack.includes(needle) // contains
+  }
+}
 
 function getCustomRecurring() {
   return db.prepare('SELECT * FROM CustomRecurring ORDER BY name ASC').all()
 }
 
 function createCustomRecurring(entry) {
-  const stmt = db.prepare(`INSERT INTO CustomRecurring (name) VALUES (@name)`)
-  const info = stmt.run({ name: entry.name })
+  const stmt = db.prepare(`INSERT INTO CustomRecurring (name, operator) VALUES (@name, @operator)`)
+  const info = stmt.run({ name: entry.name, operator: entry.operator ?? 'contains' })
   return db.prepare('SELECT * FROM CustomRecurring WHERE id = ?').get(info.lastInsertRowid)
 }
 
 function updateCustomRecurring(id, updates) {
-  const ALLOWED = new Set(['name'])
+  const ALLOWED = new Set(['name', 'operator'])
   const entries = Object.entries(updates).filter(([col]) => ALLOWED.has(col))
   if (entries.length === 0) return 0
   const setClause = entries.map(([col]) => `${col} = ?`).join(', ')
@@ -737,7 +750,8 @@ export {
   getCustomRecurring,
   createCustomRecurring,
   updateCustomRecurring,
-  deleteCustomRecurring
+  deleteCustomRecurring,
+  matchesCustomEntry
 }
 
 function runRescanRecurring() {
@@ -749,8 +763,7 @@ function runRescanRecurring() {
       .prepare(`SELECT FITID, MEMO FROM Transactions WHERE TRNAMT < 0`)
       .all()
     for (const row of rows) {
-      const memo = (row.MEMO || '').toLowerCase()
-      if (customEntries.some((e) => memo.includes(e.name.toLowerCase()))) {
+      if (customEntries.some((e) => matchesCustomEntry(row.MEMO, e))) {
         customFitids.add(row.FITID)
       }
     }
