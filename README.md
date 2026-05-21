@@ -8,7 +8,7 @@ YABA is built for people who want to manage their money from bank export files w
 
 Download the latest installer from the [GitHub Releases](../../releases) page.
 
-Grab the latest Windows installer (`YABA-<version>-setup.exe`), run it, then open YABA from the Start menu or desktop shortcut.
+Grab the latest Windows installer (`YABA-1.7.1-setup.exe`), run it, then open YABA from the Start menu or desktop shortcut.
 
 If a release is not available yet, you can build the app from source using the instructions near the bottom of this README.
 
