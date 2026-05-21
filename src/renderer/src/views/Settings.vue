@@ -68,6 +68,60 @@
             </v-row>
           </v-card-text>
         </v-card>
+
+        <v-card rounded elevation="2" class="mb-3">
+          <v-card-item class="pa-4 pb-0">
+            <template #prepend>
+              <v-icon color="primary" size="20" :opacity="0.7">mdi-shield-lock-outline</v-icon>
+            </template>
+            <v-card-title class="text-h6 font-weight-bold pl-2">Privacy &amp; Data</v-card-title>
+          </v-card-item>
+
+          <v-card-text class="pt-3">
+            <v-alert
+              type="success"
+              variant="tonal"
+              icon="mdi-lan-disconnect"
+              class="mb-3"
+              border="start"
+            >
+              <div class="font-weight-bold mb-1">Your data never leaves this device.</div>
+              <div class="text-body-2">
+                YABA does not transmit, sync, or upload any of your financial data to any server, website, cloud, or third party. There are no accounts, no telemetry, and no analytics.
+              </div>
+            </v-alert>
+
+            <v-list density="compact" class="bg-transparent pa-0">
+              <v-list-item prepend-icon="mdi-database-lock" class="px-0">
+                <v-list-item-title class="font-weight-medium">Encrypted at rest</v-list-item-title>
+                <v-list-item-subtitle class="text-wrap">
+                  The local database is encrypted with a 256-bit key.
+                </v-list-item-subtitle>
+              </v-list-item>
+
+              <v-list-item prepend-icon="mdi-account-lock" class="px-0">
+                <v-list-item-title class="font-weight-medium">Tied to your user account</v-list-item-title>
+                <v-list-item-subtitle class="text-wrap">
+                  The encryption key is sealed to your operating-system user (DPAPI on Windows). Other users on this computer cannot open your data.
+                </v-list-item-subtitle>
+              </v-list-item>
+
+              <v-list-item prepend-icon="mdi-archive-lock" class="px-0">
+                <v-list-item-title class="font-weight-medium">Encrypted backups</v-list-item-title>
+                <v-list-item-subtitle class="text-wrap">
+                  Backup exports use AES-256-GCM with a passphrase you choose. Backups are stored wherever you save them — never uploaded.
+                </v-list-item-subtitle>
+              </v-list-item>
+
+              <v-list-item prepend-icon="mdi-bank-off-outline" class="px-0">
+                <v-list-item-title class="font-weight-medium">No bank login</v-list-item-title>
+                <v-list-item-subtitle class="text-wrap">
+                  YABA reads only the OFX/QFX files you select manually. It never contacts your bank.
+                </v-list-item-subtitle>
+              </v-list-item>
+            </v-list>
+          </v-card-text>
+        </v-card>
       </v-col>
     </v-row>
   </v-container>

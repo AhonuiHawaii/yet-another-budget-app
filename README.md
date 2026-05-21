@@ -66,16 +66,19 @@ Restoring a backup overwrites the current app database. After a restore, restart
 
 ## Privacy And Storage
 
-YABA keeps your budget data on your own computer. The local database is encrypted with a 256-bit key, and Windows locks that key to your user account so another Windows user cannot simply open your database.
+**Your data never leaves your computer.** YABA does not transmit, sync, upload, or share any of your financial data with any server, website, cloud service, or third party. There are no accounts to create, no telemetry, no analytics, and no network calls that send your data out. The app runs entirely on your machine.
 
-When you export an encrypted backup, YABA protects that backup with AES-256-GCM encryption using the passphrase you choose.
+**Your data is encrypted at rest.** The local database is encrypted with a 256-bit key. On Windows, that key is sealed to your operating-system user account using DPAPI, so another user on the same computer cannot open your database — only the logged-in user who created it can.
+
+**Encrypted backups.** When you export an encrypted backup, YABA protects it with AES-256-GCM using the passphrase you choose. The backup file is yours to store wherever you want; YABA never uploads it.
 
 Important notes:
 
-- The app is designed for local use.
-- OFX/QFX files are read from files you choose manually.
+- The app is designed for fully local, offline use.
+- OFX/QFX files are read only from files you select manually on your own disk.
+- YABA does not log in to your bank, see your bank credentials, or contact your bank in any way.
 - Removing an account from YABA only removes it from the app. It does not affect your bank account.
-- Plain JSON exports are not encrypted.
+- Plain JSON exports are *not* encrypted — handle them like any other sensitive file.
 
 ## Main Screens
 
