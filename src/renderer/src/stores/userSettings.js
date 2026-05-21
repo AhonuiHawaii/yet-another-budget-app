@@ -2,6 +2,8 @@ import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 
 const SELECTED_MONTH_KEY = 'budget.selectedMonth'
+const THEME_KEY = 'budget.theme'
+const DEFAULT_THEME = 'pastelLight'
 
 function getCurrentMonth() {
   const now = new Date()
@@ -31,8 +33,15 @@ function formatMonth(value) {
 
 export const useUserSettingsStore = defineStore('userSettings', () => {
   const selectedMonth = ref(readStoredMonth() || getCurrentMonth())
+  const theme = ref(localStorage.getItem(THEME_KEY) || DEFAULT_THEME)
 
   const selectedMonthLabel = computed(() => formatMonth(selectedMonth.value))
+
+  function setTheme(newTheme) {
+    if (!newTheme) return
+    theme.value = newTheme
+    localStorage.setItem(THEME_KEY, newTheme)
+  }
 
   function setSelectedMonth(month) {
     if (!isValidMonth(month)) return
@@ -62,6 +71,8 @@ export const useUserSettingsStore = defineStore('userSettings', () => {
     selectedMonthLabel,
     setSelectedMonth,
     setSelectedMonthFromDate,
-    initializeSelectedMonth
+    initializeSelectedMonth,
+    theme,
+    setTheme
   }
 })

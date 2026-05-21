@@ -130,8 +130,10 @@
 <script setup>
 import { ref } from 'vue'
 import { useTheme } from 'vuetify'
+import { useUserSettingsStore } from '../stores/userSettings'
 
 const theme = useTheme()
+const userSettings = useUserSettingsStore()
 
 const baseThemes = [
   { title: 'Pastel', value: 'pastel' },
@@ -170,6 +172,7 @@ const updateTheme = () => {
   } else {
     theme.global.name.value = newTheme
   }
+  userSettings.setTheme(newTheme)
 }
 
 const selectTheme = (baseValue) => {
