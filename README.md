@@ -66,9 +66,9 @@ Restoring a backup overwrites the current app database. After a restore, restart
 
 ## Privacy And Storage
 
-YABA stores its working database locally on your computer. The database is encrypted, and the encryption key is protected for the current Windows user account.
+YABA keeps your budget data on your own computer. The local database is encrypted with a 256-bit key, and Windows locks that key to your user account so another Windows user cannot simply open your database.
 
-Backups are encrypted separately with the passphrase you choose.
+When you export an encrypted backup, YABA protects that backup with AES-256-GCM encryption using the passphrase you choose.
 
 Important notes:
 
