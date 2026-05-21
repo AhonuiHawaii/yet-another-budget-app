@@ -11,19 +11,6 @@ const shape = {
   'radius-tooltip': '4px'
 }
 
-const md3Shape = {
-  'radius-btn': '20px',
-  'radius-btn-icon': '20px',
-  'radius-btn-fab': '16px',
-  'radius-card': '12px',
-  'radius-chip': '8px',
-  'radius-dialog': '28px',
-  'radius-input': '4px',
-  'radius-menu': '4px',
-  'radius-snackbar': '4px',
-  'radius-tooltip': '4px'
-}
-
 export const blueGreyDark = {
   dark: true,
   colors: {
@@ -143,7 +130,7 @@ export const pastelDark = {
     'on-success': '#183823',
     'on-warning': '#3E2D00'
   },
-  variables: md3Shape
+  variables: shape
 }
 
 export const pastelLight = {
@@ -201,9 +188,132 @@ export const pastelLight = {
     'on-success': '#FFFFFF',
     'on-warning': '#FFFFFF'
   },
-  variables: md3Shape
+  variables: shape
 }
 
-const themes = { blueGreyDark, blueGreyLight, pastelDark, pastelLight }
+export const blackWhiteDark = {
+  dark: true,
+  colors: {
+    background: '#000000',
+    surface: '#000000',
+    'surface-dim': '#000000',
+    'surface-bright': '#424242',
+    'surface-light': '#212121',
+    'surface-variant': '#424242',
+    'surface-container-lowest': '#000000',
+    'surface-container-low': '#121212',
+    'surface-container': '#212121',
+    'surface-container-high': '#424242',
+    'surface-container-highest': '#616161',
+
+    primary: '#FFFFFF',
+    'on-primary': '#000000',
+    'primary-container': '#E0E0E0',
+    'on-primary-container': '#000000',
+    'primary-darken-1': '#BDBDBD',
+
+    secondary: '#E0E0E0',
+    'on-secondary': '#000000',
+    'secondary-container': '#424242',
+    'on-secondary-container': '#FFFFFF',
+    'secondary-darken-1': '#BDBDBD',
+
+    tertiary: '#BDBDBD',
+    'on-tertiary': '#000000',
+    'tertiary-container': '#616161',
+    'on-tertiary-container': '#FFFFFF',
+
+    error: '#FFB4AB',
+    'on-error': '#690005',
+    'error-container': '#93000A',
+    'on-error-container': '#FFDAD6',
+
+    info: '#BDBDBD',
+    success: '#E0E0E0',
+    warning: '#FAFAFA',
+
+    'on-background': '#FFFFFF',
+    'on-surface': '#FFFFFF',
+    'on-surface-variant': '#E0E0E0',
+    outline: '#9E9E9E',
+    'outline-variant': '#424242',
+    shadow: '#000000',
+    scrim: '#000000',
+    'inverse-surface': '#FFFFFF',
+    'inverse-on-surface': '#212121',
+    'inverse-primary': '#616161',
+    'on-info': '#000000',
+    'on-success': '#000000',
+    'on-warning': '#000000'
+  },
+  variables: shape
+}
+
+export const blackWhiteLight = {
+  dark: false,
+  colors: {
+    background: '#FFFFFF',
+    surface: '#FFFFFF',
+    'surface-dim': '#E0E0E0',
+    'surface-bright': '#FFFFFF',
+    'surface-light': '#FAFAFA',
+    'surface-variant': '#E0E0E0',
+    'surface-container-lowest': '#FFFFFF',
+    'surface-container-low': '#FAFAFA',
+    'surface-container': '#F5F5F5',
+    'surface-container-high': '#EEEEEE',
+    'surface-container-highest': '#E0E0E0',
+
+    primary: '#000000',
+    'on-primary': '#FFFFFF',
+    'primary-container': '#212121',
+    'on-primary-container': '#FFFFFF',
+    'primary-darken-1': '#000000',
+
+    secondary: '#424242',
+    'on-secondary': '#FFFFFF',
+    'secondary-container': '#E0E0E0',
+    'on-secondary-container': '#000000',
+    'secondary-darken-1': '#212121',
+
+    tertiary: '#616161',
+    'on-tertiary': '#FFFFFF',
+    'tertiary-container': '#EEEEEE',
+    'on-tertiary-container': '#000000',
+
+    error: '#BA1A1A',
+    'on-error': '#FFFFFF',
+    'error-container': '#FFDAD6',
+    'on-error-container': '#410002',
+
+    info: '#424242',
+    success: '#212121',
+    warning: '#616161',
+
+    'on-background': '#000000',
+    'on-surface': '#000000',
+    'on-surface-variant': '#424242',
+    outline: '#757575',
+    'outline-variant': '#BDBDBD',
+    shadow: '#000000',
+    scrim: '#000000',
+    'inverse-surface': '#212121',
+    'inverse-on-surface': '#FFFFFF',
+    'inverse-primary': '#E0E0E0',
+    'on-info': '#FFFFFF',
+    'on-success': '#FFFFFF',
+    'on-warning': '#FFFFFF'
+  },
+  variables: shape
+}
+
+const themes = {
+  blueGreyDark,
+  blueGreyLight,
+  pastelDark,
+  pastelLight,
+  blackWhiteDark,
+  blackWhiteLight
+}
 
 export default themes
