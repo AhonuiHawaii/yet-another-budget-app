@@ -29,6 +29,9 @@ importers:
       better-sqlite3-multiple-ciphers:
         specifier: ^12.9.0
         version: 12.9.0
+      bindings:
+        specifier: ^1.5.0
+        version: 1.5.0
       chart.js:
         specifier: ^4.5.1
         version: 4.5.1
@@ -38,6 +41,9 @@ importers:
       electron-updater:
         specifier: ^6.3.9
         version: 6.8.3
+      file-uri-to-path:
+        specifier: ^1.0.0
+        version: 1.0.0
       material-icons:
         specifier: ^1.13.14
         version: 1.13.14

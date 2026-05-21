@@ -1,8 +1,6 @@
 <template>
   <v-container fluid class="pa-6">
-    <div class="d-flex align-center flex-wrap gap-3 mb-6">
-
-    </div>
+    <div class="d-flex align-center flex-wrap gap-3 mb-6"></div>
 
     <v-alert v-if="reportError" type="error" variant="flat" class="mb-4">
       {{ reportError }}
