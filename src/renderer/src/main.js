@@ -13,7 +13,7 @@ import themes from './theme'
 
 const vuetify = createVuetify({
   theme: {
-    defaultTheme: 'blueGreyDark',
+    defaultTheme: 'pastelLight',
     themes
   }
 })
