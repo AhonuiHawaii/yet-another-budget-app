@@ -15,7 +15,7 @@ const navItems = [
   { title: 'Budgets', value: 'Budgets', icon: 'mdi-calculator-variant-outline' },
   { title: 'Net Worth', value: 'NetWorth', icon: 'mdi-chart-bar' },
   { title: 'Transactions', value: 'Transactions', icon: 'mdi-magnify' },
-  { title: 'Backup & Restore', value: 'Backup', icon: 'mdi-backup' },
+  { title: 'Backup & Restore', value: 'Backup', icon: 'mdi-database-sync' },
   { title: 'Auto-Rules', value: 'Rules', icon: 'mdi-tag-multiple-outline' }
 ]
 
