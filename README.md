@@ -156,6 +156,10 @@ If you find a bug, open a GitHub issue and include:
 
 Do not attach OFX, QFX, database, backup, or JSON export files unless you have removed all private financial data.
 
+## License
+
+Released under the [MIT License](LICENSE).
+
 ## Security
 
 YABA handles sensitive financial data. Please do not post personal financial files, screenshots with account details, or backup passphrases in public issues.
