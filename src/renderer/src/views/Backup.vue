@@ -73,6 +73,24 @@
         </v-row>
       </v-card-text>
     </v-card>
+
+    <v-dialog v-model="showConfirmDialog" max-width="400" persistent>
+      <v-card rounded="sm">
+        <v-card-title class="pa-6 pb-4 text-h6 font-weight-bold">
+          Confirm Restore
+        </v-card-title>
+        <v-card-text class="pa-6 pt-0 text-body-1">
+          Restoring a backup will overwrite your current database. Are you sure you want to proceed?
+        </v-card-text>
+        <v-card-actions class="pa-6 pt-0">
+          <v-spacer />
+          <v-btn variant="tonal" rounded="sm" @click="showConfirmDialog = false">Cancel</v-btn>
+          <v-btn color="error" variant="flat" rounded="sm" @click="confirmImport" :loading="isImporting">
+            Yes, Overwrite
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -82,6 +100,7 @@ import { ref, computed } from 'vue'
 const passphrase = ref('')
 const isExporting = ref(false)
 const isImporting = ref(false)
+const showConfirmDialog = ref(false)
 const error = ref('')
 const success = ref('')
 
@@ -108,14 +127,11 @@ async function handleExport() {
   }
 }
 
-async function handleImport() {
-  if (
-    !confirm(
-      'Restoring a backup will overwrite your current database. Are you sure you want to proceed?'
-    )
-  ) {
-    return
-  }
+function handleImport() {
+  showConfirmDialog.value = true
+}
+
+async function confirmImport() {
   error.value = ''
   success.value = ''
   isImporting.value = true
@@ -123,9 +139,11 @@ async function handleImport() {
     const res = await window.electron.ipcRenderer.invoke('backup:import', passphrase.value)
     if (res.canceled) {
       // User canceled dialog, do nothing
+      showConfirmDialog.value = false
     } else if (res.success) {
-      success.value = 'Backup restored successfully. Restarting application...'
+      success.value = 'Backup restored successfully. Please restart the application to load your restored data.'
       passphrase.value = ''
+      showConfirmDialog.value = false
     } else {
       error.value = res.error || 'Failed to restore backup.'
     }

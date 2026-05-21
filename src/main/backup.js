@@ -30,7 +30,14 @@ export function setupBackupHandlers() {
 
       // 2. Perform a safe backup of the active SQLite database
       const tempDbPath = path.join(DB_DIR, `budget_temp_${Date.now()}.db`)
-      await db.backup(tempDbPath)
+      const DB_PATH = path.join(DB_DIR, 'budget.db')
+      
+      // Force all WAL data into the main database file safely
+      db.pragma('wal_checkpoint(TRUNCATE)')
+      
+      // Since fs.copyFileSync is synchronous, no other JS code can write
+      // to the DB during the copy, making this a safe snapshot of the main file.
+      fs.copyFileSync(DB_PATH, tempDbPath)
 
       // 3. Setup encryption (AES-256-GCM)
       const salt = crypto.randomBytes(16)
@@ -175,10 +182,7 @@ export function setupBackupHandlers() {
       const protectedKey = dpapi.protectData(Buffer.from(rawKey), null, 'CurrentUser')
       fs.writeFileSync(KEY_PATH, protectedKey)
 
-      // 4. Relaunch app to initialize new database
-      app.relaunch()
-      app.exit(0)
-
+      // 4. Return success (UI will prompt user to restart)
       return { success: true }
     } catch (err) {
       console.error('Import Backup Error:', err)
