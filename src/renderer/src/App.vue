@@ -30,7 +30,7 @@ const views = {
   Goals,
   Rules,
   Recurring,
-  AppFooter
+  AppFooter,
   Backup
 }
 

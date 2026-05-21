@@ -1,4 +1,5 @@
 import { ipcMain, BrowserWindow } from 'electron'
+import { setupBackupHandlers } from './backup.js'
 import {
   importAccount,
   importTransactions,
@@ -149,4 +150,6 @@ export const setupIpcHandlers = () => {
     if (!isFiniteNumber(id)) throw new Error('Invalid ID')
     return removeCustomRecurring(id)
   })
+
+  setupBackupHandlers()
 }
