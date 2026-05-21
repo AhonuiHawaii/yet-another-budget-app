@@ -16,6 +16,7 @@ import Rules from './views/Rules.vue'
 import Recurring from './views/Recurring.vue'
 import AppBar from './components/AppBar.vue'
 import AppFooter from './components/AppFooter.vue'
+import Backup from './views/Backup.vue'
 
 const views = {
   Dashboard,
@@ -30,6 +31,7 @@ const views = {
   Rules,
   Recurring,
   AppFooter
+  Backup
 }
 
 const currentView = ref('Dashboard')
