@@ -70,6 +70,7 @@ background-color: rgba(var(--v-theme-primary), 0.8);
   font-weight: 600;
   font-size: 13px;
   opacity: 0.75;
+  color: rgb(var(--v-theme-on-primary));
 }
 
 .traffic-lights {
