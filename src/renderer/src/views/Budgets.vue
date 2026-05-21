@@ -48,6 +48,15 @@
           </v-row>
         </v-card>
       </v-menu>
+      <v-spacer />
+      <v-btn
+        variant="tonal"
+        color="primary"
+        prepend-icon="mdi-download-outline"
+        @click="exportBudgets"
+      >
+        Export Budgets
+      </v-btn>
     </div>
 
     <v-row class="mb-6">
@@ -658,6 +667,47 @@ async function updateBudget(categoryId, value) {
 async function updateDueDate(categoryId, date) {
   const d = date instanceof Date ? date : date ? new Date(date) : null
   await categoriesStore.updateCategory(categoryId, { dueDate: d ? d.getDate() : null })
+}
+
+function exportBudgets() {
+  const payload = {
+    exportedAt: new Date().toISOString(),
+    month: selectedMonth.value,
+    sections: budgetSections.value.map((section) => ({
+      type: section.type,
+      label: section.label,
+      planned: section.planned,
+      actual: section.actual,
+      remaining: section.remaining,
+      rows: section.rows.map((row) => ({
+        id: row.id,
+        name: row.name,
+        type: row.type,
+        dueDate: row.dueDate,
+        planned: row.planned,
+        actual: row.actual,
+        remaining: row.remaining
+      }))
+    })),
+    totals: {
+      plannedIncome: plannedIncome.value,
+      actualIncome: actualIncome.value,
+      plannedOutflow: plannedOutflow.value,
+      actualOutflow: actualOutflow.value,
+      plannedNet: plannedNet.value,
+      actualNet: actualNet.value,
+      budgetVariance: budgetVariance.value
+    }
+  }
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = `budgets-${selectedMonth.value}.json`
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+  URL.revokeObjectURL(url)
 }
 
 onMounted(async () => {
