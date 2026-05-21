@@ -195,7 +195,7 @@ export const blackWhiteDark = {
   dark: true,
   colors: {
     background: '#000000',
-    surface: '#000000',
+    surface: '#1E1E1E',
     'surface-dim': '#000000',
     'surface-bright': '#424242',
     'surface-light': '#212121',
@@ -223,14 +223,14 @@ export const blackWhiteDark = {
     'tertiary-container': '#616161',
     'on-tertiary-container': '#FFFFFF',
 
-    error: '#FFB4AB',
-    'on-error': '#690005',
+    error: '#ef4444',
+    'on-error': '#ffffff',
     'error-container': '#93000A',
     'on-error-container': '#FFDAD6',
 
-    info: '#BDBDBD',
-    success: '#E0E0E0',
-    warning: '#FAFAFA',
+    info: '#3b82f6',
+    success: '#10b981',
+    warning: '#f59e0b',
 
     'on-background': '#FFFFFF',
     'on-surface': '#FFFFFF',
@@ -242,9 +242,9 @@ export const blackWhiteDark = {
     'inverse-surface': '#FFFFFF',
     'inverse-on-surface': '#212121',
     'inverse-primary': '#616161',
-    'on-info': '#000000',
-    'on-success': '#000000',
-    'on-warning': '#000000'
+    'on-info': '#ffffff',
+    'on-success': '#ffffff',
+    'on-warning': '#1a1a1a'
   },
   variables: shape
 }
@@ -252,7 +252,7 @@ export const blackWhiteDark = {
 export const blackWhiteLight = {
   dark: false,
   colors: {
-    background: '#FFFFFF',
+    background: '#F5F5F5',
     surface: '#FFFFFF',
     'surface-dim': '#E0E0E0',
     'surface-bright': '#FFFFFF',
@@ -281,14 +281,14 @@ export const blackWhiteLight = {
     'tertiary-container': '#EEEEEE',
     'on-tertiary-container': '#000000',
 
-    error: '#BA1A1A',
-    'on-error': '#FFFFFF',
+    error: '#ef4444',
+    'on-error': '#ffffff',
     'error-container': '#FFDAD6',
     'on-error-container': '#410002',
 
-    info: '#424242',
-    success: '#212121',
-    warning: '#616161',
+    info: '#3b82f6',
+    success: '#10b981',
+    warning: '#f59e0b',
 
     'on-background': '#000000',
     'on-surface': '#000000',
@@ -300,9 +300,9 @@ export const blackWhiteLight = {
     'inverse-surface': '#212121',
     'inverse-on-surface': '#FFFFFF',
     'inverse-primary': '#E0E0E0',
-    'on-info': '#FFFFFF',
-    'on-success': '#FFFFFF',
-    'on-warning': '#FFFFFF'
+    'on-info': '#ffffff',
+    'on-success': '#ffffff',
+    'on-warning': '#1a1a1a'
   },
   variables: shape
 }

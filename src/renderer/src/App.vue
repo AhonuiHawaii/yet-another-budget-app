@@ -18,6 +18,7 @@ import AppBar from './components/AppBar.vue'
 import AppFooter from './components/AppFooter.vue'
 import Backup from './views/Backup.vue'
 
+
 const views = {
   Dashboard,
   Settings,
