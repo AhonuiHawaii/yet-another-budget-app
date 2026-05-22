@@ -375,7 +375,9 @@ const accountBalances = computed(() => {
     transactionsStore.accountSummary.map((s) => [s.ACCTID, Number(s.total) || 0])
   )
   return accountsStore.accounts.map((account) => {
-    const raw = balanceById.get(account.ACCTID) || 0
+    const txTotal = balanceById.get(account.ACCTID) || 0
+    const starting = Number(account.startingBalance) || 0
+    const raw = starting + txTotal
     const isAsset = ASSET_TYPES.has(account.ACCTTYPE)
     return { ...account, isAsset, balance: isAsset ? raw : -raw }
   })
