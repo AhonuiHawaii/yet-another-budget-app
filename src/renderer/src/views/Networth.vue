@@ -141,10 +141,10 @@
           <v-expansion-panel-title>
             <div class="d-flex align-center w-100 ga-4">
               <span class="text-body-2 font-weight-medium flex-grow-1">{{ category.name }}</span>
-              <span class="text-body-2 text-medium-emphasis"
+              <span class="text-body-2 text-medium-emphasis text-right" style="min-width: 110px"
                 >{{ category.percentage }}% of assets</span
               >
-              <span class="text-body-2 font-weight-bold">{{ formatCurrency(category.total) }}</span>
+              <span class="text-body-2 font-weight-bold text-right" style="min-width: 90px">{{ formatCurrency(category.total) }}</span>
             </div>
           </v-expansion-panel-title>
 
@@ -210,10 +210,10 @@
           <v-expansion-panel-title>
             <div class="d-flex align-center w-100 ga-4">
               <span class="text-body-2 font-weight-medium flex-grow-1">{{ category.name }}</span>
-              <span class="text-body-2 text-medium-emphasis"
+              <span class="text-body-2 text-medium-emphasis text-right" style="min-width: 110px"
                 >{{ category.percentage }}% of debts</span
               >
-              <span class="text-body-2 font-weight-bold text-error">{{
+              <span class="text-body-2 font-weight-bold text-error text-right" style="min-width: 90px">{{
                 formatCurrency(category.total)
               }}</span>
             </div>
