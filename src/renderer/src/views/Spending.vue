@@ -165,6 +165,13 @@
       </v-btn-group>
     </div>
 
+    <!-- Spending trend -->
+    <v-card v-if="trendMonths.length" rounded elevation="2" class="mb-6">
+      <div style="height: 160px; padding: 12px 16px 8px">
+        <Bar :data="spendingTrendData" :options="spendingTrendOptions" />
+      </div>
+    </v-card>
+
     <v-row align="start">
       <!-- Left: pie + by category -->
       <v-col cols="12" md="7">
@@ -406,13 +413,20 @@
 
 <script setup>
 import { computed, onMounted, ref, watch } from 'vue'
-import { Doughnut } from 'vue-chartjs'
-import { Chart as ChartJS, ArcElement, Tooltip } from 'chart.js'
+import { Doughnut, Bar } from 'vue-chartjs'
+import {
+  Chart as ChartJS,
+  ArcElement,
+  Tooltip,
+  BarElement,
+  CategoryScale,
+  LinearScale
+} from 'chart.js'
 import { useUserCategoriesStore } from '../stores/userCategories'
 import { useUserBudgetsStore } from '../stores/userBudgets'
 import { useUserTransactionsStore } from '../stores/userTransactions'
 
-ChartJS.register(ArcElement, Tooltip)
+ChartJS.register(ArcElement, Tooltip, BarElement, CategoryScale, LinearScale)
 
 const categoriesStore = useUserCategoriesStore()
 const budgetsStore = useUserBudgetsStore()
@@ -738,6 +752,62 @@ const displayedPurchases = computed(() =>
   showAllPurchases.value ? largestPurchases.value : largestPurchases.value.slice(0, 3)
 )
 
+// ── Spending trend chart ──────────────────────────────────────────────────────
+const trendMonths = computed(() => transactionsStore.monthlyTotals.slice(-6))
+
+const spendingTrendData = computed(() => ({
+  labels: trendMonths.value.map((m) => {
+    const y = parseInt(m.month.slice(0, 4))
+    const mo = parseInt(m.month.slice(4, 6)) - 1
+    return new Date(y, mo, 1).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+  }),
+  datasets: [
+    {
+      label: 'Spending',
+      data: trendMonths.value.map((m) => m.spending || 0),
+      backgroundColor: '#3B4FBF',
+      borderRadius: 3,
+      barPercentage: 0.75
+    },
+    {
+      label: 'Income',
+      data: trendMonths.value.map((m) => m.income || 0),
+      backgroundColor: '#7B9AF4',
+      borderRadius: 3,
+      barPercentage: 0.75
+    }
+  ]
+}))
+
+const spendingTrendOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: { display: false },
+    tooltip: {
+      callbacks: {
+        label: (ctx) => ` ${ctx.dataset.label}: ${formatCurrency(ctx.parsed.y)}`
+      }
+    }
+  },
+  scales: {
+    x: {
+      grid: { display: false },
+      border: { display: false },
+      ticks: { color: 'rgba(255,255,255,0.45)', font: { size: 11 } }
+    },
+    y: {
+      grid: { color: 'rgba(255,255,255,0.06)' },
+      border: { display: false },
+      ticks: {
+        color: 'rgba(255,255,255,0.45)',
+        font: { size: 11 },
+        callback: (v) => (v === 0 ? '$0' : `$${(v / 1000).toFixed(2)}k`)
+      }
+    }
+  }
+}
+
 // ── Center plugin ─────────────────────────────────────────────────────────────
 const centerPlugin = {
   id: 'centerText',
@@ -808,7 +878,7 @@ function formatPercent(val, total) {
 }
 
 onMounted(async () => {
-  await applyPeriod()
+  await Promise.all([applyPeriod(), transactionsStore.fetchMonthlyTotals()])
 })
 
 watch(period, async () => {
