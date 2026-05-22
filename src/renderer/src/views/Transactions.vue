@@ -57,135 +57,51 @@
       </v-card>
     </v-dialog>
 
+    <!-- Month navigator + Import -->
+    <div class="d-flex justify-center align-center mb-6" style="position: relative">
+      <v-btn variant="tonal" density="comfortable" rounded="lg" @click="prevMonth">
+        <v-icon start size="16">mdi-chevron-left</v-icon>
+        {{ prevMonthLabel }}
+      </v-btn>
+      <span class="text-subtitle-1 font-weight-bold mx-6">{{ monthLabel(selectedMonth) }}</span>
+      <v-btn
+        variant="tonal"
+        density="comfortable"
+        rounded="lg"
+        :disabled="isNextMonthFuture"
+        @click="nextMonth"
+      >
+        {{ nextMonthLabel }}
+        <v-icon end size="16">mdi-chevron-right</v-icon>
+      </v-btn>
+
+      <div style="position: absolute; right: 0" class="d-flex align-center gap-2">
+        <v-slide-x-transition>
+          <v-chip
+            v-if="lastImported"
+            color="success"
+            variant="tonal"
+            prepend-icon="mdi-check-circle-outline"
+            size="small"
+          >
+            {{ lastImported }}
+          </v-chip>
+        </v-slide-x-transition>
+        <v-btn
+          color="primary"
+          variant="flat"
+          size="small"
+          prepend-icon="mdi-file-import-outline"
+          @click="importDialog = true"
+        >
+          Import
+        </v-btn>
+      </div>
+    </div>
+
     <!-- Toolbar -->
     <v-card rounded elevation="2" class="mb-3">
       <v-card-text class="pa-3">
-        <div class="d-flex align-center gap-2 flex-wrap mb-2">
-          <v-menu v-model="pickerMenu" :close-on-content-click="false" location="bottom start">
-            <template #activator="{ props }">
-              <v-btn
-                v-bind="props"
-                variant="tonal"
-                color="primary"
-                prepend-icon="mdi-calendar-month-outline"
-                size="small"
-                :loading="store.loading"
-              >
-                {{ pickerLabel }}
-                <v-icon end size="16">mdi-chevron-down</v-icon>
-              </v-btn>
-            </template>
-            <v-card min-width="260" rounded="lg" elevation="8" class="pa-3">
-              <!-- Mode tabs -->
-              <v-tabs
-                v-model="granularity"
-                density="compact"
-                color="primary"
-                align-tabs="center"
-                class="mb-2"
-                @update:model-value="onGranularityTab"
-              >
-                <v-tab value="month">Month</v-tab>
-                <v-tab value="quarter">Quarter</v-tab>
-                <v-tab value="year">Annual</v-tab>
-              </v-tabs>
-
-              <!-- Year navigator -->
-              <div class="d-flex align-center justify-space-between mb-2">
-                <v-btn
-                  icon="mdi-chevron-left"
-                  variant="text"
-                  size="small"
-                  @click="changeYear(-1)"
-                />
-                <div class="text-subtitle-1 font-weight-bold">{{ pickerYear }}</div>
-                <v-btn
-                  icon="mdi-chevron-right"
-                  variant="text"
-                  size="small"
-                  @click="changeYear(1)"
-                />
-              </div>
-
-              <!-- Month grid -->
-              <v-row v-if="granularity === 'month'" dense>
-                <v-col v-for="mo in monthOptions" :key="mo.value" cols="4">
-                  <v-btn
-                    block
-                    size="small"
-                    :variant="mo.value === selectedPeriodKey ? 'flat' : 'text'"
-                    :color="
-                      mo.value === selectedPeriodKey
-                        ? 'primary'
-                        : monthHasData(mo.value)
-                          ? undefined
-                          : undefined
-                    "
-                    :opacity="monthHasData(mo.value) ? 1 : 0.35"
-                    @click="selectMonth(mo.value)"
-                  >
-                    {{ mo.label }}
-                  </v-btn>
-                </v-col>
-              </v-row>
-
-              <!-- Quarter grid -->
-              <v-row v-else-if="granularity === 'quarter'" dense>
-                <v-col v-for="q in quarterOptions" :key="q.value" cols="6">
-                  <v-btn
-                    block
-                    height="52"
-                    :variant="q.value === selectedPeriodKey ? 'flat' : 'text'"
-                    :color="q.value === selectedPeriodKey ? 'primary' : undefined"
-                    class="d-flex flex-column align-center justify-center"
-                    @click="selectQuarter(q.value)"
-                  >
-                    <span class="text-body-2 font-weight-bold">{{ q.label }}</span>
-                    <span class="text-caption opacity-70" style="margin-top: 2px">{{
-                      q.months
-                    }}</span>
-                  </v-btn>
-                </v-col>
-              </v-row>
-
-              <!-- Annual -->
-              <div v-else class="d-flex justify-center py-2">
-                <v-btn
-                  :variant="String(pickerYear) === selectedPeriodKey ? 'flat' : 'tonal'"
-                  color="primary"
-                  size="small"
-                  @click="selectYear(pickerYear)"
-                >
-                  Select {{ pickerYear }}
-                </v-btn>
-              </div>
-            </v-card>
-          </v-menu>
-
-          <v-spacer />
-
-          <v-slide-x-transition>
-            <v-chip
-              v-if="lastImported"
-              color="success"
-              variant="tonal"
-              prepend-icon="mdi-check-circle-outline"
-              size="small"
-            >
-              {{ lastImported }}
-            </v-chip>
-          </v-slide-x-transition>
-
-          <v-btn
-            color="primary"
-            variant="flat"
-            size="small"
-            prepend-icon="mdi-file-import-outline"
-            @click="importDialog = true"
-          >
-            Import
-          </v-btn>
-        </div>
 
         <div class="d-flex gap-2">
           <v-text-field
@@ -216,6 +132,16 @@
             item-title="label"
             item-value="value"
             label="Type"
+            variant="solo"
+            density="compact"
+            hide-details
+            clearable
+            style="flex: 1"
+          />
+          <v-autocomplete
+            v-model="filterCategory"
+            :items="allCategoryItems"
+            label="Category"
             variant="solo"
             density="compact"
             hide-details
@@ -373,7 +299,7 @@
 
         <!-- Account column -->
         <template #item.ACCTID="{ item }">
-          <span class="text-caption text-medium-emphasis">*{{ item.ACCTID }}</span>
+          <span class="text-caption text-medium-emphasis">{{ accountName(item.ACCTID) }}</span>
         </template>
 
         <!-- Actions column -->
@@ -952,16 +878,14 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useUserTransactionsStore } from '../stores/userTransactions'
 import { useUserAccountsStore } from '../stores/userAccounts'
-import { useUserSettingsStore } from '../stores/userSettings'
 import { useUserCategoriesStore } from '../stores/userCategories'
 import { useUserRulesStore } from '../stores/userRules'
 
 const store = useUserTransactionsStore()
 const accountsStore = useUserAccountsStore()
-const settingsStore = useUserSettingsStore()
 const categoriesStore = useUserCategoriesStore()
 const rulesStore = useUserRulesStore()
 
@@ -1072,6 +996,45 @@ async function handleImport() {
   }
 }
 
+// ── Month navigation ──────────────────────────────────────────────────────────
+function currentMonthValue() {
+  const now = new Date()
+  return `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}`
+}
+
+const selectedMonth = ref(currentMonthValue())
+
+function monthLabel(yyyymm) {
+  const year = Number(yyyymm.slice(0, 4))
+  const month = Number(yyyymm.slice(4)) - 1
+  return new Date(year, month, 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+}
+
+function offsetMonth(yyyymm, delta) {
+  const year = Number(yyyymm.slice(0, 4))
+  const month = Number(yyyymm.slice(4)) - 1 + delta
+  const d = new Date(year, month, 1)
+  return `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}`
+}
+
+function shortMonthLabel(yyyymm) {
+  const year = Number(yyyymm.slice(0, 4))
+  const month = Number(yyyymm.slice(4)) - 1
+  return new Date(year, month, 1).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+}
+
+const prevMonthLabel = computed(() => shortMonthLabel(offsetMonth(selectedMonth.value, -1)))
+const nextMonthLabel = computed(() => shortMonthLabel(offsetMonth(selectedMonth.value, 1)))
+const isNextMonthFuture = computed(() => offsetMonth(selectedMonth.value, 1) > currentMonthValue())
+
+function prevMonth() {
+  selectedMonth.value = offsetMonth(selectedMonth.value, -1)
+}
+
+function nextMonth() {
+  selectedMonth.value = offsetMonth(selectedMonth.value, 1)
+}
+
 // ── On mount ──────────────────────────────────────────────────────────────────
 onMounted(async () => {
   await Promise.all([
@@ -1079,112 +1042,29 @@ onMounted(async () => {
     store.fetchMonthsWithData(),
     categoriesStore.fetchCategories()
   ])
-  const selectedMonth = settingsStore.selectedMonth
-  pickerYear.value = parseInt(selectedMonth.slice(0, 4)) || new Date().getFullYear()
-  selectedPeriodKey.value = selectedMonth
-  await store.fetchTransactionsByMonth(selectedMonth)
+  await store.fetchTransactionsByMonth(selectedMonth.value)
 })
 
-// ── Date picker ──────────────────────────────────────────────────────────────
-const granularity = ref('month')
-const pickerMenu = ref(false)
-const pickerYear = ref(new Date().getFullYear())
-
-// Tracks what is currently selected as a display key:
-// month → 'YYYYMM', quarter → 'YYYY-QN', year → 'YYYY'
-const selectedPeriodKey = ref('')
-
-const monthOptions = computed(() =>
-  Array.from({ length: 12 }, (_, i) => ({
-    label: new Date(pickerYear.value, i, 1).toLocaleDateString('en-US', { month: 'short' }),
-    value: `${pickerYear.value}${String(i + 1).padStart(2, '0')}`
-  }))
-)
-
-const quarterOptions = computed(() =>
-  [1, 2, 3, 4].map((q) => {
-    const startM = (q - 1) * 3
-    const months = [0, 1, 2].map((i) =>
-      new Date(pickerYear.value, startM + i, 1).toLocaleDateString('en-US', { month: 'short' })
-    )
-    return {
-      label: `Q${q}`,
-      months: months.join(' · '),
-      value: `${pickerYear.value}-Q${q}`
-    }
-  })
-)
-
-function monthHasData(yyyymm) {
-  return store.monthsWithData.includes(yyyymm)
-}
-
-function changeYear(dir) {
-  pickerYear.value += dir
-}
-
-// Months (yyyymm strings) for the active selection — drives the table
-const activePeriodMonths = computed(() => {
-  const key = selectedPeriodKey.value
-  if (!key) return []
-  if (granularity.value === 'month') return [key]
-  if (granularity.value === 'quarter') {
-    const y = parseInt(key.slice(0, 4))
-    const q = parseInt(key.slice(-1)) - 1 // 0-based quarter
-    const startM = q * 3
-    return [0, 1, 2].map((i) => `${y}${String(startM + i + 1).padStart(2, '0')}`)
-  }
-  // annual
-  const y = parseInt(key)
-  return Array.from({ length: 12 }, (_, i) => `${y}${String(i + 1).padStart(2, '0')}`)
-})
-
-const pickerLabel = computed(() => {
-  const key = selectedPeriodKey.value
-  if (!key) return 'Pick period'
-  if (granularity.value === 'quarter') return key.replace('-', ' ')
-  if (granularity.value === 'year') return key
-  const y = key.slice(0, 4)
-  const m = parseInt(key.slice(4, 6)) - 1
-  return new Date(Number(y), m, 1).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
-})
-
-function selectMonth(yyyymm) {
-  selectedPeriodKey.value = yyyymm
-  applyPeriod()
-  pickerMenu.value = false
-}
-
-function selectQuarter(key) {
-  selectedPeriodKey.value = key
-  applyPeriod()
-  pickerMenu.value = false
-}
-
-function selectYear(y) {
-  selectedPeriodKey.value = String(y)
-  applyPeriod()
-  pickerMenu.value = false
-}
-
-function onGranularityTab() {
-  selectedPeriodKey.value = ''
-}
-
-async function applyPeriod() {
-  const months = activePeriodMonths.value
-  const toFetch = months.filter((m) => store.monthsWithData.includes(m))
-  await store.fetchTransactionsForPeriod(toFetch)
-}
+watch(selectedMonth, (month) => store.fetchTransactionsByMonth(month))
 
 // ── Filters ───────────────────────────────────────────────────────────────────
 const search = ref('')
 const filterAccount = ref(null)
 const filterType = ref(null)
+const filterCategory = ref(null)
+
+const accountById = computed(() =>
+  Object.fromEntries(accountsStore.accounts.map((a) => [a.ACCTID, a]))
+)
+
+function accountName(acctid) {
+  const a = accountById.value[acctid]
+  return a ? a.displayName || a.ACCTTYPE || acctid : acctid
+}
 
 const accountOptions = computed(() =>
   accountsStore.accounts.map((a) => ({
-    label: `${a.displayName || a.ACCTTYPE || 'Account'} (*${a.ACCTID})`,
+    label: a.displayName || a.ACCTTYPE || a.ACCTID,
     value: a.ACCTID
   }))
 )
@@ -1224,15 +1104,6 @@ const headers = [
 const filteredTransactions = computed(() => {
   let rows = store.transactions
 
-  // When quarter/year is selected, filter client-side to only rows in the period
-  if (activePeriodMonths.value.length > 1) {
-    rows = rows.filter((t) => {
-      const s = String(t.DTPOSTED || '')
-      const ym = s.slice(0, 6)
-      return activePeriodMonths.value.includes(ym)
-    })
-  }
-
   const q = (search.value || '').trim().toLowerCase()
   if (q) {
     rows = rows.filter((t) => {
@@ -1248,6 +1119,9 @@ const filteredTransactions = computed(() => {
     rows = rows.filter(
       (t) => (t.transactionType || t.TRNTYPE || '').toUpperCase() === filterType.value
     )
+  }
+  if (filterCategory.value) {
+    rows = rows.filter((t) => t.category === filterCategory.value)
   }
   return rows
 })
@@ -1504,3 +1378,11 @@ async function saveRule() {
   if (!rulesStore.error) ruleDialog.value = false
 }
 </script>
+
+<style scoped>
+:deep(.v-field--variant-solo),
+:deep(.v-field--variant-solo-filled),
+:deep(.v-field--variant-solo-inverted) {
+  box-shadow: none;
+}
+</style>
