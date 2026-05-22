@@ -59,112 +59,6 @@
       </v-btn>
     </div>
 
-    <v-row class="mb-6">
-      <v-col cols="12" sm="6" lg="3">
-        <v-card class="h-100" rounded elevation="2">
-          <v-card-text class="pa-4">
-            <div class="d-flex align-center justify-space-between">
-              <div class="flex-grow-1">
-                <div class="d-flex align-center mb-2">
-                  <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis"
-                    >Planned Income</span
-                  >
-                  <v-spacer />
-                  <v-icon color="success" size="16" :opacity="0.4">mdi-trending-up</v-icon>
-                </div>
-                <div class="text-h5 font-weight-black">{{ formatCurrency(plannedIncome) }}</div>
-              </div>
-              <div style="width: 68px; height: 68px; flex-shrink: 0; margin-left: 12px">
-                <Doughnut :data="budgetIncomeChartData" :options="miniChartOptions" />
-              </div>
-            </div>
-          </v-card-text>
-        </v-card>
-      </v-col>
-      <v-col cols="12" sm="6" lg="3">
-        <v-card class="h-100" rounded elevation="2">
-          <v-card-text class="pa-4">
-            <div class="d-flex align-center justify-space-between">
-              <div class="flex-grow-1">
-                <div class="d-flex align-center mb-2">
-                  <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis"
-                    >Planned Outflow</span
-                  >
-                  <v-spacer />
-                  <v-icon color="error" size="16" :opacity="0.4"
-                    >mdi-arrow-up-circle-outline</v-icon
-                  >
-                </div>
-                <div class="text-h5 font-weight-black">{{ formatCurrency(plannedOutflow) }}</div>
-              </div>
-              <div style="width: 68px; height: 68px; flex-shrink: 0; margin-left: 12px">
-                <Doughnut :data="budgetOutflowChartData" :options="miniChartOptions" />
-              </div>
-            </div>
-          </v-card-text>
-        </v-card>
-      </v-col>
-      <v-col cols="12" sm="6" lg="3">
-        <v-card class="h-100" rounded elevation="2">
-          <v-card-text class="pa-4">
-            <div class="d-flex align-center justify-space-between">
-              <div class="flex-grow-1">
-                <div class="d-flex align-center mb-2">
-                  <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis"
-                    >Planned Net</span
-                  >
-                  <v-spacer />
-                  <v-icon :color="plannedNet >= 0 ? 'success' : 'error'" size="16" :opacity="0.4"
-                    >mdi-trending-up</v-icon
-                  >
-                </div>
-                <div
-                  class="text-h5 font-weight-black"
-                  :class="plannedNet >= 0 ? 'text-success' : 'text-error'"
-                >
-                  {{ formatCurrency(plannedNet) }}
-                </div>
-              </div>
-              <div style="width: 68px; height: 68px; flex-shrink: 0; margin-left: 12px">
-                <Doughnut :data="budgetNetChartData" :options="miniChartOptions" />
-              </div>
-            </div>
-          </v-card-text>
-        </v-card>
-      </v-col>
-      <v-col cols="12" sm="6" lg="3">
-        <v-card class="h-100" rounded elevation="2">
-          <v-card-text class="pa-4">
-            <div class="d-flex align-center justify-space-between">
-              <div class="flex-grow-1">
-                <div class="d-flex align-center mb-2">
-                  <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis"
-                    >Budget Variance</span
-                  >
-                  <v-spacer />
-                  <v-icon
-                    :color="budgetVariance >= 0 ? 'success' : 'warning'"
-                    size="16"
-                    :opacity="0.4"
-                    >mdi-wallet-outline</v-icon
-                  >
-                </div>
-                <div
-                  class="text-h5 font-weight-black"
-                  :class="budgetVariance >= 0 ? 'text-success' : 'text-error'"
-                >
-                  {{ formatCurrency(budgetVariance) }}
-                </div>
-              </div>
-              <div style="width: 68px; height: 68px; flex-shrink: 0; margin-left: 12px">
-                <Doughnut :data="budgetVarianceChartData" :options="miniChartOptions" />
-              </div>
-            </div>
-          </v-card-text>
-        </v-card>
-      </v-col>
-    </v-row>
-
     <v-alert
       v-if="budgetsStore.error || categoriesStore.error || loadError"
       type="error"
@@ -174,7 +68,8 @@
       {{ budgetsStore.error || categoriesStore.error || loadError }}
     </v-alert>
 
-    <div>
+    <div style="display: grid; grid-template-columns: 1fr 300px; gap: 24px; align-items: start">
+      <div>
       <section v-for="section in budgetSections" :key="section.value">
         <v-card rounded elevation="2" class="mb-6">
           <v-card-item class="pa-4 pb-0">
@@ -182,10 +77,7 @@
               <v-icon :color="section.color" size="20" :opacity="0.7">{{ section.icon }}</v-icon>
             </template>
             <v-card-title class="text-h6 font-weight-bold pl-2">{{ section.label }}</v-card-title>
-            <template
-              v-if="['income', 'bills', 'variable', 'savings'].includes(section.type)"
-              #append
-            >
+            <template #append>
               <v-btn
                 variant="text"
                 size="small"
@@ -217,10 +109,7 @@
                   Budget
                 </th>
                 <th class="text-center text-caption text-medium-emphasis" style="width: 120px">
-                  {{ section.type === 'income' ? 'Variance' : 'Remaining' }}
-                </th>
-                <th class="text-center text-caption text-medium-emphasis pr-5" style="width: 160px">
-                  Used
+                  Remaining
                 </th>
                 <th style="width: 40px"></th>
               </tr>
@@ -228,7 +117,7 @@
             <tbody>
               <tr v-if="section.rows.length === 0">
                 <td
-                  :colspan="section.type === 'bills' ? 7 : 6"
+                  :colspan="section.type === 'bills' ? 6 : 5"
                   class="text-center py-8 text-medium-emphasis"
                 >
                   No {{ section.label.toLowerCase() }} categories yet.
@@ -326,19 +215,6 @@
                 >
                   {{ formatCurrency(row.remaining) }}
                 </td>
-                <td class="text-center pr-5">
-                  <div class="d-flex align-center gap-2 px-2">
-                    <v-progress-linear
-                      :model-value="row.percentUsed"
-                      :color="row.percentColor"
-                      height="4"
-                      rounded
-                    />
-                    <span class="text-caption text-medium-emphasis" style="min-width: 32px">{{
-                      row.percentLabel
-                    }}</span>
-                  </div>
-                </td>
                 <td class="text-center pr-2">
                   <v-btn
                     icon="mdi-delete-outline"
@@ -352,7 +228,7 @@
                 </td>
               </tr>
               <tr v-if="addingType === section.type">
-                <td :colspan="section.type === 'bills' ? 7 : 6" class="pl-4 py-1">
+                <td :colspan="section.type === 'bills' ? 6 : 5" class="pl-4 py-1">
                   <v-text-field
                     v-model="newCategoryName"
                     placeholder="Category name"
@@ -372,6 +248,69 @@
           </v-table>
         </v-card>
       </section>
+      </div>
+
+      <!-- Summary panel -->
+      <v-card rounded elevation="2" style="position: sticky; top: 24px">
+        <v-card-text class="pa-5">
+          <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-4">
+            Summary
+          </div>
+
+          <!-- Ring chart with center text -->
+          <div style="position: relative; width: 180px; height: 180px; margin: 0 auto 16px">
+            <Doughnut :data="summaryChartData" :options="summaryChartOptions" />
+            <div
+              style="
+                position: absolute;
+                inset: 0;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                pointer-events: none;
+              "
+            >
+              <v-icon v-if="expenseVariance < 0" color="warning" size="20" class="mb-1"
+                >mdi-alert</v-icon
+              >
+              <span class="text-caption text-medium-emphasis">Left to Spend</span>
+              <span
+                class="text-h6 font-weight-black"
+                :class="expenseVariance < 0 ? 'text-error' : ''"
+                >{{ formatCurrency(expenseVariance) }}</span
+              >
+              <span class="text-caption text-medium-emphasis"
+                >of {{ formatCurrency(plannedOutflow) }}</span
+              >
+            </div>
+          </div>
+
+
+          <!-- Line items -->
+          <v-divider />
+          <div class="d-flex justify-space-between align-center py-3">
+            <span class="text-body-2">Spending Budget</span>
+            <span class="text-body-2 font-weight-bold">{{ formatCurrency(plannedOutflow) }}</span>
+          </div>
+
+          <v-divider />
+          <div class="d-flex justify-space-between align-center py-3">
+            <span class="text-body-2">Current Spend</span>
+            <span class="text-body-2 font-weight-bold">{{ formatCurrency(actualOutflow) }}</span>
+          </div>
+
+          <v-divider />
+          <div class="d-flex justify-space-between align-center py-3">
+            <span class="text-body-2">Remaining</span>
+            <span
+              class="text-body-2 font-weight-black"
+              :class="expenseVariance >= 0 ? 'text-success' : 'text-error'"
+              >{{ formatCurrency(expenseVariance) }}</span
+            >
+          </div>
+        </v-card-text>
+      </v-card>
     </div>
   </v-container>
 </template>
@@ -424,15 +363,11 @@ watch(monthMenu, (isOpen) => {
 })
 
 const categoryTypeOptions = [
-  { label: 'Earnings', value: 'income', icon: 'mdi-trending-up', color: 'success' },
-  { label: 'Savings Goals', value: 'savings', icon: 'mdi-piggy-bank', color: 'info' },
   { label: 'Expenses & Bills', value: 'bills', icon: 'mdi-calendar-month', color: 'warning' },
   { label: 'Variable Expenses', value: 'variable', icon: 'mdi-shopping', color: 'secondary' }
 ]
 
-const categoryMeta = computed(() => {
-  return Object.fromEntries(categoryTypeOptions.map((type) => [type.value, type]))
-})
+const expenseTypes = new Set(categoryTypeOptions.map((t) => t.value))
 
 const actualsByCategory = computed(() => {
   const actuals = new Map()
@@ -448,29 +383,19 @@ const actualsByCategory = computed(() => {
 })
 
 const budgetRows = computed(() => {
-  return categoriesStore.categories.map((category) => {
-    const meta = categoryMeta.value[category.type] || categoryMeta.value.variable
-    const budget = budgetsStore.getBudget(category.id)
-    const planned = budget?.amount || 0
-    const actual = actualsByCategory.value.get(category.id) || 0
-    const remaining = category.type === 'income' ? actual - planned : planned - actual
-    const rawPercent = planned > 0 ? (actual / planned) * 100 : actual > 0 ? 100 : 0
-    const percentUsed = Math.min(rawPercent, 100)
-
-    return {
-      ...category,
-      actual,
-      planned,
-      remaining,
-      percentUsed,
-      percentLabel: `${Math.round(rawPercent)}%`,
-      percentColor: getPercentColor(category.type, rawPercent),
-      typeLabel: meta.label,
-      icon: meta.icon,
-      color: meta.color,
-      dueDate: category.dueDate ?? null
-    }
-  })
+  return categoriesStore.categories
+    .filter((c) => expenseTypes.has(c.type))
+    .map((category) => {
+      const planned = budgetsStore.getBudget(category.id)?.amount || 0
+      const actual = actualsByCategory.value.get(category.id) || 0
+      return {
+        ...category,
+        actual,
+        planned,
+        remaining: planned - actual,
+        dueDate: category.dueDate ?? null
+      }
+    })
 })
 
 const budgetSections = computed(() => {
@@ -487,93 +412,44 @@ const budgetSections = computed(() => {
       rows,
       planned,
       actual,
-      remaining: type.value === 'income' ? actual - planned : planned - actual
+      remaining: planned - actual
     }
   })
 })
 
-const plannedIncome = computed(() => sumByType('income', 'planned'))
-const actualIncome = computed(() => sumByType('income', 'actual'))
 const plannedOutflow = computed(() =>
-  budgetRows.value.filter((row) => row.type !== 'income').reduce((sum, row) => sum + row.planned, 0)
+  budgetRows.value.reduce((sum, row) => sum + row.planned, 0)
 )
 const actualOutflow = computed(() =>
-  budgetRows.value.filter((row) => row.type !== 'income').reduce((sum, row) => sum + row.actual, 0)
+  budgetRows.value.reduce((sum, row) => sum + row.actual, 0)
 )
-const plannedNet = computed(() => plannedIncome.value - plannedOutflow.value)
-const actualNet = computed(() => actualIncome.value - actualOutflow.value)
-const budgetVariance = computed(() => actualNet.value - plannedNet.value)
+const expenseVariance = computed(() => plannedOutflow.value - actualOutflow.value)
 
-const miniChartOptions = {
+const summaryChartOptions = {
   responsive: true,
   maintainAspectRatio: false,
-  cutout: '72%',
+  cutout: '78%',
   plugins: { legend: { display: false }, tooltip: { enabled: false } },
   animation: { duration: 300 }
 }
 
-function makePieData(actual, budget, mainColor) {
-  const dim = 'rgba(255,255,255,0.08)'
+const summaryChartData = computed(() => {
+  const budget = plannedOutflow.value
+  const actual = actualOutflow.value
+  const dim = 'rgba(255,255,255,0.1)'
   if (budget <= 0 && actual <= 0)
     return { datasets: [{ data: [1], backgroundColor: [dim], borderWidth: 0 }] }
   if (budget <= 0)
-    return { datasets: [{ data: [actual], backgroundColor: [mainColor], borderWidth: 0 }] }
+    return { datasets: [{ data: [actual], backgroundColor: ['#ef5350'], borderWidth: 0 }] }
   const remaining = Math.max(0, budget - actual)
   const over = Math.max(0, actual - budget)
   if (over > 0)
     return {
-      datasets: [{ data: [budget, over], backgroundColor: [mainColor, '#ffa726'], borderWidth: 0 }]
+      datasets: [{ data: [budget, over], backgroundColor: ['#7986cb', '#ef5350'], borderWidth: 0 }]
     }
   return {
     datasets: [
-      {
-        data: [actual || 0.001, remaining || 0.001],
-        backgroundColor: [mainColor, dim],
-        borderWidth: 0
-      }
-    ]
-  }
-}
-
-const budgetIncomeChartData = computed(() =>
-  makePieData(actualIncome.value, plannedIncome.value, '#4caf50')
-)
-const budgetOutflowChartData = computed(() =>
-  makePieData(actualOutflow.value, plannedOutflow.value, '#ef5350')
-)
-const budgetNetChartData = computed(() => {
-  const i = actualIncome.value
-  const s = actualOutflow.value
-  if (i <= 0 && s <= 0)
-    return {
-      datasets: [{ data: [1], backgroundColor: ['rgba(255,255,255,0.08)'], borderWidth: 0 }]
-    }
-  return {
-    datasets: [
-      { data: [i || 0.001, s || 0.001], backgroundColor: ['#4caf50', '#ef5350'], borderWidth: 0 }
-    ]
-  }
-})
-const budgetVarianceChartData = computed(() => {
-  const budget = plannedOutflow.value
-  const actual = actualOutflow.value
-  const dim = 'rgba(255,255,255,0.08)'
-  const used = 'rgba(255,255,255,0.15)'
-  if (budget <= 0 && actual <= 0)
-    return { datasets: [{ data: [1], backgroundColor: [dim], borderWidth: 0 }] }
-  const remaining = Math.max(0, budget - actual)
-  const over = Math.max(0, actual - budget)
-  if (over > 0)
-    return {
-      datasets: [{ data: [budget, over], backgroundColor: [used, '#ef5350'], borderWidth: 0 }]
-    }
-  return {
-    datasets: [
-      {
-        data: [actual || 0.001, remaining || 0.001],
-        backgroundColor: [used, '#4caf50'],
-        borderWidth: 0
-      }
+      { data: [actual || 0.001, remaining || 0.001], backgroundColor: ['#7986cb', dim], borderWidth: 0 }
     ]
   }
 })
@@ -581,17 +457,6 @@ const budgetVarianceChartData = computed(() => {
 function addActual(actuals, categoryName, rawAmount) {
   if (!categoryName || !rawAmount) return
   actuals.set(categoryName, (actuals.get(categoryName) || 0) + Math.abs(rawAmount))
-}
-
-function sumByType(type, key) {
-  return budgetRows.value.filter((row) => row.type === type).reduce((sum, row) => sum + row[key], 0)
-}
-
-function getPercentColor(type, percent) {
-  if (type === 'income') return percent >= 100 ? 'success' : 'warning'
-  if (percent > 100) return 'error'
-  if (percent >= 85) return 'warning'
-  return 'success'
 }
 
 function formatCurrency(value) {
@@ -689,13 +554,9 @@ function exportBudgets() {
       }))
     })),
     totals: {
-      plannedIncome: plannedIncome.value,
-      actualIncome: actualIncome.value,
       plannedOutflow: plannedOutflow.value,
       actualOutflow: actualOutflow.value,
-      plannedNet: plannedNet.value,
-      actualNet: actualNet.value,
-      budgetVariance: budgetVariance.value
+      expenseVariance: expenseVariance.value
     }
   }
   const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' })

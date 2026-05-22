@@ -10,6 +10,7 @@ import Transactions from './views/Transactions.vue'
 import Spending from './views/Spending.vue'
 import Debts from './views/Debt.vue'
 import Budgets from './views/Budgets.vue'
+import Income from './views/Income.vue'
 import NetWorth from './views/NetWorth.vue'
 import Goals from './views/Goals.vue'
 import Rules from './views/Rules.vue'
@@ -27,6 +28,7 @@ const views = {
   Spending,
   Debts,
   Budgets,
+  Income,
   NetWorth,
   Goals,
   Rules,
