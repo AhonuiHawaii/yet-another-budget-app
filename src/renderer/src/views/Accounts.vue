@@ -809,7 +809,7 @@ const editPaymentFrequency = ref('Monthly')
 const editPaymentStartDate = ref(null)
 const editPaymentCount = ref(null)
 const editStartingBalance = ref(null)
-const editAccountCategory = ref(null)  // null | 'asset' | 'liability'
+const editAccountCategory = ref(null) // null | 'asset' | 'liability'
 
 const accountRoleItems = [
   { title: 'Default (auto-detect)', value: null },

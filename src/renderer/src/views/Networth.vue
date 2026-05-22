@@ -13,7 +13,7 @@
               Total net worth
             </div>
             <div class="text-h4 font-weight-black mb-1">{{ formatCurrency(netWorth) }}</div>
-            <div v-if="netWorthHistory.length >= 2" class="d-flex align-center gap-1 mb-4">
+            <div v-if="netWorthHistory.length >= 2" class="d-flex align-center ga-1 mb-4">
               <v-icon :color="sixMonthChange >= 0 ? 'success' : 'error'" size="16">
                 {{ sixMonthChange >= 0 ? 'mdi-arrow-up' : 'mdi-arrow-down' }}
               </v-icon>
@@ -41,7 +41,7 @@
               </div>
             </div>
 
-            <div class="d-flex justify-center gap-1 mt-4">
+            <div class="d-flex justify-center ga-1 mt-4">
               <v-btn
                 v-for="range in timeRanges"
                 :key="range"
@@ -139,7 +139,7 @@
           :value="category.name"
         >
           <v-expansion-panel-title>
-            <div class="d-flex align-center w-100 gap-4">
+            <div class="d-flex align-center w-100 ga-4">
               <span class="text-body-2 font-weight-medium flex-grow-1">{{ category.name }}</span>
               <span class="text-body-2 text-medium-emphasis"
                 >{{ category.percentage }}% of assets</span
@@ -162,7 +162,7 @@
               </div>
               <template v-for="account in category.accounts" :key="account.ACCTID">
                 <v-divider />
-                <div class="d-flex align-center px-4 py-3 gap-3">
+                <div class="d-flex align-center px-4 py-3 ga-3">
                   <v-avatar size="36" :color="accountTypeColor(account.ACCTTYPE)" variant="tonal">
                     <v-icon :icon="accountTypeIcon(account.ACCTTYPE)" size="18" />
                   </v-avatar>
@@ -208,7 +208,7 @@
           :value="category.name"
         >
           <v-expansion-panel-title>
-            <div class="d-flex align-center w-100 gap-4">
+            <div class="d-flex align-center w-100 ga-4">
               <span class="text-body-2 font-weight-medium flex-grow-1">{{ category.name }}</span>
               <span class="text-body-2 text-medium-emphasis"
                 >{{ category.percentage }}% of debts</span
@@ -233,7 +233,7 @@
               </div>
               <template v-for="account in category.accounts" :key="account.ACCTID">
                 <v-divider />
-                <div class="d-flex align-center px-4 py-3 gap-3">
+                <div class="d-flex align-center px-4 py-3 ga-3">
                   <v-avatar size="36" :color="accountTypeColor(account.ACCTTYPE)" variant="tonal">
                     <v-icon :icon="accountTypeIcon(account.ACCTTYPE)" size="18" />
                   </v-avatar>
@@ -383,7 +383,7 @@ const accountBalances = computed(() => {
     const txTotal = balanceById.get(account.ACCTID) || 0
     const starting = Number(account.startingBalance) || 0
     const raw = starting + txTotal
-    const isAsset = resolveIsAsset(account)  // honours accountCategory override
+    const isAsset = resolveIsAsset(account) // honours accountCategory override
     return { ...account, isAsset, balance: isAsset ? raw : -raw }
   })
 })

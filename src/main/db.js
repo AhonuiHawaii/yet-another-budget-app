@@ -319,7 +319,9 @@ function createManualAccount(acct) {
     paymentFrequency: VALID_FREQUENCIES.has(acct.paymentFrequency) ? acct.paymentFrequency : null,
     paymentStartDate: acct.paymentStartDate || null,
     paymentCount: Number(acct.paymentCount) > 0 ? Math.round(Number(acct.paymentCount)) : null,
-    startingBalance: Number.isFinite(Number(acct.startingBalance)) ? Number(acct.startingBalance) : null
+    startingBalance: Number.isFinite(Number(acct.startingBalance))
+      ? Number(acct.startingBalance)
+      : null
   })
 }
 

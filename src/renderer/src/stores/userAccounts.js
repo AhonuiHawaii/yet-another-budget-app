@@ -53,7 +53,7 @@ export function accountTypeColor(type) {
     {
       Checking: 'primary',
       Savings: 'success',
-      'Money Market': 'primary',   // treat like Checking visually
+      'Money Market': 'primary', // treat like Checking visually
       'Credit Line': 'error',
       'Buy Now Pay Later': 'error',
       'Personal Loan': 'error',
@@ -76,7 +76,7 @@ export function accountTypeIcon(type) {
     {
       Checking: 'mdi-bank-outline',
       Savings: 'mdi-piggy-bank-outline',
-      'Money Market': 'mdi-bank-outline',   // treat like Checking visually
+      'Money Market': 'mdi-bank-outline', // treat like Checking visually
       'Credit Line': 'mdi-credit-card-outline',
       'Buy Now Pay Later': 'mdi-shopping-outline',
       'Personal Loan': 'mdi-cash-multiple',
