@@ -73,7 +73,7 @@ onErrorCaptured((err) => {
       <v-alert v-if="appError" type="error" class="ma-4" closable @click:close="appError = null">
         {{ appError }}
       </v-alert>
-      <component v-else :is="currentComponent" />
+      <component v-else :is="currentComponent" @navigate="changeView" />
     </v-main>
     <AppFooter />
   </v-app>
