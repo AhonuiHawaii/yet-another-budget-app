@@ -140,13 +140,6 @@
         >
           <v-expansion-panel-title>
             <div class="d-flex align-center w-100 gap-4">
-              <v-progress-circular
-                :model-value="category.percentage"
-                :color="category.percentage > 0 ? 'teal' : undefined"
-                bg-color="surface-variant"
-                size="28"
-                width="3"
-              />
               <span class="text-body-2 font-weight-medium flex-grow-1">{{ category.name }}</span>
               <span class="text-body-2 text-medium-emphasis"
                 >{{ category.percentage }}% of assets</span
@@ -156,7 +149,7 @@
           </v-expansion-panel-title>
 
           <v-expansion-panel-text>
-            <v-card variant="outlined" rounded="lg" class="mx-2 mb-2">
+            <v-card variant="flat" rounded="lg" class="mx-2 mb-2">
               <div
                 class="d-flex align-center justify-space-between px-4 py-2 text-caption text-medium-emphasis"
               >
@@ -216,13 +209,6 @@
         >
           <v-expansion-panel-title>
             <div class="d-flex align-center w-100 gap-4">
-              <v-progress-circular
-                :model-value="category.percentage"
-                :color="category.percentage > 0 ? 'error' : undefined"
-                bg-color="surface-variant"
-                size="28"
-                width="3"
-              />
               <span class="text-body-2 font-weight-medium flex-grow-1">{{ category.name }}</span>
               <span class="text-body-2 text-medium-emphasis"
                 >{{ category.percentage }}% of debts</span
@@ -234,7 +220,7 @@
           </v-expansion-panel-title>
 
           <v-expansion-panel-text>
-            <v-card variant="outlined" rounded="lg" class="mx-2 mb-2">
+            <v-card variant="flat" rounded="lg" class="mx-2 mb-2">
               <div
                 class="d-flex align-center justify-space-between px-4 py-2 text-caption text-medium-emphasis"
               >
