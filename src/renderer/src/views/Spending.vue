@@ -1,5 +1,170 @@
 <template>
   <v-container fluid class="pa-6">
+    <div class="d-flex justify-center mb-6">
+      <v-btn-group variant="tonal" density="comfortable" rounded="lg">
+        <v-btn
+          :color="activePeriod === 'last' ? 'primary' : undefined"
+          :variant="activePeriod === 'last' ? 'flat' : 'tonal'"
+          @click="selectMonth(lastMonthValue())"
+        >
+          Last Month
+        </v-btn>
+        <v-btn
+          :color="activePeriod === 'this' ? 'primary' : undefined"
+          :variant="activePeriod === 'this' ? 'flat' : 'tonal'"
+          @click="selectMonth(thisMonthValue())"
+        >
+          This Month
+        </v-btn>
+        <v-menu v-model="customMenu" :close-on-content-click="false" location="bottom start">
+          <template #activator="{ props }">
+            <v-btn
+              v-bind="props"
+              :color="activePeriod === 'custom' ? 'primary' : undefined"
+              :variant="activePeriod === 'custom' ? 'flat' : 'tonal'"
+            >
+              {{ activePeriod === 'custom' ? customLabel : 'Custom' }}
+              <v-icon end size="16">mdi-chevron-down</v-icon>
+            </v-btn>
+          </template>
+
+          <v-card elevation="8" rounded="lg" min-width="220">
+            <!-- Back header -->
+            <div v-if="activeSubmenu" class="d-flex align-center px-2 pt-2">
+              <v-btn
+                variant="text"
+                size="small"
+                prepend-icon="mdi-chevron-left"
+                @click="activeSubmenu = null"
+              >
+                Back
+              </v-btn>
+            </div>
+
+            <!-- Root list -->
+            <v-list v-if="!activeSubmenu" density="compact" nav class="py-2">
+              <v-list-item
+                rounded="lg"
+                :active="period.type === 'weekly'"
+                color="primary"
+                @click="activeSubmenu = 'weekly'"
+              >
+                <v-list-item-title class="font-weight-bold">Weekly</v-list-item-title>
+                <template #append>
+                  <v-icon size="16" class="text-medium-emphasis">mdi-chevron-right</v-icon>
+                </template>
+              </v-list-item>
+              <v-list-item
+                rounded="lg"
+                :active="period.type === 'monthly'"
+                color="primary"
+                @click="activeSubmenu = 'monthly'"
+              >
+                <v-list-item-title class="font-weight-bold">Monthly</v-list-item-title>
+                <template #append>
+                  <v-icon size="16" class="text-medium-emphasis">mdi-chevron-right</v-icon>
+                </template>
+              </v-list-item>
+              <v-list-item
+                rounded="lg"
+                :active="period.type === 'quarterly'"
+                color="primary"
+                @click="activeSubmenu = 'quarterly'"
+              >
+                <v-list-item-title class="font-weight-bold">Quarterly</v-list-item-title>
+                <template #append>
+                  <v-icon size="16" class="text-medium-emphasis">mdi-chevron-right</v-icon>
+                </template>
+              </v-list-item>
+              <v-list-item
+                rounded="lg"
+                :active="period.type === 'yearly'"
+                color="primary"
+                @click="activeSubmenu = 'yearly'"
+              >
+                <v-list-item-title class="font-weight-bold">Yearly</v-list-item-title>
+                <template #append>
+                  <v-icon size="16" class="text-medium-emphasis">mdi-chevron-right</v-icon>
+                </template>
+              </v-list-item>
+            </v-list>
+
+            <!-- Weekly list -->
+            <v-list v-else-if="activeSubmenu === 'weekly'" density="compact" nav class="py-2">
+              <v-list-item
+                rounded="lg"
+                :active="isThisWeek"
+                color="primary"
+                @click="selectWeek(thisWeekStart())"
+              >
+                <v-list-item-title>This week</v-list-item-title>
+              </v-list-item>
+              <v-list-item
+                rounded="lg"
+                :active="isLastWeek"
+                color="primary"
+                @click="selectWeek(lastWeekStart())"
+              >
+                <v-list-item-title>Last Week</v-list-item-title>
+              </v-list-item>
+              <v-list-item
+                v-for="week in recentWeeks"
+                :key="week.start.getTime()"
+                rounded="lg"
+                :active="period.type === 'weekly' && period.weekStart?.getTime() === week.start.getTime()"
+                color="primary"
+                @click="selectWeek(week.start)"
+              >
+                <v-list-item-title>Week of {{ formatWeekStart(week.start) }}</v-list-item-title>
+              </v-list-item>
+            </v-list>
+
+            <!-- Monthly list -->
+            <v-list v-else-if="activeSubmenu === 'monthly'" density="compact" nav class="py-2">
+              <v-list-item
+                v-for="opt in recentMonths"
+                :key="opt.value"
+                rounded="lg"
+                :active="period.type === 'monthly' && period.month === opt.value"
+                color="primary"
+                @click="selectMonth(opt.value)"
+              >
+                <v-list-item-title>{{ opt.label }}</v-list-item-title>
+              </v-list-item>
+            </v-list>
+
+            <!-- Quarterly list -->
+            <v-list v-else-if="activeSubmenu === 'quarterly'" density="compact" nav class="py-2">
+              <v-list-item
+                v-for="q in recentQuarters"
+                :key="`${q.year}-${q.quarter}`"
+                rounded="lg"
+                :active="period.type === 'quarterly' && period.year === q.year && period.quarter === q.quarter"
+                color="primary"
+                @click="selectQuarter(q.year, q.quarter)"
+              >
+                <v-list-item-title>Q{{ q.quarter }} {{ q.year }}</v-list-item-title>
+              </v-list-item>
+            </v-list>
+
+            <!-- Yearly list -->
+            <v-list v-else-if="activeSubmenu === 'yearly'" density="compact" nav class="py-2">
+              <v-list-item
+                v-for="y in yearOptions"
+                :key="y"
+                rounded="lg"
+                :active="period.type === 'yearly' && period.year === y"
+                color="primary"
+                @click="selectYear(y)"
+              >
+                <v-list-item-title>{{ y }}</v-list-item-title>
+              </v-list-item>
+            </v-list>
+          </v-card>
+        </v-menu>
+      </v-btn-group>
+    </div>
+
     <v-row align="start">
       <!-- Left: pie + by category -->
       <v-col cols="12" md="7">
@@ -245,14 +410,13 @@ import { Doughnut } from 'vue-chartjs'
 import { Chart as ChartJS, ArcElement, Tooltip } from 'chart.js'
 import { useUserCategoriesStore } from '../stores/userCategories'
 import { useUserBudgetsStore } from '../stores/userBudgets'
-import { useUserSettingsStore } from '../stores/userSettings'
 import { useUserTransactionsStore } from '../stores/userTransactions'
 
 ChartJS.register(ArcElement, Tooltip)
 
 const categoriesStore = useUserCategoriesStore()
 const budgetsStore = useUserBudgetsStore()
-const settingsStore = useUserSettingsStore()
+
 const transactionsStore = useUserTransactionsStore()
 
 const chartColors = [
@@ -274,14 +438,185 @@ const chartColors = [
 ]
 
 // ── Period ────────────────────────────────────────────────────────────────────
+function thisMonthValue() {
+  const now = new Date()
+  return `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}`
+}
+
+function lastMonthValue() {
+  const d = new Date()
+  d.setDate(1)
+  d.setMonth(d.getMonth() - 1)
+  return `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}`
+}
+
+function monthLabel(yyyymm) {
+  const year = Number(yyyymm.slice(0, 4))
+  const month = Number(yyyymm.slice(4, 6)) - 1
+  return new Date(year, month, 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+}
+
+function thisWeekStart() {
+  const now = new Date()
+  const dow = now.getDay()
+  const monday = new Date(now)
+  monday.setDate(now.getDate() - (dow === 0 ? 6 : dow - 1))
+  monday.setHours(0, 0, 0, 0)
+  return monday
+}
+
+function lastWeekStart() {
+  const monday = thisWeekStart()
+  monday.setDate(monday.getDate() - 7)
+  return monday
+}
+
+function formatWeekStart(date) {
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+}
+
+const period = ref({ type: 'monthly', month: thisMonthValue() })
+const customMenu = ref(false)
+const activeSubmenu = ref(null)
+
+const activePeriod = computed(() => {
+  if (period.value.type === 'monthly') {
+    if (period.value.month === thisMonthValue()) return 'this'
+    if (period.value.month === lastMonthValue()) return 'last'
+  }
+  return 'custom'
+})
+
+const customLabel = computed(() => {
+  const p = period.value
+  if (p.type === 'monthly') return monthLabel(p.month)
+  if (p.type === 'weekly')
+    return `Week of ${p.weekStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
+  if (p.type === 'quarterly') return `Q${p.quarter} ${p.year}`
+  if (p.type === 'yearly') return String(p.year)
+  return 'Custom'
+})
+
+const isThisWeek = computed(
+  () => period.value.type === 'weekly' && period.value.weekStart?.getTime() === thisWeekStart().getTime()
+)
+
+const isLastWeek = computed(
+  () => period.value.type === 'weekly' && period.value.weekStart?.getTime() === lastWeekStart().getTime()
+)
+
+const recentWeeks = computed(() => {
+  const start = thisWeekStart()
+  return Array.from({ length: 8 }, (_, i) => {
+    const monday = new Date(start)
+    monday.setDate(monday.getDate() - (i + 2) * 7)
+    return { start: monday }
+  })
+})
+
+const recentMonths = computed(() => {
+  const thisYear = new Date().getFullYear()
+  return Array.from({ length: 18 }, (_, i) => {
+    const d = new Date(new Date().getFullYear(), new Date().getMonth() - i, 1)
+    return {
+      value: `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}`,
+      label:
+        d.getFullYear() === thisYear
+          ? d.toLocaleDateString('en-US', { month: 'long' })
+          : d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+    }
+  })
+})
+
+const recentQuarters = computed(() => {
+  const quarters = []
+  let year = new Date().getFullYear()
+  let quarter = Math.ceil((new Date().getMonth() + 1) / 3)
+  for (let i = 0; i < 8; i++) {
+    quarters.push({ year, quarter })
+    quarter--
+    if (quarter === 0) {
+      quarter = 4
+      year--
+    }
+  }
+  return quarters
+})
+
+const yearOptions = computed(() => {
+  const y = new Date().getFullYear()
+  return Array.from({ length: 6 }, (_, i) => y - i)
+})
+
+function selectMonth(yyyymm) {
+  period.value = { type: 'monthly', month: yyyymm }
+  customMenu.value = false
+  activeSubmenu.value = null
+}
+
+function selectWeek(weekStart) {
+  period.value = { type: 'weekly', weekStart: new Date(weekStart) }
+  customMenu.value = false
+  activeSubmenu.value = null
+}
+
+function selectQuarter(year, quarter) {
+  period.value = { type: 'quarterly', year, quarter }
+  customMenu.value = false
+  activeSubmenu.value = null
+}
+
+function selectYear(year) {
+  period.value = { type: 'yearly', year }
+  customMenu.value = false
+  activeSubmenu.value = null
+}
+
+watch(customMenu, (isOpen) => {
+  if (!isOpen) activeSubmenu.value = null
+})
+
 const periodBounds = computed(() => {
-  const y = parseInt(settingsStore.selectedMonth.slice(0, 4))
-  const m = parseInt(settingsStore.selectedMonth.slice(4, 6)) - 1
-  return { start: new Date(y, m, 1), end: new Date(y, m + 1, 0, 23, 59, 59, 999) }
+  const p = period.value
+  if (p.type === 'monthly') {
+    const y = parseInt(p.month.slice(0, 4))
+    const m = parseInt(p.month.slice(4, 6)) - 1
+    return { start: new Date(y, m, 1), end: new Date(y, m + 1, 0, 23, 59, 59, 999) }
+  }
+  if (p.type === 'weekly') {
+    const end = new Date(p.weekStart)
+    end.setDate(end.getDate() + 6)
+    end.setHours(23, 59, 59, 999)
+    return { start: new Date(p.weekStart), end }
+  }
+  if (p.type === 'quarterly') {
+    const startM = (p.quarter - 1) * 3
+    return { start: new Date(p.year, startM, 1), end: new Date(p.year, startM + 3, 0, 23, 59, 59, 999) }
+  }
+  if (p.type === 'yearly') {
+    return { start: new Date(p.year, 0, 1), end: new Date(p.year + 1, 0, 0, 23, 59, 59, 999) }
+  }
+  return { start: new Date(), end: new Date() }
 })
 
 async function applyPeriod() {
-  await transactionsStore.fetchTransactionsByMonth(settingsStore.selectedMonth)
+  const p = period.value
+  if (p.type === 'monthly') {
+    await transactionsStore.fetchTransactionsByMonth(p.month)
+  } else if (p.type === 'weekly') {
+    const m = p.weekStart.getMonth() + 1
+    const ym = `${p.weekStart.getFullYear()}${String(m).padStart(2, '0')}`
+    await transactionsStore.fetchTransactionsByMonth(ym)
+  } else if (p.type === 'quarterly') {
+    const months = [0, 1, 2].map((i) => {
+      const m = (p.quarter - 1) * 3 + i + 1
+      return `${p.year}${String(m).padStart(2, '0')}`
+    })
+    await transactionsStore.fetchTransactionsForPeriod(months)
+  } else if (p.type === 'yearly') {
+    const months = Array.from({ length: 12 }, (_, i) => `${p.year}${String(i + 1).padStart(2, '0')}`)
+    await transactionsStore.fetchTransactionsForPeriod(months)
+  }
 }
 
 // ── Transactions ──────────────────────────────────────────────────────────────
@@ -311,8 +646,8 @@ function buildActualsMap(catList) {
   }
   return catList.map((cat) => ({
     ...cat,
-    projected: budgetsStore.getEffectiveBudget(cat.id, settingsStore.selectedMonth),
-    actual: actuals.get(cat.name) || 0
+    projected: budgetsStore.getEffectiveBudget(cat.id, period.value.month ?? thisMonthValue()),
+    actual: actuals.get(cat.id) || 0
   }))
 }
 
@@ -476,10 +811,7 @@ onMounted(async () => {
   await applyPeriod()
 })
 
-watch(
-  () => settingsStore.selectedMonth,
-  async () => {
-    await applyPeriod()
-  }
-)
+watch(period, async () => {
+  await applyPeriod()
+}, { deep: true })
 </script>
