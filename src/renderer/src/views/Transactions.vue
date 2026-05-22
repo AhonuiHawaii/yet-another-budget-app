@@ -102,7 +102,6 @@
     <!-- Toolbar -->
     <v-card rounded elevation="2" class="mb-3">
       <v-card-text class="pa-3">
-
         <div class="d-flex gap-2">
           <v-text-field
             v-model="search"

@@ -6,7 +6,13 @@
         {{ prevMonthLabel }}
       </v-btn>
       <span class="text-subtitle-1 font-weight-bold mx-6">{{ monthLabel(selectedMonth) }}</span>
-      <v-btn variant="tonal" density="comfortable" rounded="lg" :disabled="isNextMonthFuture" @click="nextMonth">
+      <v-btn
+        variant="tonal"
+        density="comfortable"
+        rounded="lg"
+        :disabled="isNextMonthFuture"
+        @click="nextMonth"
+      >
         {{ nextMonthLabel }}
         <v-icon end size="16">mdi-chevron-right</v-icon>
       </v-btn>

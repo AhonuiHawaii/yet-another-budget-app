@@ -111,7 +111,9 @@
                 v-for="week in recentWeeks"
                 :key="week.start.getTime()"
                 rounded="lg"
-                :active="period.type === 'weekly' && period.weekStart?.getTime() === week.start.getTime()"
+                :active="
+                  period.type === 'weekly' && period.weekStart?.getTime() === week.start.getTime()
+                "
                 color="primary"
                 @click="selectWeek(week.start)"
               >
@@ -139,7 +141,11 @@
                 v-for="q in recentQuarters"
                 :key="`${q.year}-${q.quarter}`"
                 rounded="lg"
-                :active="period.type === 'quarterly' && period.year === q.year && period.quarter === q.quarter"
+                :active="
+                  period.type === 'quarterly' &&
+                  period.year === q.year &&
+                  period.quarter === q.quarter
+                "
                 color="primary"
                 @click="selectQuarter(q.year, q.quarter)"
               >
@@ -512,11 +518,15 @@ const customLabel = computed(() => {
 })
 
 const isThisWeek = computed(
-  () => period.value.type === 'weekly' && period.value.weekStart?.getTime() === thisWeekStart().getTime()
+  () =>
+    period.value.type === 'weekly' &&
+    period.value.weekStart?.getTime() === thisWeekStart().getTime()
 )
 
 const isLastWeek = computed(
-  () => period.value.type === 'weekly' && period.value.weekStart?.getTime() === lastWeekStart().getTime()
+  () =>
+    period.value.type === 'weekly' &&
+    period.value.weekStart?.getTime() === lastWeekStart().getTime()
 )
 
 const recentWeeks = computed(() => {
@@ -605,7 +615,10 @@ const periodBounds = computed(() => {
   }
   if (p.type === 'quarterly') {
     const startM = (p.quarter - 1) * 3
-    return { start: new Date(p.year, startM, 1), end: new Date(p.year, startM + 3, 0, 23, 59, 59, 999) }
+    return {
+      start: new Date(p.year, startM, 1),
+      end: new Date(p.year, startM + 3, 0, 23, 59, 59, 999)
+    }
   }
   if (p.type === 'yearly') {
     return { start: new Date(p.year, 0, 1), end: new Date(p.year + 1, 0, 0, 23, 59, 59, 999) }
@@ -628,7 +641,10 @@ async function applyPeriod() {
     })
     await transactionsStore.fetchTransactionsForPeriod(months)
   } else if (p.type === 'yearly') {
-    const months = Array.from({ length: 12 }, (_, i) => `${p.year}${String(i + 1).padStart(2, '0')}`)
+    const months = Array.from(
+      { length: 12 },
+      (_, i) => `${p.year}${String(i + 1).padStart(2, '0')}`
+    )
     await transactionsStore.fetchTransactionsForPeriod(months)
   }
 }
@@ -881,7 +897,11 @@ onMounted(async () => {
   await Promise.all([applyPeriod(), transactionsStore.fetchMonthlyTotals()])
 })
 
-watch(period, async () => {
-  await applyPeriod()
-}, { deep: true })
+watch(
+  period,
+  async () => {
+    await applyPeriod()
+  },
+  { deep: true }
+)
 </script>

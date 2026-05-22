@@ -144,7 +144,9 @@
               <span class="text-body-2 text-medium-emphasis text-right" style="min-width: 110px"
                 >{{ category.percentage }}% of assets</span
               >
-              <span class="text-body-2 font-weight-bold text-right" style="min-width: 90px">{{ formatCurrency(category.total) }}</span>
+              <span class="text-body-2 font-weight-bold text-right" style="min-width: 90px">{{
+                formatCurrency(category.total)
+              }}</span>
             </div>
           </v-expansion-panel-title>
 
@@ -213,9 +215,11 @@
               <span class="text-body-2 text-medium-emphasis text-right" style="min-width: 110px"
                 >{{ category.percentage }}% of debts</span
               >
-              <span class="text-body-2 font-weight-bold text-error text-right" style="min-width: 90px">{{
-                formatCurrency(category.total)
-              }}</span>
+              <span
+                class="text-body-2 font-weight-bold text-error text-right"
+                style="min-width: 90px"
+                >{{ formatCurrency(category.total) }}</span
+              >
             </div>
           </v-expansion-panel-title>
 

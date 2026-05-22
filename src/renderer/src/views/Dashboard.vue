@@ -6,7 +6,13 @@
         {{ prevMonthLabel }}
       </v-btn>
       <span class="text-subtitle-1 font-weight-bold mx-6">{{ monthLabel(selectedMonth) }}</span>
-      <v-btn variant="tonal" density="comfortable" rounded="lg" :disabled="isNextMonthFuture" @click="nextMonth">
+      <v-btn
+        variant="tonal"
+        density="comfortable"
+        rounded="lg"
+        :disabled="isNextMonthFuture"
+        @click="nextMonth"
+      >
         {{ nextMonthLabel }}
         <v-icon end size="16">mdi-chevron-right</v-icon>
       </v-btn>
@@ -368,8 +374,12 @@ const selectedMonth = ref(currentMonthValue())
 const prevMonthLabel = computed(() => shortMonthLabel(offsetMonth(selectedMonth.value, -1)))
 const nextMonthLabel = computed(() => shortMonthLabel(offsetMonth(selectedMonth.value, 1)))
 const isNextMonthFuture = computed(() => offsetMonth(selectedMonth.value, 1) > currentMonthValue())
-function prevMonth() { selectedMonth.value = offsetMonth(selectedMonth.value, -1) }
-function nextMonth() { selectedMonth.value = offsetMonth(selectedMonth.value, 1) }
+function prevMonth() {
+  selectedMonth.value = offsetMonth(selectedMonth.value, -1)
+}
+function nextMonth() {
+  selectedMonth.value = offsetMonth(selectedMonth.value, 1)
+}
 
 // ── Period bounds ─────────────────────────────────────────────────────────────
 const periodBounds = computed(() => {
