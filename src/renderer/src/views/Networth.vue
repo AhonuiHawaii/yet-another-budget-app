@@ -260,7 +260,7 @@
 
 <script setup>
 import { computed, onMounted, ref } from 'vue'
-import { Line, Doughnut } from 'vue-chartjs'
+import { Line } from 'vue-chartjs'
 import {
   Chart as ChartJS,
   ArcElement,
@@ -273,7 +273,16 @@ import {
   Legend,
   Filler
 } from 'chart.js'
-import { useUserAccountsStore } from '../stores/userAccounts'
+import {
+  useUserAccountsStore,
+  accountTypeColor,
+  accountTypeIcon,
+  formatCurrency,
+  resolveIsAsset,
+  CATEGORY_MAP,
+  CATEGORY_ORDER,
+  ALWAYS_SHOW_CATEGORIES
+} from '../stores/userAccounts'
 import { useUserTransactionsStore } from '../stores/userTransactions'
 import { useUserDebtsStore } from '../stores/userDebts'
 
@@ -299,11 +308,7 @@ const openDebtPanels = ref([])
 const selectedRange = ref('6M')
 const timeRanges = ['1M', '3M', '6M', '1Y', 'ALL']
 
-const ASSET_TYPES = new Set(['Checking', 'Savings', 'Money Market'])
-
-const CATEGORY_MAP = { Checking: 'Cash', Savings: 'Savings', 'Money Market': 'Cash' }
-const CATEGORY_ORDER = ['Investments', 'Savings', 'Cash', 'Other Assets']
-const ALWAYS_SHOW = new Set(['Savings', 'Cash'])
+const ALWAYS_SHOW = ALWAYS_SHOW_CATEGORIES
 
 const netWorthHistory = computed(() => transactionsStore.netWorthHistory)
 const latest = computed(() => netWorthHistory.value[netWorthHistory.value.length - 1] || null)
@@ -378,7 +383,7 @@ const accountBalances = computed(() => {
     const txTotal = balanceById.get(account.ACCTID) || 0
     const starting = Number(account.startingBalance) || 0
     const raw = starting + txTotal
-    const isAsset = ASSET_TYPES.has(account.ACCTTYPE)
+    const isAsset = resolveIsAsset(account)  // honours accountCategory override
     return { ...account, isAsset, balance: isAsset ? raw : -raw }
   })
 })
@@ -429,156 +434,6 @@ const assetCategories = computed(() => {
   }).filter((c) => c.accounts.length > 0 || ALWAYS_SHOW.has(c.name))
 })
 
-const miniChartOptions = {
-  responsive: true,
-  maintainAspectRatio: false,
-  cutout: '72%',
-  plugins: { legend: { display: false }, tooltip: { enabled: false } },
-  animation: { duration: 300 }
-}
-
-const netWorthChartData = computed(() => {
-  const a = totalAssets.value
-  const l = totalLiabilities.value
-  const dim = 'rgba(255,255,255,0.08)'
-  if (a <= 0 && l <= 0) return { datasets: [{ data: [1], backgroundColor: [dim], borderWidth: 0 }] }
-  return {
-    datasets: [
-      { data: [a || 0.001, l || 0.001], backgroundColor: ['#4caf50', '#ef5350'], borderWidth: 0 }
-    ]
-  }
-})
-
-const assetsChartData = computed(() => {
-  const a = totalAssets.value
-  const l = totalLiabilities.value
-  const dim = 'rgba(255,255,255,0.08)'
-  if (a + l <= 0) return { datasets: [{ data: [1], backgroundColor: [dim], borderWidth: 0 }] }
-  return {
-    datasets: [
-      { data: [a || 0.001, l || 0.001], backgroundColor: ['#4caf50', dim], borderWidth: 0 }
-    ]
-  }
-})
-
-const liabilitiesChartData = computed(() => {
-  const a = totalAssets.value
-  const l = totalLiabilities.value
-  const dim = 'rgba(255,255,255,0.08)'
-  if (a + l <= 0) return { datasets: [{ data: [1], backgroundColor: [dim], borderWidth: 0 }] }
-  return {
-    datasets: [
-      { data: [l || 0.001, a || 0.001], backgroundColor: ['#ef5350', dim], borderWidth: 0 }
-    ]
-  }
-})
-
-const monthlyChangeChartData = computed(() => {
-  const change = monthlyChange.value
-  const dim = 'rgba(255,255,255,0.08)'
-  const base = Math.abs(netWorth.value - change)
-  if (base <= 0 && Math.abs(change) <= 0)
-    return { datasets: [{ data: [1], backgroundColor: [dim], borderWidth: 0 }] }
-  const color = change >= 0 ? '#4caf50' : '#ef5350'
-  return {
-    datasets: [
-      {
-        data: [Math.abs(change) || 0.001, base || 0.001],
-        backgroundColor: [color, dim],
-        borderWidth: 0
-      }
-    ]
-  }
-})
-
-function formatCurrency(value) {
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value || 0)
-}
-
-function accountTypeColor(type) {
-  return (
-    {
-      Checking: 'primary',
-      Savings: 'success',
-      'Money Market': 'warning',
-      'Credit Line': 'error',
-      'Buy Now Pay Later': 'error',
-      'Personal Loan': 'error',
-      'Auto Loan': 'error',
-      'Student Loan': 'error',
-      Mortgage: 'error',
-      'Medical Debt': 'error',
-      'Family / Friend Loan': 'error',
-      Other: 'error'
-    }[type] || 'secondary'
-  )
-}
-
-function accountTypeIcon(type) {
-  return (
-    {
-      Checking: 'mdi-bank-outline',
-      Savings: 'mdi-piggy-bank-outline',
-      'Money Market': 'mdi-chart-line',
-      'Credit Line': 'mdi-credit-card-outline',
-      'Buy Now Pay Later': 'mdi-shopping-outline',
-      'Personal Loan': 'mdi-cash-multiple',
-      'Auto Loan': 'mdi-car',
-      'Student Loan': 'mdi-school-outline',
-      Mortgage: 'mdi-home-outline',
-      'Medical Debt': 'mdi-hospital-box-outline',
-      'Family / Friend Loan': 'mdi-account-heart-outline',
-      Other: 'mdi-dots-horizontal-circle-outline'
-    }[type] || 'mdi-bank-outline'
-  )
-}
-
-const chartData = computed(() => {
-  const rows = netWorthHistory.value
-  return {
-    labels: rows.map((r) => {
-      const y = r.month.slice(0, 4)
-      const m = parseInt(r.month.slice(4, 6)) - 1
-      return new Date(y, m, 1).toLocaleDateString('en-US', { month: 'short', year: '2-digit' })
-    }),
-    datasets: [
-      {
-        label: 'Net Worth',
-        data: rows.map((r) => r.netWorth),
-        borderColor: '#1976d2',
-        backgroundColor: 'rgba(25,118,210,0.12)',
-        fill: true,
-        tension: 0.3,
-        pointRadius: 4,
-        pointHoverRadius: 6,
-        borderWidth: 2.5
-      },
-      {
-        label: 'Assets',
-        data: rows.map((r) => r.assets),
-        borderColor: '#4caf50',
-        backgroundColor: 'rgba(76,175,80,0.04)',
-        fill: false,
-        tension: 0.3,
-        pointRadius: 3,
-        pointHoverRadius: 5,
-        borderDash: [4, 4]
-      },
-      {
-        label: 'Liabilities',
-        data: rows.map((r) => r.liabilities),
-        borderColor: '#f44336',
-        backgroundColor: 'rgba(244,67,54,0.04)',
-        fill: false,
-        tension: 0.3,
-        pointRadius: 3,
-        pointHoverRadius: 5,
-        borderDash: [4, 4]
-      }
-    ]
-  }
-})
-
 const chartOptions = {
   responsive: true,
   maintainAspectRatio: false,
@@ -587,8 +442,7 @@ const chartOptions = {
     legend: { position: 'top', labels: { usePointStyle: true, padding: 16 } },
     tooltip: {
       callbacks: {
-        label: (ctx) =>
-          ` ${ctx.dataset.label}: ${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(ctx.parsed.y)}`
+        label: (ctx) => ` ${ctx.dataset.label}: ${formatCurrency(ctx.parsed.y)}`
       }
     }
   },

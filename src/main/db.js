@@ -90,6 +90,11 @@ db.exec(`CREATE INDEX IF NOT EXISTS idx_transactions_dtposted ON Transactions(DT
 db.exec(`CREATE INDEX IF NOT EXISTS idx_transactions_acctid   ON Transactions(ACCTID)`)
 db.exec(`CREATE INDEX IF NOT EXISTS idx_transactions_category ON Transactions(category)`)
 
+// 1.2: Add accountCategory column for user-defined asset/liability override (safe on existing DBs)
+try {
+  db.exec(`ALTER TABLE Accounts ADD COLUMN accountCategory TEXT DEFAULT NULL`)
+} catch {}
+
 // ── Column sets ──────────────────────────────────────────────────────────────
 
 /*
@@ -349,7 +354,8 @@ function updateAccount(acctid, updates = {}) {
     'paymentFrequency',
     'paymentStartDate',
     'paymentCount',
-    'startingBalance'
+    'startingBalance',
+    'accountCategory'
   ])
   const entries = Object.entries(updates)
     .filter(([col]) => ALLOWED.has(col))
@@ -676,33 +682,60 @@ function getAccountSummary() {
 
 /**
  * Cumulative month-end assets, liabilities, and net worth across all accounts.
- * Asset types: Checking, Savings, Money Market.
- * Liabilities reported as positive owed amounts (negated raw transaction sum).
+ *
+ * Classification order:
+ *   1. accountCategory column ('asset' | 'liability') — explicit user override
+ *   2. ACCTTYPE default — Checking / Savings / Money Market → asset; everything else → liability
+ *
+ * startingBalance is included as a month-0 seed so the headline number always
+ * matches the per-account breakdown shown in the Net Worth view.
+ *
+ * Liabilities are reported as positive owed amounts (negated transaction sum).
+ *
  * @returns {{ month: string, assets: number, liabilities: number, netWorth: number }[]}
  */
 function getNetWorthHistory() {
   return db
     .prepare(
       `
-      WITH monthly AS (
+      WITH
+      -- Classify each account: explicit override wins, then ACCTTYPE default
+      classified AS (
+        SELECT
+          ACCTID,
+          COALESCE(
+            accountCategory,
+            CASE WHEN ACCTTYPE IN ('Checking','Savings','Money Market') THEN 'asset' ELSE 'liability' END
+          ) AS role,
+          COALESCE(startingBalance, 0) AS startingBalance
+        FROM Accounts
+      ),
+      -- Sum startingBalance offsets once (month-independent base)
+      base AS (
+        SELECT
+          COALESCE(SUM(CASE WHEN role = 'asset'     THEN startingBalance ELSE 0 END), 0) AS asset_base,
+          COALESCE(SUM(CASE WHEN role = 'liability' THEN -startingBalance ELSE 0 END), 0) AS liab_base
+        FROM classified
+      ),
+      -- Monthly transaction deltas per role
+      monthly AS (
         SELECT
           SUBSTR(t.DTPOSTED, 1, 6) AS month,
-          SUM(CASE WHEN a.ACCTTYPE IN ('Checking','Savings','Money Market')
-                   THEN CAST(t.TRNAMT AS REAL) ELSE 0 END) AS asset_delta,
-          SUM(CASE WHEN a.ACCTTYPE NOT IN ('Checking','Savings','Money Market')
-                   THEN CAST(t.TRNAMT AS REAL) ELSE 0 END) AS liability_delta
+          SUM(CASE WHEN c.role = 'asset'     THEN CAST(t.TRNAMT AS REAL) ELSE 0 END) AS asset_delta,
+          SUM(CASE WHEN c.role = 'liability' THEN CAST(t.TRNAMT AS REAL) ELSE 0 END) AS liability_delta
         FROM Transactions t
-        JOIN Accounts a ON t.ACCTID = a.ACCTID
+        JOIN classified c ON t.ACCTID = c.ACCTID
         WHERE t.DTPOSTED IS NOT NULL
         GROUP BY month
       )
       SELECT
-        month,
-        SUM(asset_delta) OVER (ORDER BY month)            AS assets,
-        -SUM(liability_delta) OVER (ORDER BY month)       AS liabilities,
-        SUM(asset_delta + liability_delta) OVER (ORDER BY month) AS netWorth
-      FROM monthly
-      ORDER BY month
+        m.month,
+        b.asset_base + SUM(m.asset_delta)     OVER (ORDER BY m.month) AS assets,
+        b.liab_base - SUM(m.liability_delta)  OVER (ORDER BY m.month) AS liabilities,
+        (b.asset_base + SUM(m.asset_delta)    OVER (ORDER BY m.month))
+          + (b.liab_base - SUM(m.liability_delta) OVER (ORDER BY m.month)) AS netWorth
+      FROM monthly m, base b
+      ORDER BY m.month
     `
     )
     .all()

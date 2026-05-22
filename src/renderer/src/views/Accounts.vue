@@ -486,6 +486,19 @@
             hint="Balance before any tracked transactions. Set this so the current balance is accurate."
             @keyup.enter="saveEditName"
           />
+          <v-select
+            v-model="editAccountCategory"
+            :items="accountRoleItems"
+            item-title="title"
+            item-value="value"
+            label="Account Role"
+            variant="solo-filled"
+            density="comfortable"
+            rounded="sm"
+            hide-details="auto"
+            class="mb-4"
+            hint="Override how this account is classified in Net Worth. 'Default' uses the account type."
+          />
           <template v-if="isLoanAccount(editNameTarget)">
             <v-text-field
               v-model.number="editInterestRate"
@@ -675,7 +688,13 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { useUserAccountsStore } from '../stores/userAccounts'
+import {
+  useUserAccountsStore,
+  accountTypeColor,
+  accountTypeIcon,
+  formatCurrency,
+  resolveIsAsset
+} from '../stores/userAccounts'
 import { useUserTransactionsStore } from '../stores/userTransactions'
 
 const store = useUserAccountsStore()
@@ -742,7 +761,7 @@ function accountBalance(account) {
 
 function formatBalance(amount) {
   if (amount === null || amount === undefined) return null
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount)
+  return formatCurrency(amount)
 }
 
 // Group accounts by institution name (ORG), falling back to 'Unknown Institution'
@@ -790,6 +809,13 @@ const editPaymentFrequency = ref('Monthly')
 const editPaymentStartDate = ref(null)
 const editPaymentCount = ref(null)
 const editStartingBalance = ref(null)
+const editAccountCategory = ref(null)  // null | 'asset' | 'liability'
+
+const accountRoleItems = [
+  { title: 'Default (auto-detect)', value: null },
+  { title: 'Asset (counts toward net worth)', value: 'asset' },
+  { title: 'Liability (counts as debt)', value: 'liability' }
+]
 
 function openEditName(account) {
   editNameTarget.value = account
@@ -803,6 +829,7 @@ function openEditName(account) {
     account.startingBalance !== null && account.startingBalance !== undefined
       ? account.startingBalance
       : ''
+  editAccountCategory.value = account.accountCategory ?? null
   editNameDialog.value = true
 }
 
@@ -813,6 +840,7 @@ async function saveEditName() {
     }
     const balVal = parseFloat(editStartingBalance.value)
     updates.startingBalance = isNaN(balVal) ? null : balVal
+    updates.accountCategory = editAccountCategory.value ?? null
     if (isLoanAccount(editNameTarget.value)) {
       updates.interestRate = Number(editInterestRate.value) || 0
       if (isVariableDueDate(editNameTarget.value)) {
@@ -925,41 +953,6 @@ function doRemove() {
   pendingRemove.value = null
 }
 
-function accountTypeColor(type) {
-  return (
-    {
-      Checking: 'primary',
-      Savings: 'success',
-      'Money Market': 'warning',
-      'Credit Line': 'error',
-      'Buy Now Pay Later': 'error',
-      'Personal Loan': 'error',
-      'Auto Loan': 'error',
-      'Student Loan': 'error',
-      Mortgage: 'error',
-      'Medical Debt': 'error',
-      'Family / Friend Loan': 'error',
-      Other: 'error'
-    }[type] || 'secondary'
-  )
-}
-
-function accountTypeIcon(type) {
-  return (
-    {
-      Checking: 'mdi-bank-outline',
-      Savings: 'mdi-piggy-bank-outline',
-      'Money Market': 'mdi-chart-line',
-      'Credit Line': 'mdi-credit-card-outline',
-      'Buy Now Pay Later': 'mdi-shopping-outline',
-      'Personal Loan': 'mdi-cash-multiple',
-      'Auto Loan': 'mdi-car',
-      'Student Loan': 'mdi-school-outline',
-      Mortgage: 'mdi-home-outline',
-      'Medical Debt': 'mdi-hospital-box-outline',
-      'Family / Friend Loan': 'mdi-account-heart-outline',
-      Other: 'mdi-dots-horizontal-circle-outline'
-    }[type] || 'mdi-bank-outline'
-  )
-}
+// accountTypeColor, accountTypeIcon, and formatCurrency are imported from the store.
+// resolveIsAsset is used by the template to show the correct colour when an override is active.
 </script>
