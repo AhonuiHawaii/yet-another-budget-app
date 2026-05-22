@@ -100,8 +100,10 @@ export const useUserAccountsStore = defineStore('userAccounts', () => {
       const result = await ipc.invoke('accounts:edit', acctid, updates)
       if (!result.success) throw new Error(result.error)
       await fetchAccounts()
+      return true
     } catch (err) {
       setError(err)
+      return false
     } finally {
       loadingCount.value--
     }

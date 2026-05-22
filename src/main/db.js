@@ -48,6 +48,7 @@ db.exec(`
     paymentFrequency TEXT,
     paymentStartDate TEXT,
     paymentCount     INTEGER,
+    startingBalance  REAL,
     createdAt   TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     lastImport  TEXT
   )
@@ -300,8 +301,8 @@ function createManualAccount(acct) {
 
   db.prepare(
     `
-    INSERT INTO Accounts (ACCTID, ACCTTYPE, ORG, displayName, interestRate, dueDate, paymentFrequency, paymentStartDate, paymentCount)
-    VALUES (@ACCTID, @ACCTTYPE, @ORG, @displayName, @interestRate, @dueDate, @paymentFrequency, @paymentStartDate, @paymentCount)
+    INSERT INTO Accounts (ACCTID, ACCTTYPE, ORG, displayName, interestRate, dueDate, paymentFrequency, paymentStartDate, paymentCount, startingBalance)
+    VALUES (@ACCTID, @ACCTTYPE, @ORG, @displayName, @interestRate, @dueDate, @paymentFrequency, @paymentStartDate, @paymentCount, @startingBalance)
   `
   ).run({
     ACCTID: acct.ACCTID,
@@ -312,7 +313,8 @@ function createManualAccount(acct) {
     dueDate,
     paymentFrequency: VALID_FREQUENCIES.has(acct.paymentFrequency) ? acct.paymentFrequency : null,
     paymentStartDate: acct.paymentStartDate || null,
-    paymentCount: Number(acct.paymentCount) > 0 ? Math.round(Number(acct.paymentCount)) : null
+    paymentCount: Number(acct.paymentCount) > 0 ? Math.round(Number(acct.paymentCount)) : null,
+    startingBalance: Number.isFinite(Number(acct.startingBalance)) ? Number(acct.startingBalance) : null
   })
 }
 
@@ -346,7 +348,8 @@ function updateAccount(acctid, updates = {}) {
     'dueDate',
     'paymentFrequency',
     'paymentStartDate',
-    'paymentCount'
+    'paymentCount',
+    'startingBalance'
   ])
   const entries = Object.entries(updates)
     .filter(([col]) => ALLOWED.has(col))

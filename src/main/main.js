@@ -184,7 +184,6 @@ export const editAccount = (acctid, updates) => {
     const realAcctid = resolveAcctid(acctid)
     if (!realAcctid) return fail(new Error(`No account found with ACCTID: ${acctid}`))
     const changes = updateAccount(realAcctid, updates)
-    if (!changes) return fail(new Error(`No account found with ACCTID: ${acctid}`))
     return ok({ acctid, changes })
   } catch (e) {
     return fail(e)

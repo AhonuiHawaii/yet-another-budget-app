@@ -91,7 +91,8 @@ export const setupIpcHandlers = () => {
     return editAccount(acctid, updates)
   })
   ipcMain.handle('accounts:createManual', (_, data) => {
-    if (!isObject(data) || typeof data.ACCTID !== 'string') throw new Error('Invalid account data')
+    if (!isObject(data) || !isNonEmptyString(data.displayName))
+      throw new Error('Invalid account data')
     return addManualAccount(data)
   })
   ipcMain.handle('accounts:remove', (_, acctid) => {

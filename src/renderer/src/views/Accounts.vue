@@ -147,6 +147,19 @@
             hide-details="auto"
             class="mb-4"
           />
+          <v-text-field
+            v-model="manualForm.startingBalance"
+            label="Current Balance Owed"
+            type="number"
+            step="0.01"
+            placeholder="0.00"
+            variant="solo-filled"
+            density="comfortable"
+            rounded="sm"
+            hide-details="auto"
+            class="mb-4"
+            prefix="$"
+          />
           <template v-if="isVariableDueDate({ ACCTTYPE: manualForm.ACCTTYPE })">
             <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-2">
               Payment Frequency
@@ -351,6 +364,16 @@
                   </v-list-item-title>
                   <v-list-item-subtitle>
                     <span>*{{ account.ACCTID || '----' }}</span>
+                    <span
+                      v-if="accountBalance(account) !== null"
+                      :class="[
+                        'ml-3 font-weight-medium',
+                        accountBalance(account) >= 0 ? 'text-success' : 'text-error'
+                      ]"
+                    >
+                      {{ formatBalance(accountBalance(account)) }}
+                    </span>
+                    <span v-else class="ml-3 text-disabled text-caption">no balance set</span>
                   </v-list-item-subtitle>
 
                   <template #append>
@@ -446,6 +469,21 @@
             hide-details="auto"
             class="mb-4"
             autofocus
+            @keyup.enter="saveEditName"
+          />
+          <v-text-field
+            v-model="editStartingBalance"
+            label="Starting Balance"
+            type="number"
+            step="0.01"
+            placeholder="0.00"
+            variant="solo-filled"
+            density="comfortable"
+            rounded="sm"
+            hide-details="auto"
+            class="mb-4"
+            prefix="$"
+            hint="Balance before any tracked transactions. Set this so the current balance is accurate."
             @keyup.enter="saveEditName"
           />
           <template v-if="isLoanAccount(editNameTarget)">
@@ -592,9 +630,26 @@
           </template>
         </v-card-text>
         <v-card-actions class="pa-6 pt-0">
+          <v-alert
+            v-if="store.error"
+            type="error"
+            density="compact"
+            class="mb-2 text-caption"
+            rounded="sm"
+          >
+            {{ store.error }}
+          </v-alert>
           <v-spacer />
           <v-btn variant="text" @click="editNameDialog = false">Cancel</v-btn>
-          <v-btn color="primary" variant="flat" rounded="sm" @click="saveEditName">Save</v-btn>
+          <v-btn
+            color="primary"
+            variant="flat"
+            rounded="sm"
+            :loading="store.loading"
+            @click="saveEditName"
+          >
+            Save
+          </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -621,8 +676,10 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useUserAccountsStore } from '../stores/userAccounts'
+import { useUserTransactionsStore } from '../stores/userTransactions'
 
 const store = useUserAccountsStore()
+const txStore = useUserTransactionsStore()
 
 const isVariableDueDate = (account) => isLoanAccount(account)
 
@@ -663,7 +720,30 @@ const isLoanAccount = (account) => {
   )
 }
 
-onMounted(() => store.fetchAccounts())
+onMounted(() => {
+  store.fetchAccounts()
+  txStore.fetchAccountSummary()
+})
+
+// Map of masked ACCTID → transaction sum for all stored transactions
+const txSummaryMap = computed(() => {
+  const map = {}
+  for (const s of txStore.accountSummary) {
+    map[s.ACCTID] = s.total ?? 0
+  }
+  return map
+})
+
+function accountBalance(account) {
+  if (account.startingBalance === null || account.startingBalance === undefined) return null
+  const txTotal = txSummaryMap.value[account.ACCTID] ?? 0
+  return account.startingBalance + txTotal
+}
+
+function formatBalance(amount) {
+  if (amount === null || amount === undefined) return null
+  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount)
+}
 
 // Group accounts by institution name (ORG), falling back to 'Unknown Institution'
 const groupedAccounts = computed(() => {
@@ -709,6 +789,7 @@ const editDueDate = ref(null)
 const editPaymentFrequency = ref('Monthly')
 const editPaymentStartDate = ref(null)
 const editPaymentCount = ref(null)
+const editStartingBalance = ref(null)
 
 function openEditName(account) {
   editNameTarget.value = account
@@ -718,14 +799,20 @@ function openEditName(account) {
   editPaymentFrequency.value = account.paymentFrequency || 'Monthly'
   editPaymentStartDate.value = account.paymentStartDate || null
   editPaymentCount.value = account.paymentCount || null
+  editStartingBalance.value =
+    account.startingBalance !== null && account.startingBalance !== undefined
+      ? account.startingBalance
+      : ''
   editNameDialog.value = true
 }
 
-function saveEditName() {
+async function saveEditName() {
   if (editNameTarget.value) {
     const updates = {
       displayName: editNameValue.value.trim() || editNameTarget.value.ACCTTYPE
     }
+    const balVal = parseFloat(editStartingBalance.value)
+    updates.startingBalance = isNaN(balVal) ? null : balVal
     if (isLoanAccount(editNameTarget.value)) {
       updates.interestRate = Number(editInterestRate.value) || 0
       if (isVariableDueDate(editNameTarget.value)) {
@@ -740,7 +827,9 @@ function saveEditName() {
         updates.dueDate = Number(editDueDate.value) || null
       }
     }
-    store.updateAccount(editNameTarget.value.ACCTID, updates)
+    const ok = await store.updateAccount(editNameTarget.value.ACCTID, updates)
+    if (!ok) return
+    txStore.fetchAccountSummary()
   }
   editNameDialog.value = false
   editNameTarget.value = null
@@ -763,16 +852,19 @@ const emptyManualForm = () => ({
   paymentFrequency: 'Monthly',
   dueDate: null,
   paymentStartDate: null,
-  paymentCount: null
+  paymentCount: null,
+  startingBalance: ''
 })
 const manualForm = ref(emptyManualForm())
 
 async function saveManualAccount() {
+  const balVal = parseFloat(manualForm.value.startingBalance)
   const payload = {
     displayName: manualForm.value.displayName.trim(),
     ORG: manualForm.value.ORG.trim() || null,
     ACCTTYPE: manualForm.value.ACCTTYPE,
     interestRate: Number(manualForm.value.interestRate) || 0,
+    startingBalance: isNaN(balVal) ? null : balVal,
     paymentFrequency: isVariableDueDate({ ACCTTYPE: manualForm.value.ACCTTYPE })
       ? manualForm.value.paymentFrequency
       : null,
