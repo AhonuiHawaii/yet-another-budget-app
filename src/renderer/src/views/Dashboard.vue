@@ -1,5 +1,17 @@
 <template>
   <v-container fluid class="pa-3">
+    <div class="d-flex justify-center align-center mb-3">
+      <v-btn variant="tonal" density="comfortable" rounded="lg" @click="prevMonth">
+        <v-icon start size="16">mdi-chevron-left</v-icon>
+        {{ prevMonthLabel }}
+      </v-btn>
+      <span class="text-subtitle-1 font-weight-bold mx-6">{{ monthLabel(selectedMonth) }}</span>
+      <v-btn variant="tonal" density="comfortable" rounded="lg" :disabled="isNextMonthFuture" @click="nextMonth">
+        {{ nextMonthLabel }}
+        <v-icon end size="16">mdi-chevron-right</v-icon>
+      </v-btn>
+    </div>
+
     <v-alert v-if="dashboardError" type="error" variant="tonal" class="mb-3">
       {{ dashboardError }}
     </v-alert>
@@ -323,21 +335,46 @@ import { useUserAccountsStore } from '../stores/userAccounts'
 import { useUserBudgetsStore } from '../stores/userBudgets'
 import { useUserCategoriesStore } from '../stores/userCategories'
 import { useUserGoalsStore } from '../stores/userGoals'
-import { useUserSettingsStore } from '../stores/userSettings'
 import { useUserTransactionsStore } from '../stores/userTransactions'
 
 const accountsStore = useUserAccountsStore()
 const budgetsStore = useUserBudgetsStore()
 const categoriesStore = useUserCategoriesStore()
 const goalsStore = useUserGoalsStore()
-const settingsStore = useUserSettingsStore()
 const transactionsStore = useUserTransactionsStore()
 const dashboardError = ref(null)
 
-// ── Period bounds — exact copy from Debt.vue ──────────────────────────────────
+function currentMonthValue() {
+  const now = new Date()
+  return `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}`
+}
+function monthLabel(yyyymm) {
+  const year = Number(yyyymm.slice(0, 4))
+  const month = Number(yyyymm.slice(4)) - 1
+  return new Date(year, month, 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+}
+function offsetMonth(yyyymm, delta) {
+  const year = Number(yyyymm.slice(0, 4))
+  const month = Number(yyyymm.slice(4)) - 1
+  const d = new Date(year, month + delta, 1)
+  return `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}`
+}
+function shortMonthLabel(yyyymm) {
+  const year = Number(yyyymm.slice(0, 4))
+  const month = Number(yyyymm.slice(4)) - 1
+  return new Date(year, month, 1).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+}
+const selectedMonth = ref(currentMonthValue())
+const prevMonthLabel = computed(() => shortMonthLabel(offsetMonth(selectedMonth.value, -1)))
+const nextMonthLabel = computed(() => shortMonthLabel(offsetMonth(selectedMonth.value, 1)))
+const isNextMonthFuture = computed(() => offsetMonth(selectedMonth.value, 1) > currentMonthValue())
+function prevMonth() { selectedMonth.value = offsetMonth(selectedMonth.value, -1) }
+function nextMonth() { selectedMonth.value = offsetMonth(selectedMonth.value, 1) }
+
+// ── Period bounds ─────────────────────────────────────────────────────────────
 const periodBounds = computed(() => {
-  const y = parseInt(settingsStore.selectedMonth.slice(0, 4))
-  const m = parseInt(settingsStore.selectedMonth.slice(4, 6)) - 1
+  const y = parseInt(selectedMonth.value.slice(0, 4))
+  const m = parseInt(selectedMonth.value.slice(4, 6)) - 1
   return { start: new Date(y, m, 1), end: new Date(y, m + 1, 0, 23, 59, 59, 999) }
 })
 
@@ -423,7 +460,7 @@ function sumBudgetByType(type) {
   }
   return categoriesStore.categories
     .filter((c) => c.type === type)
-    .reduce((sum, c) => sum + budgetsStore.getEffectiveBudget(c.id, settingsStore.selectedMonth), 0)
+    .reduce((sum, c) => sum + budgetsStore.getEffectiveBudget(c.id, selectedMonth.value), 0)
 }
 
 function sumActualByCategoryType(type) {
@@ -620,8 +657,8 @@ async function loadDashboard() {
       goalsStore.fetchGoals()
     ])
     await Promise.all([
-      transactionsStore.fetchTransactionsByMonth(settingsStore.selectedMonth),
-      transactionsStore.fetchReports(settingsStore.selectedMonth)
+      transactionsStore.fetchTransactionsByMonth(selectedMonth.value),
+      transactionsStore.fetchReports(selectedMonth.value)
     ])
   } catch (err) {
     dashboardError.value = err?.message ?? String(err)
@@ -629,5 +666,5 @@ async function loadDashboard() {
 }
 
 onMounted(loadDashboard)
-watch(() => settingsStore.selectedMonth, loadDashboard)
+watch(selectedMonth, loadDashboard)
 </script>

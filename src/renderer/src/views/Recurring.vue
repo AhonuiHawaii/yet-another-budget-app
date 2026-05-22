@@ -1,5 +1,17 @@
 <template>
   <v-container fluid class="pa-6">
+    <div class="d-flex justify-center align-center mb-6">
+      <v-btn variant="tonal" density="comfortable" rounded="lg" @click="prevMonth">
+        <v-icon start size="16">mdi-chevron-left</v-icon>
+        {{ prevMonthLabel }}
+      </v-btn>
+      <span class="text-subtitle-1 font-weight-bold mx-6">{{ monthLabel(selectedMonth) }}</span>
+      <v-btn variant="tonal" density="comfortable" rounded="lg" :disabled="isNextMonthFuture" @click="nextMonth">
+        {{ nextMonthLabel }}
+        <v-icon end size="16">mdi-chevron-right</v-icon>
+      </v-btn>
+    </div>
+
     <v-sheet rounded elevation="2" class="pa-0">
       <v-tabs v-model="activeTab" bg-color="surface-bright" color="on-surface" class="mb-4" grow>
         <v-tab value="all">All Recurring</v-tab>
@@ -353,51 +365,50 @@ import { useUserCategoriesStore } from '../stores/userCategories'
 import { useUserAccountsStore } from '../stores/userAccounts'
 import { useUserBudgetsStore } from '../stores/userBudgets'
 import { useUserDebtsStore } from '../stores/userDebts'
-import { useUserSettingsStore } from '../stores/userSettings'
 import { useUserTransactionsStore } from '../stores/userTransactions'
 
 const categoriesStore = useUserCategoriesStore()
 const accountsStore = useUserAccountsStore()
 const budgetsStore = useUserBudgetsStore()
 const debtsStore = useUserDebtsStore()
-const settingsStore = useUserSettingsStore()
 const transactionsStore = useUserTransactionsStore()
 
 // ── Navigation ────────────────────────────────────────────────────────────────
 
 const today = new Date()
-const viewYear = ref(today.getFullYear())
-const viewMonth = ref(today.getMonth()) // 0-indexed
 
-const monthTitle = computed(() =>
-  new Date(viewYear.value, viewMonth.value, 1).toLocaleDateString('en-US', {
-    month: 'long',
-    year: 'numeric'
-  })
-)
-
-function prevMonth() {
-  if (viewMonth.value === 0) {
-    viewMonth.value = 11
-    viewYear.value--
-  } else {
-    viewMonth.value--
-  }
+function currentMonthValue() {
+  const now = new Date()
+  return `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}`
 }
-
-function nextMonth() {
-  if (viewMonth.value === 11) {
-    viewMonth.value = 0
-    viewYear.value++
-  } else {
-    viewMonth.value++
-  }
+function monthLabel(yyyymm) {
+  const year = Number(yyyymm.slice(0, 4))
+  const month = Number(yyyymm.slice(4)) - 1
+  return new Date(year, month, 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
 }
-
-function goToday() {
-  viewYear.value = today.getFullYear()
-  viewMonth.value = today.getMonth()
+function offsetMonth(yyyymm, delta) {
+  const year = Number(yyyymm.slice(0, 4))
+  const month = Number(yyyymm.slice(4)) - 1
+  const d = new Date(year, month + delta, 1)
+  return `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}`
 }
+function shortMonthLabel(yyyymm) {
+  const year = Number(yyyymm.slice(0, 4))
+  const month = Number(yyyymm.slice(4)) - 1
+  return new Date(year, month, 1).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+}
+const selectedMonth = ref(currentMonthValue())
+const viewYear = computed(() => Number(selectedMonth.value.slice(0, 4)))
+const viewMonth = computed(() => Number(selectedMonth.value.slice(4, 6)) - 1) // 0-indexed
+const prevMonthLabel = computed(() => shortMonthLabel(offsetMonth(selectedMonth.value, -1)))
+const nextMonthLabel = computed(() => shortMonthLabel(offsetMonth(selectedMonth.value, 1)))
+const isNextMonthFuture = computed(() => offsetMonth(selectedMonth.value, 1) > currentMonthValue())
+
+const monthTitle = computed(() => monthLabel(selectedMonth.value))
+
+function prevMonth() { selectedMonth.value = offsetMonth(selectedMonth.value, -1) }
+function nextMonth() { selectedMonth.value = offsetMonth(selectedMonth.value, 1) }
+function goToday() { selectedMonth.value = currentMonthValue() }
 
 // ── Calendar Grid ─────────────────────────────────────────────────────────────
 
@@ -692,13 +703,6 @@ function openEvent(evt) {
 // ── Init ──────────────────────────────────────────────────────────────────────
 
 onMounted(async () => {
-  // Seed the view to the currently selected budget month
-  const s = settingsStore.selectedMonth
-  if (s && s.length >= 6) {
-    viewYear.value = parseInt(s.slice(0, 4)) || today.getFullYear()
-    viewMonth.value = (parseInt(s.slice(4, 6)) || today.getMonth() + 1) - 1
-  }
-
   await Promise.all([
     categoriesStore.fetchCategories(),
     accountsStore.fetchAccounts(),

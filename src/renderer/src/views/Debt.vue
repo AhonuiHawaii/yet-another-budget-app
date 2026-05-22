@@ -1,5 +1,17 @@
 <template>
   <v-container fluid class="pa-6">
+    <div class="d-flex justify-center align-center mb-6">
+      <v-btn variant="tonal" density="comfortable" rounded="lg" @click="prevMonth">
+        <v-icon start size="16">mdi-chevron-left</v-icon>
+        {{ prevMonthLabel }}
+      </v-btn>
+      <span class="text-subtitle-1 font-weight-bold mx-6">{{ monthLabel(selectedMonth) }}</span>
+      <v-btn variant="tonal" density="comfortable" rounded="lg" :disabled="isNextMonthFuture" @click="nextMonth">
+        {{ nextMonthLabel }}
+        <v-icon end size="16">mdi-chevron-right</v-icon>
+      </v-btn>
+    </div>
+
     <!-- Control Bar -->
     <v-card class="mb-6" rounded elevation="2">
       <v-card-text class="pa-5">
@@ -630,20 +642,44 @@ ChartJS.register(BarElement, CategoryScale, LinearScale, Title, Tooltip, Legend)
 import { useUserAccountsStore } from '../stores/userAccounts'
 import { useUserBudgetsStore } from '../stores/userBudgets'
 import { useUserDebtsStore } from '../stores/userDebts'
-import { useUserSettingsStore } from '../stores/userSettings'
 import { useUserTransactionsStore } from '../stores/userTransactions'
 
 const accountsStore = useUserAccountsStore()
 const budgetsStore = useUserBudgetsStore()
 const debtsStore = useUserDebtsStore()
-const settingsStore = useUserSettingsStore()
 const transactionsStore = useUserTransactionsStore()
 
+function currentMonthValue() {
+  const now = new Date()
+  return `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}`
+}
+function monthLabel(yyyymm) {
+  const year = Number(yyyymm.slice(0, 4))
+  const month = Number(yyyymm.slice(4)) - 1
+  return new Date(year, month, 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+}
+function offsetMonth(yyyymm, delta) {
+  const year = Number(yyyymm.slice(0, 4))
+  const month = Number(yyyymm.slice(4)) - 1
+  const d = new Date(year, month + delta, 1)
+  return `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}`
+}
+function shortMonthLabel(yyyymm) {
+  const year = Number(yyyymm.slice(0, 4))
+  const month = Number(yyyymm.slice(4)) - 1
+  return new Date(year, month, 1).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+}
+const selectedMonth = ref(currentMonthValue())
+const prevMonthLabel = computed(() => shortMonthLabel(offsetMonth(selectedMonth.value, -1)))
+const nextMonthLabel = computed(() => shortMonthLabel(offsetMonth(selectedMonth.value, 1)))
+const isNextMonthFuture = computed(() => offsetMonth(selectedMonth.value, 1) > currentMonthValue())
+function prevMonth() { selectedMonth.value = offsetMonth(selectedMonth.value, -1) }
+function nextMonth() { selectedMonth.value = offsetMonth(selectedMonth.value, 1) }
+
 // ── Period Picker Logic ───────────────────────────────────────────────────────
-// Calculate the selected month bounds from the drawer setting.
 const periodBounds = computed(() => {
-  const y = parseInt(settingsStore.selectedMonth.slice(0, 4))
-  const m = parseInt(settingsStore.selectedMonth.slice(4, 6)) - 1
+  const y = parseInt(selectedMonth.value.slice(0, 4))
+  const m = parseInt(selectedMonth.value.slice(4, 6)) - 1
   return {
     start: new Date(y, m, 1),
     end: new Date(y, m + 1, 0, 23, 59, 59, 999)
@@ -651,7 +687,7 @@ const periodBounds = computed(() => {
 })
 
 async function applyPeriod() {
-  await transactionsStore.fetchTransactionsByMonth(settingsStore.selectedMonth)
+  await transactionsStore.fetchTransactionsByMonth(selectedMonth.value)
 }
 
 // ── Categories Management ──────────────────────────────────────────────────────
@@ -1065,10 +1101,7 @@ onMounted(async () => {
   await applyPeriod()
 })
 
-watch(
-  () => settingsStore.selectedMonth,
-  async () => {
-    await applyPeriod()
-  }
-)
+watch(selectedMonth, async () => {
+  await applyPeriod()
+})
 </script>

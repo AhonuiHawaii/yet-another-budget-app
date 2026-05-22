@@ -1,54 +1,18 @@
 <template>
   <v-container fluid class="pa-6">
-    <div class="d-flex align-center mb-6">
-      <v-menu v-model="monthMenu" location="bottom start" :close-on-content-click="false">
-        <template #activator="{ props }">
-          <v-btn
-            v-bind="props"
-            variant="tonal"
-            color="primary"
-            prepend-icon="mdi-calendar-month-outline"
-          >
-            {{ monthLabel(selectedMonth) }}
-            <v-icon end size="16">mdi-chevron-down</v-icon>
-          </v-btn>
-        </template>
+    <div class="d-flex justify-center align-center mb-6">
+      <v-btn variant="tonal" density="comfortable" rounded="lg" @click="prevMonth">
+        <v-icon start size="16">mdi-chevron-left</v-icon>
+        {{ prevMonthLabel }}
+      </v-btn>
+      <span class="text-subtitle-1 font-weight-bold mx-6">{{ monthLabel(selectedMonth) }}</span>
+      <v-btn variant="tonal" density="comfortable" rounded="lg" :disabled="isNextMonthFuture" @click="nextMonth">
+        {{ nextMonthLabel }}
+        <v-icon end size="16">mdi-chevron-right</v-icon>
+      </v-btn>
+    </div>
 
-        <v-card min-width="260" rounded="lg" elevation="8" class="pa-3">
-          <div class="d-flex align-center justify-space-between mb-2">
-            <v-btn
-              icon="mdi-chevron-left"
-              variant="text"
-              size="small"
-              aria-label="Previous year"
-              @click="pickerYear--"
-            />
-            <div class="text-subtitle-1 font-weight-bold">{{ pickerYear }}</div>
-            <v-btn
-              icon="mdi-chevron-right"
-              variant="text"
-              size="small"
-              aria-label="Next year"
-              @click="pickerYear++"
-            />
-          </div>
-
-          <v-row dense>
-            <v-col v-for="month in monthOptions" :key="month.value" cols="4">
-              <v-btn
-                block
-                size="small"
-                variant="text"
-                :color="month.value === selectedMonth ? 'primary' : undefined"
-                @click="selectMonth(month.value)"
-              >
-                {{ month.label }}
-              </v-btn>
-            </v-col>
-          </v-row>
-        </v-card>
-      </v-menu>
-      <v-spacer />
+    <div class="d-flex justify-end mb-4">
       <v-btn
         variant="tonal"
         color="primary"
@@ -288,25 +252,24 @@ function monthLabel(yyyymm) {
   return new Date(year, month, 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
 }
 
-const selectedMonth = ref(currentMonthValue())
-const monthMenu = ref(false)
-const pickerYear = ref(new Date().getFullYear())
-
-const monthOptions = computed(() =>
-  Array.from({ length: 12 }, (_, i) => ({
-    label: new Date(pickerYear.value, i, 1).toLocaleDateString('en-US', { month: 'short' }),
-    value: `${pickerYear.value}${String(i + 1).padStart(2, '0')}`
-  }))
-)
-
-function selectMonth(month) {
-  selectedMonth.value = month
-  monthMenu.value = false
+function offsetMonth(yyyymm, delta) {
+  const year = Number(yyyymm.slice(0, 4))
+  const month = Number(yyyymm.slice(4)) - 1
+  const d = new Date(year, month + delta, 1)
+  return `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}`
+}
+function shortMonthLabel(yyyymm) {
+  const year = Number(yyyymm.slice(0, 4))
+  const month = Number(yyyymm.slice(4)) - 1
+  return new Date(year, month, 1).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
 }
 
-watch(monthMenu, (isOpen) => {
-  if (isOpen) pickerYear.value = Number(selectedMonth.value.slice(0, 4)) || new Date().getFullYear()
-})
+const selectedMonth = ref(currentMonthValue())
+const prevMonthLabel = computed(() => shortMonthLabel(offsetMonth(selectedMonth.value, -1)))
+const nextMonthLabel = computed(() => shortMonthLabel(offsetMonth(selectedMonth.value, 1)))
+const isNextMonthFuture = computed(() => offsetMonth(selectedMonth.value, 1) > currentMonthValue())
+function prevMonth() { selectedMonth.value = offsetMonth(selectedMonth.value, -1) }
+function nextMonth() { selectedMonth.value = offsetMonth(selectedMonth.value, 1) }
 
 const categoryTypeOptions = [
   { label: 'Earnings', value: 'income', icon: 'mdi-trending-up', color: 'success' },
