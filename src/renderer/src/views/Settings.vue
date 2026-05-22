@@ -21,7 +21,7 @@
               ></v-switch>
             </div>
           </v-card-item>
-          
+
           <v-card-text class="pt-4">
             <v-row>
               <v-col
@@ -46,13 +46,17 @@
                     class="bg-surface-variant flex-grow-0"
                   >
                     <template v-slot:placeholder>
-                      <div class="d-flex align-center justify-center fill-height bg-surface-variant text-medium-emphasis">
+                      <div
+                        class="d-flex align-center justify-center fill-height bg-surface-variant text-medium-emphasis"
+                      >
                         <v-icon size="40">mdi-image-outline</v-icon>
                       </div>
                     </template>
                   </v-img>
-                  
-                  <v-card-text class="text-center text-subtitle-1 font-weight-bold d-flex align-center justify-center flex-grow-1">
+
+                  <v-card-text
+                    class="text-center text-subtitle-1 font-weight-bold d-flex align-center justify-center flex-grow-1"
+                  >
                     {{ themeOption.title }}
                     <v-icon
                       v-if="selectedBaseTheme === themeOption.value"
@@ -87,7 +91,9 @@
             >
               <div class="font-weight-bold mb-1">Your data never leaves this device.</div>
               <div class="text-body-2">
-                YABA does not transmit, sync, or upload any of your financial data to any server, website, cloud, or third party. There are no accounts, no telemetry, and no analytics.
+                YABA does not transmit, sync, or upload any of your financial data to any server,
+                website, cloud, or third party. There are no accounts, no telemetry, and no
+                analytics.
               </div>
             </v-alert>
 
@@ -100,23 +106,28 @@
               </v-list-item>
 
               <v-list-item prepend-icon="mdi-account-lock" class="px-0">
-                <v-list-item-title class="font-weight-medium">Tied to your user account</v-list-item-title>
+                <v-list-item-title class="font-weight-medium"
+                  >Tied to your user account</v-list-item-title
+                >
                 <v-list-item-subtitle class="text-wrap">
-                  The encryption key is sealed to your operating-system user (DPAPI on Windows). Other users on this computer cannot open your data.
+                  The encryption key is sealed to your operating-system user (DPAPI on Windows).
+                  Other users on this computer cannot open your data.
                 </v-list-item-subtitle>
               </v-list-item>
 
               <v-list-item prepend-icon="mdi-archive-lock" class="px-0">
                 <v-list-item-title class="font-weight-medium">Encrypted backups</v-list-item-title>
                 <v-list-item-subtitle class="text-wrap">
-                  Backup exports use AES-256-GCM with a passphrase you choose. Backups are stored wherever you save them — never uploaded.
+                  Backup exports use AES-256-GCM with a passphrase you choose. Backups are stored
+                  wherever you save them — never uploaded.
                 </v-list-item-subtitle>
               </v-list-item>
 
               <v-list-item prepend-icon="mdi-bank-off-outline" class="px-0">
                 <v-list-item-title class="font-weight-medium">No bank login</v-list-item-title>
                 <v-list-item-subtitle class="text-wrap">
-                  YABA reads only the OFX/QFX files you select manually. It never contacts your bank.
+                  YABA reads only the OFX/QFX files you select manually. It never contacts your
+                  bank.
                 </v-list-item-subtitle>
               </v-list-item>
             </v-list>

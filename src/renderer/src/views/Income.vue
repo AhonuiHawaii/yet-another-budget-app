@@ -380,7 +380,11 @@ const summaryChartData = computed(() => {
     }
   return {
     datasets: [
-      { data: [actual || 0.001, remaining || 0.001], backgroundColor: ['#4caf50', dim], borderWidth: 0 }
+      {
+        data: [actual || 0.001, remaining || 0.001],
+        backgroundColor: ['#4caf50', dim],
+        borderWidth: 0
+      }
     ]
   }
 })

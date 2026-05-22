@@ -34,9 +34,9 @@
 
           <v-card-text class="pa-4">
             <p class="text-body-2 text-medium-emphasis mb-4">
-              Securely export your full database to an encrypted file, or restore a previous
-              backup. A passphrase is required to encrypt and decrypt. Keep it safe — backups
-              cannot be restored without it.
+              Securely export your full database to an encrypted file, or restore a previous backup.
+              A passphrase is required to encrypt and decrypt. Keep it safe — backups cannot be
+              restored without it.
             </p>
 
             <v-text-field
@@ -83,9 +83,9 @@
 
           <v-card-text class="pa-4">
             <p class="text-body-2 text-medium-emphasis mb-4">
-              Download a plain-text JSON snapshot of your budgets and categories. Useful for
-              sharing data, reporting, or migrating outside the app. Not encrypted — don't share
-              if it contains sensitive details.
+              Download a plain-text JSON snapshot of your budgets and categories. Useful for sharing
+              data, reporting, or migrating outside the app. Not encrypted — don't share if it
+              contains sensitive details.
             </p>
 
             <v-btn
@@ -106,8 +106,7 @@
       <v-card rounded="sm">
         <v-card-title class="pa-6 pb-4 text-h6 font-weight-bold">Confirm Restore</v-card-title>
         <v-card-text class="pa-6 pt-0 text-body-1">
-          Restoring a backup will overwrite your current database. Are you sure you want to
-          proceed?
+          Restoring a backup will overwrite your current database. Are you sure you want to proceed?
         </v-card-text>
         <v-card-actions class="pa-6 pt-0">
           <v-spacer />

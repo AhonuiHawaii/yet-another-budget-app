@@ -78,7 +78,7 @@ Important notes:
 - OFX/QFX files are read only from files you select manually on your own disk.
 - YABA does not log in to your bank, see your bank credentials, or contact your bank in any way.
 - Removing an account from YABA only removes it from the app. It does not affect your bank account.
-- Plain JSON exports are *not* encrypted — handle them like any other sensitive file.
+- Plain JSON exports are _not_ encrypted — handle them like any other sensitive file.
 
 ## Main Screens
 

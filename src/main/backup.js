@@ -31,10 +31,10 @@ export function setupBackupHandlers() {
       // 2. Perform a safe backup of the active SQLite database
       const tempDbPath = path.join(DB_DIR, `budget_temp_${Date.now()}.db`)
       const DB_PATH = path.join(DB_DIR, 'budget.db')
-      
+
       // Force all WAL data into the main database file safely
       db.pragma('wal_checkpoint(TRUNCATE)')
-      
+
       // Since fs.copyFileSync is synchronous, no other JS code can write
       // to the DB during the copy, making this a safe snapshot of the main file.
       fs.copyFileSync(DB_PATH, tempDbPath)

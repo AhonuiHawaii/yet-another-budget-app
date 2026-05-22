@@ -70,184 +70,186 @@
 
     <div style="display: grid; grid-template-columns: 1fr 300px; gap: 24px; align-items: start">
       <div>
-      <section v-for="section in budgetSections" :key="section.value">
-        <v-card rounded elevation="2" class="mb-6">
-          <v-card-item class="pa-4 pb-0">
-            <template #prepend>
-              <v-icon :color="section.color" size="20" :opacity="0.7">{{ section.icon }}</v-icon>
-            </template>
-            <v-card-title class="text-h6 font-weight-bold pl-2">{{ section.label }}</v-card-title>
-            <template #append>
-              <v-btn
-                variant="text"
-                size="small"
-                prepend-icon="mdi-plus"
-                color="primary"
-                density="compact"
-                @click="startAddingCategory(section.type)"
-              >
-                Add Category
-              </v-btn>
-            </template>
-          </v-card-item>
+        <section v-for="section in budgetSections" :key="section.value">
+          <v-card rounded elevation="2" class="mb-6">
+            <v-card-item class="pa-4 pb-0">
+              <template #prepend>
+                <v-icon :color="section.color" size="20" :opacity="0.7">{{ section.icon }}</v-icon>
+              </template>
+              <v-card-title class="text-h6 font-weight-bold pl-2">{{ section.label }}</v-card-title>
+              <template #append>
+                <v-btn
+                  variant="text"
+                  size="small"
+                  prepend-icon="mdi-plus"
+                  color="primary"
+                  density="compact"
+                  @click="startAddingCategory(section.type)"
+                >
+                  Add Category
+                </v-btn>
+              </template>
+            </v-card-item>
 
-          <v-table density="comfortable" class="mt-2">
-            <thead>
-              <tr>
-                <th class="text-start text-caption text-medium-emphasis pl-5">Category</th>
-                <th
-                  v-if="section.type === 'bills'"
-                  class="text-center text-caption text-medium-emphasis"
-                  style="width: 120px"
-                >
-                  Due
-                </th>
-                <th class="text-center text-caption text-medium-emphasis" style="width: 120px">
-                  Actual
-                </th>
-                <th class="text-center text-caption text-medium-emphasis" style="width: 150px">
-                  Budget
-                </th>
-                <th class="text-center text-caption text-medium-emphasis" style="width: 120px">
-                  Remaining
-                </th>
-                <th style="width: 40px"></th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-if="section.rows.length === 0">
-                <td
-                  :colspan="section.type === 'bills' ? 6 : 5"
-                  class="text-center py-8 text-medium-emphasis"
-                >
-                  No {{ section.label.toLowerCase() }} categories yet.
-                </td>
-              </tr>
-              <tr v-for="row in section.rows" :key="row.id">
-                <td class="pl-2 text-body-2 font-weight-medium">
-                  <div class="d-flex align-center gap-3">
-                    <v-btn
-                      :icon="locked[row.id] ? 'mdi-lock-outline' : 'mdi-lock-open-variant-outline'"
-                      variant="text"
-                      size="x-small"
-                      density="compact"
-                      :color="locked[row.id] ? 'error' : undefined"
-                      :opacity="locked[row.id] ? 0.7 : 0.3"
-                      @click="toggleLock(row.id)"
-                    />
+            <v-table density="comfortable" class="mt-2">
+              <thead>
+                <tr>
+                  <th class="text-start text-caption text-medium-emphasis pl-5">Category</th>
+                  <th
+                    v-if="section.type === 'bills'"
+                    class="text-center text-caption text-medium-emphasis"
+                    style="width: 120px"
+                  >
+                    Due
+                  </th>
+                  <th class="text-center text-caption text-medium-emphasis" style="width: 120px">
+                    Actual
+                  </th>
+                  <th class="text-center text-caption text-medium-emphasis" style="width: 150px">
+                    Budget
+                  </th>
+                  <th class="text-center text-caption text-medium-emphasis" style="width: 120px">
+                    Remaining
+                  </th>
+                  <th style="width: 40px"></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-if="section.rows.length === 0">
+                  <td
+                    :colspan="section.type === 'bills' ? 6 : 5"
+                    class="text-center py-8 text-medium-emphasis"
+                  >
+                    No {{ section.label.toLowerCase() }} categories yet.
+                  </td>
+                </tr>
+                <tr v-for="row in section.rows" :key="row.id">
+                  <td class="pl-2 text-body-2 font-weight-medium">
+                    <div class="d-flex align-center gap-3">
+                      <v-btn
+                        :icon="
+                          locked[row.id] ? 'mdi-lock-outline' : 'mdi-lock-open-variant-outline'
+                        "
+                        variant="text"
+                        size="x-small"
+                        density="compact"
+                        :color="locked[row.id] ? 'error' : undefined"
+                        :opacity="locked[row.id] ? 0.7 : 0.3"
+                        @click="toggleLock(row.id)"
+                      />
+                      <v-text-field
+                        v-if="!locked[row.id]"
+                        :model-value="editingNames[row.id] ?? row.name"
+                        variant="solo"
+                        flat
+                        density="compact"
+                        hide-details
+                        @update:model-value="(v) => (editingNames[row.id] = v)"
+                        @keyup.enter="saveCategoryName(row.id, row.name)"
+                        @blur="saveCategoryName(row.id, row.name)"
+                      />
+                      <span v-else class="pl-3">{{ row.name }}</span>
+                    </div>
+                  </td>
+                  <td v-if="section.type === 'bills'" class="text-center">
+                    <v-menu
+                      :model-value="openDueDateId === row.id"
+                      :close-on-content-click="false"
+                      @update:model-value="
+                        (v) => {
+                          if (!v) openDueDateId = null
+                        }
+                      "
+                    >
+                      <template #activator="{ props }">
+                        <v-btn
+                          v-bind="props"
+                          variant="text"
+                          size="small"
+                          density="compact"
+                          :color="row.dueDate ? 'primary' : undefined"
+                          :icon="!row.dueDate"
+                          class="text-caption"
+                          @click="openDueDateId = row.id"
+                        >
+                          <v-icon
+                            :size="row.dueDate ? 14 : 18"
+                            :class="row.dueDate ? 'mr-1' : ''"
+                            :opacity="row.dueDate ? 1 : 0.4"
+                          >
+                            {{ row.dueDate ? 'mdi-calendar-check' : 'mdi-calendar-plus' }}
+                          </v-icon>
+                          <span v-if="row.dueDate">Day {{ row.dueDate }}</span>
+                        </v-btn>
+                      </template>
+                      <v-date-picker
+                        :model-value="dueDateToModelValue(row.dueDate)"
+                        hide-header
+                        color="primary"
+                        elevation="4"
+                        @update:model-value="
+                          (d) => {
+                            updateDueDate(row.id, d)
+                            openDueDateId = null
+                          }
+                        "
+                      />
+                    </v-menu>
+                  </td>
+                  <td class="text-center text-body-2 font-weight-bold">
+                    {{ formatCurrency(row.actual) }}
+                  </td>
+                  <td>
                     <v-text-field
-                      v-if="!locked[row.id]"
-                      :model-value="editingNames[row.id] ?? row.name"
+                      :model-value="row.planned"
+                      type="number"
+                      prefix="$"
                       variant="solo"
                       flat
                       density="compact"
                       hide-details
-                      @update:model-value="(v) => (editingNames[row.id] = v)"
-                      @keyup.enter="saveCategoryName(row.id, row.name)"
-                      @blur="saveCategoryName(row.id, row.name)"
+                      @update:model-value="(value) => updateBudget(row.id, value)"
                     />
-                    <span v-else class="pl-3">{{ row.name }}</span>
-                  </div>
-                </td>
-                <td v-if="section.type === 'bills'" class="text-center">
-                  <v-menu
-                    :model-value="openDueDateId === row.id"
-                    :close-on-content-click="false"
-                    @update:model-value="
-                      (v) => {
-                        if (!v) openDueDateId = null
-                      }
-                    "
+                  </td>
+                  <td
+                    class="text-center text-body-2 font-weight-bold"
+                    :class="row.remaining >= 0 ? 'text-success' : 'text-error'"
                   >
-                    <template #activator="{ props }">
-                      <v-btn
-                        v-bind="props"
-                        variant="text"
-                        size="small"
-                        density="compact"
-                        :color="row.dueDate ? 'primary' : undefined"
-                        :icon="!row.dueDate"
-                        class="text-caption"
-                        @click="openDueDateId = row.id"
-                      >
-                        <v-icon
-                          :size="row.dueDate ? 14 : 18"
-                          :class="row.dueDate ? 'mr-1' : ''"
-                          :opacity="row.dueDate ? 1 : 0.4"
-                        >
-                          {{ row.dueDate ? 'mdi-calendar-check' : 'mdi-calendar-plus' }}
-                        </v-icon>
-                        <span v-if="row.dueDate">Day {{ row.dueDate }}</span>
-                      </v-btn>
-                    </template>
-                    <v-date-picker
-                      :model-value="dueDateToModelValue(row.dueDate)"
-                      hide-header
-                      color="primary"
-                      elevation="4"
-                      @update:model-value="
-                        (d) => {
-                          updateDueDate(row.id, d)
-                          openDueDateId = null
-                        }
-                      "
+                    {{ formatCurrency(row.remaining) }}
+                  </td>
+                  <td class="text-center pr-2">
+                    <v-btn
+                      icon="mdi-delete-outline"
+                      variant="text"
+                      size="small"
+                      color="error"
+                      density="compact"
+                      :opacity="0.4"
+                      @click="categoriesStore.deleteCategory(row.id)"
                     />
-                  </v-menu>
-                </td>
-                <td class="text-center text-body-2 font-weight-bold">
-                  {{ formatCurrency(row.actual) }}
-                </td>
-                <td>
-                  <v-text-field
-                    :model-value="row.planned"
-                    type="number"
-                    prefix="$"
-                    variant="solo"
-                    flat
-                    density="compact"
-                    hide-details
-                    @update:model-value="(value) => updateBudget(row.id, value)"
-                  />
-                </td>
-                <td
-                  class="text-center text-body-2 font-weight-bold"
-                  :class="row.remaining >= 0 ? 'text-success' : 'text-error'"
-                >
-                  {{ formatCurrency(row.remaining) }}
-                </td>
-                <td class="text-center pr-2">
-                  <v-btn
-                    icon="mdi-delete-outline"
-                    variant="text"
-                    size="small"
-                    color="error"
-                    density="compact"
-                    :opacity="0.4"
-                    @click="categoriesStore.deleteCategory(row.id)"
-                  />
-                </td>
-              </tr>
-              <tr v-if="addingType === section.type">
-                <td :colspan="section.type === 'bills' ? 6 : 5" class="pl-4 py-1">
-                  <v-text-field
-                    v-model="newCategoryName"
-                    placeholder="Category name"
-                    variant="solo"
-                    flat
-                    density="compact"
-                    hide-details
-                    autofocus
-                    style="max-width: 280px"
-                    @keyup.enter="saveNewCategory(section.type)"
-                    @keyup.esc="cancelNewCategory"
-                    @blur="saveNewCategory(section.type)"
-                  />
-                </td>
-              </tr>
-            </tbody>
-          </v-table>
-        </v-card>
-      </section>
+                  </td>
+                </tr>
+                <tr v-if="addingType === section.type">
+                  <td :colspan="section.type === 'bills' ? 6 : 5" class="pl-4 py-1">
+                    <v-text-field
+                      v-model="newCategoryName"
+                      placeholder="Category name"
+                      variant="solo"
+                      flat
+                      density="compact"
+                      hide-details
+                      autofocus
+                      style="max-width: 280px"
+                      @keyup.enter="saveNewCategory(section.type)"
+                      @keyup.esc="cancelNewCategory"
+                      @blur="saveNewCategory(section.type)"
+                    />
+                  </td>
+                </tr>
+              </tbody>
+            </v-table>
+          </v-card>
+        </section>
       </div>
 
       <!-- Summary panel -->
@@ -285,7 +287,6 @@
               >
             </div>
           </div>
-
 
           <!-- Line items -->
           <v-divider />
@@ -417,12 +418,8 @@ const budgetSections = computed(() => {
   })
 })
 
-const plannedOutflow = computed(() =>
-  budgetRows.value.reduce((sum, row) => sum + row.planned, 0)
-)
-const actualOutflow = computed(() =>
-  budgetRows.value.reduce((sum, row) => sum + row.actual, 0)
-)
+const plannedOutflow = computed(() => budgetRows.value.reduce((sum, row) => sum + row.planned, 0))
+const actualOutflow = computed(() => budgetRows.value.reduce((sum, row) => sum + row.actual, 0))
 const expenseVariance = computed(() => plannedOutflow.value - actualOutflow.value)
 
 const summaryChartOptions = {
@@ -449,7 +446,11 @@ const summaryChartData = computed(() => {
     }
   return {
     datasets: [
-      { data: [actual || 0.001, remaining || 0.001], backgroundColor: ['#7986cb', dim], borderWidth: 0 }
+      {
+        data: [actual || 0.001, remaining || 0.001],
+        backgroundColor: ['#7986cb', dim],
+        borderWidth: 0
+      }
     ]
   }
 })
