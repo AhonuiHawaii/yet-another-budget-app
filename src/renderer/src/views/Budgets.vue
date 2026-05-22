@@ -204,7 +204,7 @@
               <tr>
                 <th class="text-start text-caption text-medium-emphasis pl-5">Category</th>
                 <th
-                  v-if="section.type === 'bills' || section.type === 'debt'"
+                  v-if="section.type === 'bills'"
                   class="text-center text-caption text-medium-emphasis"
                   style="width: 120px"
                 >
@@ -228,7 +228,7 @@
             <tbody>
               <tr v-if="section.rows.length === 0">
                 <td
-                  :colspan="section.type === 'bills' || section.type === 'debt' ? 7 : 6"
+                  :colspan="section.type === 'bills' ? 7 : 6"
                   class="text-center py-8 text-medium-emphasis"
                 >
                   No {{ section.label.toLowerCase() }} categories yet.
@@ -260,7 +260,7 @@
                     <span v-else class="pl-3">{{ row.name }}</span>
                   </div>
                 </td>
-                <td v-if="section.type === 'bills' || section.type === 'debt'" class="text-center">
+                <td v-if="section.type === 'bills'" class="text-center">
                   <v-menu
                     :model-value="openDueDateId === row.id"
                     :close-on-content-click="false"
@@ -427,8 +427,7 @@ const categoryTypeOptions = [
   { label: 'Earnings', value: 'income', icon: 'mdi-trending-up', color: 'success' },
   { label: 'Savings Goals', value: 'savings', icon: 'mdi-piggy-bank', color: 'info' },
   { label: 'Expenses & Bills', value: 'bills', icon: 'mdi-calendar-month', color: 'warning' },
-  { label: 'Variable Expenses', value: 'variable', icon: 'mdi-shopping', color: 'secondary' },
-  { label: 'Debt', value: 'debt', icon: 'mdi-cash-remove', color: 'error' }
+  { label: 'Variable Expenses', value: 'variable', icon: 'mdi-shopping', color: 'secondary' }
 ]
 
 const categoryMeta = computed(() => {
