@@ -199,7 +199,9 @@ export function setupBackupHandlers() {
         fs.readdirSync(DB_DIR)
           .filter((f) => f.startsWith('budget_import_') && f.endsWith('.db'))
           .forEach((f) => fs.unlinkSync(path.join(DB_DIR, f)))
-      } catch {}
+      } catch {
+        /* ignore cleanup errors */
+      }
       return { success: false, error: err.message }
     }
   })

@@ -696,15 +696,7 @@ const billsCombinedAll = computed(() =>
 )
 
 const variableActual = computed(() => variableCombined.value.reduce((s, c) => s + c.actual, 0))
-const variableProjected = computed(() =>
-  variableCombined.value.reduce((s, c) => s + c.projected, 0)
-)
-const variableRemaining = computed(() => variableProjected.value - variableActual.value)
-
 const billsActual = computed(() => billsCombinedAll.value.reduce((s, c) => s + c.actual, 0))
-const billsProjected = computed(() => billsCombinedAll.value.reduce((s, c) => s + c.projected, 0))
-const billsRemaining = computed(() => billsProjected.value - billsActual.value)
-
 // ── Frequent spend ─────────────────────────────────────────────────────────────
 const merchantColors = ['primary', 'secondary', 'warning', 'success', 'error', 'info']
 const showAllMerchants = ref(false)

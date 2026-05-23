@@ -316,14 +316,8 @@ const ALWAYS_SHOW = ALWAYS_SHOW_CATEGORIES
 
 const netWorthHistory = computed(() => transactionsStore.netWorthHistory)
 const latest = computed(() => netWorthHistory.value[netWorthHistory.value.length - 1] || null)
-const previous = computed(() => netWorthHistory.value[netWorthHistory.value.length - 2] || null)
 
 const netWorth = computed(() => latest.value?.netWorth ?? 0)
-const monthlyChange = computed(() => {
-  if (!latest.value || !previous.value) return 0
-  return latest.value.netWorth - previous.value.netWorth
-})
-
 const sixMonthChange = computed(() => {
   const rows = netWorthHistory.value
   if (rows.length < 2) return 0

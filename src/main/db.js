@@ -93,7 +93,9 @@ db.exec(`CREATE INDEX IF NOT EXISTS idx_transactions_category ON Transactions(ca
 // 1.2: Add accountCategory column for user-defined asset/liability override (safe on existing DBs)
 try {
   db.exec(`ALTER TABLE Accounts ADD COLUMN accountCategory TEXT DEFAULT NULL`)
-} catch {}
+} catch {
+  /* column already exists */
+}
 
 // ── Column sets ──────────────────────────────────────────────────────────────
 
@@ -524,7 +526,9 @@ db.exec(`
 `)
 try {
   db.exec(`ALTER TABLE CustomRecurring ADD COLUMN operator TEXT NOT NULL DEFAULT 'contains'`)
-} catch {}
+} catch {
+  /* column already exists */
+}
 
 function matchesCustomEntry(memo, entry) {
   const haystack = (memo || '').toLowerCase()

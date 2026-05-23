@@ -1130,17 +1130,6 @@ const filteredTransactions = computed(() => {
   return rows
 })
 
-// ── Summary totals ────────────────────────────────────────────────────────────
-const totalCredit = computed(() =>
-  filteredTransactions.value.filter((t) => t.TRNAMT >= 0).reduce((s, t) => s + Number(t.TRNAMT), 0)
-)
-
-const totalDebit = computed(() =>
-  filteredTransactions.value
-    .filter((t) => t.TRNAMT < 0)
-    .reduce((s, t) => s + Math.abs(Number(t.TRNAMT)), 0)
-)
-
 // ── Formatters ────────────────────────────────────────────────────────────────
 
 function formatDate(raw) {

@@ -7,8 +7,6 @@
 </template>
 
 <script setup>
-const appName = window.api?.name ?? ''
-const appVersion = window.api?.version ?? ''
 const productName = window.api?.productName ?? ''
 </script>
 

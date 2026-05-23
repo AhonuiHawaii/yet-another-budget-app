@@ -678,8 +678,7 @@ import {
   useUserAccountsStore,
   accountTypeColor,
   accountTypeIcon,
-  formatCurrency,
-  resolveIsAsset
+  formatCurrency
 } from '../stores/userAccounts'
 import { useUserTransactionsStore } from '../stores/userTransactions'
 

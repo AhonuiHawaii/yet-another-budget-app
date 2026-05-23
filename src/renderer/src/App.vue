@@ -1,5 +1,5 @@
 <script setup>
-import { computed, shallowRef, ref, onErrorCaptured } from 'vue'
+import { computed, ref, onErrorCaptured } from 'vue'
 import Drawer from './components/Drawer.vue'
 import Dashboard from './views/Dashboard.vue'
 import Settings from './views/Settings.vue'
@@ -64,7 +64,7 @@ onErrorCaptured((err) => {
       <v-alert v-if="appError" type="error" class="ma-4" closable @click:close="appError = null">
         {{ appError }}
       </v-alert>
-      <component v-else :is="currentComponent" @navigate="changeView" />
+      <component :is="currentComponent" v-else @navigate="changeView" />
     </v-main>
     <AppFooter />
   </v-app>

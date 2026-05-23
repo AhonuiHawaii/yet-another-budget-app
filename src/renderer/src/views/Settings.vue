@@ -11,13 +11,13 @@
               <v-card-title class="text-h6 font-weight-bold pl-2">Appearance</v-card-title>
               <v-switch
                 v-model="isDark"
+                inset
                 label="Dark Mode"
                 color="primary"
-                @update:model-value="updateTheme"
-                inset
-                hide-details
                 density="compact"
+                hide-details
                 class="flex-grow-0"
+                @update:model-value="updateTheme"
               ></v-switch>
             </div>
           </v-card-item>
@@ -35,9 +35,9 @@
                   :variant="selectedBaseTheme === themeOption.value ? 'outlined' : 'elevated'"
                   :color="selectedBaseTheme === themeOption.value ? 'primary' : undefined"
                   :elevation="selectedBaseTheme === themeOption.value ? 0 : 2"
+                  hover
                   class="cursor-pointer transition-swing h-100 d-flex flex-column"
                   @click="selectTheme(themeOption.value)"
-                  hover
                 >
                   <v-img
                     :src="getThemeImage(themeOption.value)"
@@ -45,7 +45,7 @@
                     cover
                     class="bg-surface-variant flex-grow-0"
                   >
-                    <template v-slot:placeholder>
+                    <template #placeholder>
                       <div
                         class="d-flex align-center justify-center fill-height bg-surface-variant text-medium-emphasis"
                       >

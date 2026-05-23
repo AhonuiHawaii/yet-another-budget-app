@@ -382,11 +382,13 @@ const editingNames = ref({})
 
 function toggleLock(id) {
   if (locked.value[id]) {
-    const { [id]: _, ...rest } = locked.value
+    const rest = { ...locked.value }
+    delete rest[id]
     locked.value = rest
   } else {
     locked.value = { ...locked.value, [id]: true }
-    const { [id]: _, ...rest } = editingNames.value
+    const rest = { ...editingNames.value }
+    delete rest[id]
     editingNames.value = rest
   }
 }

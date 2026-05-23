@@ -483,14 +483,7 @@ function currentMonthValue() {
   return `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}`
 }
 
-function monthLabel(yyyymm) {
-  const year = Number(yyyymm.slice(0, 4))
-  const month = Number(yyyymm.slice(4)) - 1
-  return new Date(year, month, 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
-}
-
 const currentMonth = currentMonthValue()
-const currentMonthLabel = monthLabel(currentMonth)
 const applyAll = ref(false)
 
 onMounted(() => {
