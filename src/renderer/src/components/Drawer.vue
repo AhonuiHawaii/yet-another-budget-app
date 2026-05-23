@@ -16,8 +16,7 @@ const navItems = [
   { title: 'Net Worth', value: 'NetWorth', icon: 'mdi-chart-bar' },
   { title: 'Transactions', value: 'Transactions', icon: 'mdi-magnify' },
   { title: 'Backup & Restore', value: 'Backup', icon: 'mdi-database-sync' },
-  { title: 'Auto-Rules', value: 'Rules', icon: 'mdi-tag-multiple-outline' },
-  { title: 'Settings', value: 'Settings', icon: 'mdi-cog-outline' }
+  { title: 'Auto-Rules', value: 'Rules', icon: 'mdi-tag-multiple-outline' }
 ]
 
 defineProps({ currentView: { type: String, default: 'Dashboard' } })
@@ -39,6 +38,22 @@ const emit = defineEmits(['change-view'])
     <v-divider></v-divider>
 
     <v-list density="compact" nav>
+      <v-list-item
+        :key="'Settings'"
+        link
+        title="Settings"
+        :active="'Settings' === currentView"
+        @click="emit('change-view', 'Settings')"
+      >
+        <template #prepend>
+          <v-tooltip text="Settings" location="right">
+            <template #activator="{ props: tipProps }">
+              <v-icon v-bind="tipProps" icon="mdi-cog-outline" />
+            </template>
+          </v-tooltip>
+        </template>
+      </v-list-item>
+      <v-divider class="my-1"></v-divider>
       <v-list-item
         v-for="item in navItems"
         :key="item.value"
