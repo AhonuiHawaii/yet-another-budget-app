@@ -165,6 +165,8 @@ const getTransactions = (filters = {}) => {
   return db.prepare(`SELECT * FROM Transactions WHERE ${clauses.join(' AND ')}`).all(...values)
 }
 
+const getAllTransactions = () => db.prepare('SELECT * FROM Transactions').all()
+
 // ── Transaction writes ───────────────────────────────────────────────────────
 
 // Update a transaction by FITID — only whitelisted columns are accepted
@@ -764,6 +766,7 @@ export default db
 export {
   // Transactions
   getTransactions,
+  getAllTransactions,
   createTransaction,
   createTransactions,
   updateTransaction,

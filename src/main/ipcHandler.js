@@ -24,6 +24,7 @@ import {
   editRule,
   removeRule,
   applyRulesToMonth,
+  applyRulesToAll,
   rescanRecurringTransactions,
   fetchCustomRecurring,
   addCustomRecurring,
@@ -135,6 +136,7 @@ export const setupIpcHandlers = () => {
     if (!isYyyymm(yyyymm)) throw new Error('Invalid month format')
     return applyRulesToMonth(yyyymm)
   })
+  ipcMain.handle('rules:applyToAll', () => applyRulesToAll())
   ipcMain.handle('transactions:rescanRecurring', () => rescanRecurringTransactions())
 
   ipcMain.handle('customRecurring:fetch', () => fetchCustomRecurring())

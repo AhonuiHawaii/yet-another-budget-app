@@ -1,21 +1,16 @@
 <template>
   <v-container fluid class="pa-6">
     <!-- Page Header -->
-    <div class="d-flex align-center justify-space-between flex-wrap gap-3 mb-6">
-      <div class="d-flex align-center gap-3">
-        <v-btn
-          variant="flat"
-          color="secondary"
-          prepend-icon="mdi-play-outline"
-          :loading="store.loading"
-          :disabled="store.rules.length === 0"
-          @click="applyToCurrentMonth"
-        >
-          Apply to {{ settingsStore.selectedMonthLabel }}
-        </v-btn>
+    <div style="display: flex; justify-content: center;" class="mb-6">
+      <v-btn-group divided variant="outlined" density="compact" color="secondary">
+        <v-btn :active="!applyAll" size="small" @click="applyAll = false">Current Month</v-btn>
+        <v-btn size="small" prepend-icon="mdi-play-outline" :loading="store.loading" @click="applyRules">Apply</v-btn>
+        <v-btn :active="applyAll" size="small" @click="applyAll = true">All Transactions</v-btn>
+      </v-btn-group>
+    </div>
 
-        <v-btn color="primary" prepend-icon="mdi-plus" @click="openAddDialog"> Add Rule </v-btn>
-      </div>
+    <div class="d-flex justify-end mb-3">
+      <v-btn color="primary" prepend-icon="mdi-plus" @click="openAddDialog">Add Rule</v-btn>
     </div>
 
     <!-- Apply result banner -->
@@ -49,12 +44,9 @@
       <v-card-text class="pa-12 text-center">
         <v-icon size="60" class="mb-4 text-disabled">mdi-tag-multiple-outline</v-icon>
         <div class="text-h6 font-weight-medium mb-2">No rules yet</div>
-        <div class="text-body-2 text-medium-emphasis mb-6">
+        <div class="text-body-2 text-medium-emphasis">
           Add a rule to automatically categorize transactions when importing.
         </div>
-        <v-btn color="primary" prepend-icon="mdi-plus" @click="openAddDialog">
-          Add First Rule
-        </v-btn>
       </v-card-text>
     </v-card>
 
@@ -313,10 +305,9 @@
       <v-card-text class="pa-12 text-center">
         <v-icon size="60" class="mb-4 text-disabled">mdi-refresh</v-icon>
         <div class="text-h6 font-weight-medium mb-2">No custom recurring entries</div>
-        <div class="text-body-2 text-medium-emphasis mb-6">
+        <div class="text-body-2 text-medium-emphasis">
           Add subscriptions, rent, or any fixed payment you want tracked on the calendar.
         </div>
-        <v-btn color="primary" prepend-icon="mdi-plus" @click="crOpenAdd">Add First Entry</v-btn>
       </v-card-text>
     </v-card>
 
@@ -470,14 +461,27 @@ import { ref, computed, onMounted } from 'vue'
 import { useUserRulesStore } from '../stores/userRules'
 import { useUserCategoriesStore } from '../stores/userCategories'
 import { useUserTransactionsStore } from '../stores/userTransactions'
-import { useUserSettingsStore } from '../stores/userSettings'
 import { useUserCustomRecurringStore } from '../stores/userCustomRecurring'
 
 const store = useUserRulesStore()
 const categoriesStore = useUserCategoriesStore()
 const transactionsStore = useUserTransactionsStore()
-const settingsStore = useUserSettingsStore()
 const crStore = useUserCustomRecurringStore()
+
+function currentMonthValue() {
+  const now = new Date()
+  return `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}`
+}
+
+function monthLabel(yyyymm) {
+  const year = Number(yyyymm.slice(0, 4))
+  const month = Number(yyyymm.slice(4)) - 1
+  return new Date(year, month, 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+}
+
+const currentMonth = currentMonthValue()
+const currentMonthLabel = monthLabel(currentMonth)
+const applyAll = ref(false)
 
 onMounted(() => {
   store.fetchRules()
@@ -613,15 +617,17 @@ async function doDelete() {
   deleteTarget.value = null
 }
 
-// ── Apply to month ────────────────────────────────────────────────────────────
+// ── Apply rules ───────────────────────────────────────────────────────────────
 const applyResult = ref(null)
 
-async function applyToCurrentMonth() {
+async function applyRules() {
   applyResult.value = null
-  const result = await store.applyToMonth(settingsStore.selectedMonth)
+  const result = applyAll.value
+    ? await store.applyToAll()
+    : await store.applyToMonth(currentMonth)
   if (result?.success) {
     applyResult.value = result.data
-    await transactionsStore.fetchTransactionsByMonth(settingsStore.selectedMonth)
+    await transactionsStore.fetchTransactionsByMonth(currentMonth)
   }
 }
 

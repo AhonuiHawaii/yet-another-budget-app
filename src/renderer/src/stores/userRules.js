@@ -86,6 +86,20 @@ export const useUserRulesStore = defineStore('userRules', () => {
     }
   }
 
+  async function applyToAll() {
+    loadingCount.value++
+    error.value = null
+    try {
+      const result = await ipc.invoke('rules:applyToAll')
+      if (!result.success) throw new Error(result.error)
+      return result
+    } catch (e) {
+      error.value = e.message
+    } finally {
+      loadingCount.value--
+    }
+  }
+
   return {
     rules,
     loading,
@@ -95,6 +109,7 @@ export const useUserRulesStore = defineStore('userRules', () => {
     createRule,
     editRule,
     removeRule,
-    applyToMonth
+    applyToMonth,
+    applyToAll
   }
 })

@@ -1,7 +1,5 @@
 <script setup>
-import { computed, shallowRef, ref, onMounted, onErrorCaptured } from 'vue'
-import { useUserTransactionsStore } from './stores/userTransactions'
-import { useUserSettingsStore } from './stores/userSettings'
+import { computed, shallowRef, ref, onErrorCaptured } from 'vue'
 import Drawer from './components/Drawer.vue'
 import Dashboard from './views/Dashboard.vue'
 import Settings from './views/Settings.vue'
@@ -38,15 +36,6 @@ const views = {
 
 const currentView = ref('Dashboard')
 const currentComponent = computed(() => views[currentView.value] ?? views.Dashboard)
-
-const transactionsStore = useUserTransactionsStore()
-const settingsStore = useUserSettingsStore()
-
-// 2.2: Single authoritative initialization of monthsWithData + selectedMonth
-onMounted(async () => {
-  await transactionsStore.fetchMonthsWithData()
-  settingsStore.initializeSelectedMonth(transactionsStore.monthsWithData)
-})
 
 // 2.3: Warn on unknown view names instead of silently ignoring
 const changeView = (viewName) => {

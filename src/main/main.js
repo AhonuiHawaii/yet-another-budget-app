@@ -3,6 +3,7 @@ import { extractAccountData, extractTransactionData } from './ofx.js'
 import {
   createTransactions,
   getTransactions,
+  getAllTransactions,
   updateTransaction,
   deleteTransaction,
   upsertAccount,
@@ -348,6 +349,21 @@ export const removeCustomRecurring = (id) => {
 export const applyRulesToMonth = (yyyymm) => {
   try {
     const transactions = getTransactions({ DTPOSTED: yyyymm })
+    const patches = applyRules(transactions)
+    for (const patch of patches) {
+      const updates = { category: patch.category }
+      if (patch.transactionType) updates.transactionType = patch.transactionType
+      updateTransaction(patch.FITID, updates)
+    }
+    return ok({ applied: patches.length })
+  } catch (e) {
+    return fail(e)
+  }
+}
+
+export const applyRulesToAll = () => {
+  try {
+    const transactions = getAllTransactions()
     const patches = applyRules(transactions)
     for (const patch of patches) {
       const updates = { category: patch.category }
