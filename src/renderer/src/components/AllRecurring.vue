@@ -1,133 +1,132 @@
 <template>
-  <v-container fluid class="pa-6">
-    <v-sheet rounded elevation="2" class="pa-4">
-      <div>
-        <div v-if="recurringLoading" class="d-flex justify-center pa-12">
-          <v-progress-circular indeterminate color="primary" />
+  <v-container fluid class="pa-4">
+    <v-sheet rounded="sm" elevation="2" class="pa-4">
+      <div v-if="recurringLoading" class="d-flex justify-center pa-12">
+        <v-progress-circular indeterminate color="primary" />
+      </div>
+
+      <div
+        v-else-if="!recurringGroups.length"
+        class="d-flex flex-column align-center text-medium-emphasis pa-12"
+      >
+        <v-icon size="60" class="mb-4" style="opacity: 0.3" icon="mdi-calendar-sync" />
+        <div class="text-body-1">No recurring transactions detected yet.</div>
+        <div class="text-caption mt-1">Import more months of history to improve detection.</div>
+        <v-btn
+          class="mt-4"
+          size="small"
+          variant="flat"
+          prepend-icon="mdi-refresh"
+          rounded="sm"
+          :loading="recurringLoading"
+          @click="rescan"
+          >Rescan</v-btn
+        >
+      </div>
+
+      <template v-else>
+        <div class="d-flex align-center mb-4">
+          <span class="text-body-2 text-medium-emphasis">
+            {{ recurringGroups.length }} recurring merchants detected
+          </span>
+          <v-spacer />
+          <v-btn
+            size="small"
+            variant="flat"
+            prepend-icon="mdi-refresh"
+            rounded="sm"
+            :loading="recurringLoading"
+            @click="rescan"
+            >Rescan</v-btn
+          >
         </div>
 
-        <v-card v-else-if="!recurringGroups.length" rounded elevation="2">
-          <v-card-text class="d-flex flex-column align-center text-medium-emphasis pa-12">
-            <v-icon size="48" class="mb-4" style="opacity: 0.3" icon="mdi-calendar-sync" />
-            <div class="text-body-1">No recurring transactions detected yet.</div>
-            <div class="text-caption mt-1">Import more months of history to improve detection.</div>
-            <v-btn
-              class="mt-4"
-              size="small"
-              variant="tonal"
-              prepend-icon="mdi-refresh"
-              rounded="sm"
-              :loading="recurringLoading"
-              @click="rescan"
-              >Rescan</v-btn
-            >
-          </v-card-text>
-        </v-card>
+        <!-- Column headers -->
+        <div
+          class="recurring-table-header text-caption text-uppercase font-weight-bold text-medium-emphasis px-4 mb-1"
+        >
+          <span>Name / Frequency</span>
+          <span>Account</span>
+          <span>Due</span>
+          <span class="text-right">Amount</span>
+        </div>
 
-        <template v-else>
-          <div class="d-flex align-center mb-4">
-            <span class="text-body-2 text-medium-emphasis">
-              {{ recurringGroups.length }} recurring merchants detected
-            </span>
-            <v-spacer />
-            <v-btn
-              size="small"
-              variant="tonal"
-              prepend-icon="mdi-refresh"
-              rounded="sm"
-              :loading="recurringLoading"
-              @click="rescan"
-              >Rescan</v-btn
-            >
-          </div>
-
-          <!-- Column headers -->
-          <div
-            class="recurring-table-header text-caption text-uppercase font-weight-bold text-medium-emphasis px-4 mb-1"
+        <v-list class="pa-0">
+          <v-list-item
+            v-for="group in recurringGroups"
+            :key="group.name"
+            rounded="sm"
+            class="mb-1 recurring-row px-4"
           >
-            <span>Name / Frequency</span>
-            <span>Account</span>
-            <span>Due</span>
-            <span class="text-right">Amount</span>
-          </div>
+            <!-- Avatar -->
+            <template #prepend>
+              <v-avatar color="primary" variant="tonal" size="36" rounded="sm" class="mr-3">
+                <span class="text-caption font-weight-bold">{{ group.initials }}</span>
+              </v-avatar>
+            </template>
 
-          <v-list class="pa-0">
-            <v-list-item
-              v-for="group in recurringGroups"
-              :key="group.name"
-              rounded="lg"
-              class="mb-1 recurring-row px-4"
-            >
-              <!-- Avatar -->
-              <template #prepend>
-                <v-avatar color="primary" variant="tonal" size="36" rounded="sm" class="mr-3">
-                  <span class="text-caption font-weight-bold">{{ group.initials }}</span>
-                </v-avatar>
-              </template>
+            <!-- Name + frequency -->
+            <template #title>
+              <span class="text-body-2 font-weight-medium">{{ group.name }}</span>
+            </template>
+            <template #subtitle>
+              <span class="text-caption font-weight-medium text-success">{{
+                group.frequency
+              }}</span>
+            </template>
 
-              <!-- Name + frequency -->
-              <template #title>
-                <span class="text-body-2 font-weight-medium">{{ group.name }}</span>
-              </template>
-              <template #subtitle>
-                <span class="text-caption font-weight-medium text-success">{{
-                  group.frequency
-                }}</span>
-              </template>
-
-              <template #append>
-                <div class="recurring-row-append">
-                  <!-- Account -->
-                  <div class="recurring-col-account">
-                    <span class="text-caption text-medium-emphasis">{{
-                      group.lastFour ? `••••${group.lastFour}` : '—'
-                    }}</span>
-                  </div>
-
-                  <!-- Due -->
-                  <div class="recurring-col-due">
-                    <span
-                      v-if="group.dueLabel"
-                      class="text-caption font-weight-medium"
-                      :class="group.dueUrgent ? 'text-warning' : 'text-medium-emphasis'"
-                    >
-                      {{ group.dueLabel }}
-                    </span>
-                    <span v-else class="text-caption text-medium-emphasis">—</span>
-                  </div>
-
-                  <!-- Amount -->
-                  <div class="recurring-col-amount text-right">
-                    <span class="text-body-2 font-weight-bold">
-                      {{ formatCurrency(group.typicalAmount) }}
-                    </span>
-                  </div>
-
-                  <!-- Menu -->
-                  <v-menu>
-                    <template #activator="{ props: menuProps }">
-                      <v-btn
-                        v-bind="menuProps"
-                        icon="mdi-dots-vertical"
-                        variant="text"
-                        density="compact"
-                        size="small"
-                        class="ml-1"
-                      />
-                    </template>
-                    <v-list density="compact">
-                      <v-list-item
-                        title="Mark as not recurring"
-                        prepend-icon="mdi-close-circle-outline"
-                      />
-                    </v-list>
-                  </v-menu>
+            <template #append>
+              <div class="recurring-row-append">
+                <!-- Account -->
+                <div class="recurring-col-account">
+                  <span class="text-caption text-medium-emphasis">{{
+                    group.lastFour ? `••••${group.lastFour}` : '—'
+                  }}</span>
                 </div>
-              </template>
-            </v-list-item>
-          </v-list>
-        </template>
-      </div>
+
+                <!-- Due -->
+                <div class="recurring-col-due">
+                  <span
+                    v-if="group.dueLabel"
+                    class="text-caption font-weight-medium"
+                    :class="group.dueUrgent ? 'text-warning' : 'text-medium-emphasis'"
+                  >
+                    {{ group.dueLabel }}
+                  </span>
+                  <span v-else class="text-caption text-medium-emphasis">—</span>
+                </div>
+
+                <!-- Amount -->
+                <div class="recurring-col-amount text-right">
+                  <span class="text-body-2 font-weight-bold">
+                    {{ formatCurrency(group.typicalAmount) }}
+                  </span>
+                </div>
+
+                <!-- Menu -->
+                <v-menu>
+                  <template #activator="{ props: menuProps }">
+                    <v-btn
+                      v-bind="menuProps"
+                      icon="mdi-dots-vertical"
+                      variant="text"
+                      density="compact"
+                      size="small"
+                      class="ml-1"
+                    />
+                  </template>
+                  <v-list density="compact">
+                    <v-list-item
+                      title="Mark as not recurring"
+                      prepend-icon="mdi-close-circle-outline"
+                    />
+                  </v-list>
+                </v-menu>
+              </div>
+            </template>
+          </v-list-item>
+        </v-list>
+      </template>
     </v-sheet>
   </v-container>
 </template>

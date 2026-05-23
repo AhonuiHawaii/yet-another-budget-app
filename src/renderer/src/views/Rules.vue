@@ -1,16 +1,25 @@
 <template>
-  <v-container fluid class="pa-6">
+  <v-container fluid class="pa-4">
     <!-- Page Header -->
-    <div style="display: flex; justify-content: center;" class="mb-6">
-      <v-btn-group divided variant="outlined" density="compact" color="secondary">
-        <v-btn :active="!applyAll" size="small" @click="applyAll = false">Current Month</v-btn>
-        <v-btn size="small" prepend-icon="mdi-play-outline" :loading="store.loading" :disabled="store.rules.length === 0" @click="applyRules">Apply</v-btn>
-        <v-btn :active="applyAll" size="small" @click="applyAll = true">All Transactions</v-btn>
+    <div class="d-flex justify-center mb-6">
+      <v-btn-group rounded="sm" density="comfortable">
+        <v-btn size="small" variant="flat" @click="applyAll = false">Current Month</v-btn>
+        <v-btn
+          size="small"
+          variant="flat"
+          prepend-icon="mdi-play-outline"
+          :loading="store.loading"
+          @click="applyRules"
+          >Apply</v-btn
+        >
+        <v-btn size="small" variant="flat" @click="applyAll = true">All Transactions</v-btn>
       </v-btn-group>
     </div>
 
     <div class="d-flex justify-end mb-3">
-      <v-btn color="primary" prepend-icon="mdi-plus" @click="openAddDialog">Add Rule</v-btn>
+      <v-btn variant="flat" rounded="sm" prepend-icon="mdi-plus" @click="openAddDialog"
+        >Add Rule</v-btn
+      >
     </div>
 
     <!-- Apply result banner -->
@@ -40,7 +49,7 @@
     </v-alert>
 
     <!-- Empty State -->
-    <v-card v-if="!store.loading && store.rules.length === 0" rounded elevation="2">
+    <v-card v-if="!store.loading && store.rules.length === 0" rounded="sm" elevation="2">
       <v-card-text class="pa-12 text-center">
         <v-icon size="60" class="mb-4 text-disabled">mdi-tag-multiple-outline</v-icon>
         <div class="text-h6 font-weight-medium mb-2">No rules yet</div>
@@ -51,7 +60,7 @@
     </v-card>
 
     <!-- Rules Table -->
-    <v-card v-else rounded elevation="2">
+    <v-card v-else rounded="sm" elevation="2">
       <v-data-table
         :headers="headers"
         :items="store.rules"
@@ -244,7 +253,6 @@
           <v-spacer />
           <v-btn variant="text" @click="closeRuleDialog">Cancel</v-btn>
           <v-btn
-            color="primary"
             variant="flat"
             rounded="sm"
             :loading="store.loading"
@@ -260,8 +268,8 @@
     <!-- Delete Confirmation -->
     <v-dialog v-model="deleteDialog" max-width="400">
       <v-card rounded="sm">
-        <v-card-title class="text-h6 pa-6 pb-2">Delete Rule</v-card-title>
-        <v-card-text class="pa-6 pt-2 text-body-2 text-medium-emphasis">
+        <v-card-title class="text-h6 pa-6 pb-4">Delete Rule</v-card-title>
+        <v-card-text class="pa-6 pt-0 text-body-2 text-medium-emphasis">
           Delete the rule matching
           <strong
             >{{ deleteTarget?.field }} {{ deleteTarget?.operator }} "{{
@@ -287,7 +295,9 @@
           Manually tracked recurring payments not in your transaction history.
         </div>
       </div>
-      <v-btn color="primary" prepend-icon="mdi-plus" @click="crOpenAdd">Add Recurring</v-btn>
+      <v-btn variant="flat" rounded="sm" prepend-icon="mdi-plus" @click="crOpenAdd"
+        >Add Recurring</v-btn
+      >
     </div>
 
     <v-alert
@@ -311,7 +321,7 @@
       </v-card-text>
     </v-card>
 
-    <v-card v-else rounded elevation="2">
+    <v-card v-else rounded="sm" elevation="2">
       <v-data-table
         :headers="crHeaders"
         :items="crStore.entries"
@@ -439,8 +449,8 @@
     <!-- Delete Custom Recurring Confirmation -->
     <v-dialog v-model="crDeleteDialog" max-width="400">
       <v-card rounded="sm">
-        <v-card-title class="text-h6 pa-6 pb-2">Delete Entry</v-card-title>
-        <v-card-text class="pa-6 pt-2 text-body-2 text-medium-emphasis">
+        <v-card-title class="text-h6 pa-6 pb-4">Delete Entry</v-card-title>
+        <v-card-text class="pa-6 pt-0 text-body-2 text-medium-emphasis">
           Delete <strong>{{ crDeleteTarget?.name }}</strong
           >? This cannot be undone.
         </v-card-text>
@@ -622,9 +632,7 @@ const applyResult = ref(null)
 
 async function applyRules() {
   applyResult.value = null
-  const result = applyAll.value
-    ? await store.applyToAll()
-    : await store.applyToMonth(currentMonth)
+  const result = applyAll.value ? await store.applyToAll() : await store.applyToMonth(currentMonth)
   if (result?.success) {
     applyResult.value = result.data
     if (!applyAll.value) await transactionsStore.fetchTransactionsByMonth(currentMonth)

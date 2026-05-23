@@ -1,5 +1,5 @@
 <template>
-  <v-container fluid class="pa-6">
+  <v-container fluid class="pa-4">
     <v-alert v-if="reportError" type="error" variant="flat" class="mb-4">
       {{ reportError }}
     </v-alert>
@@ -7,7 +7,7 @@
     <v-row class="mb-6">
       <!-- Net Worth Trend Chart -->
       <v-col cols="12" lg="8">
-        <v-card rounded elevation="2" class="h-100">
+        <v-card rounded="sm" elevation="2" class="h-100">
           <v-card-text class="pa-6 pb-4">
             <div class="text-caption text-medium-emphasis font-weight-medium mb-1">
               Total net worth
@@ -61,7 +61,7 @@
 
       <!-- Summary card -->
       <v-col cols="12" lg="4">
-        <v-card rounded elevation="2" class="h-100">
+        <v-card rounded="sm" elevation="2" class="h-100">
           <v-card-text class="pa-6">
             <p class="text-body-2 text-medium-emphasis mb-5" style="line-height: 1.6">
               This is how your net worth is calculated. Make sure all of your accounts are connected
@@ -124,7 +124,7 @@
     </v-row>
 
     <!-- Assets by category -->
-    <v-card rounded elevation="2">
+    <v-card rounded="sm" elevation="2">
       <v-card-item class="pa-4 pb-0">
         <template #prepend>
           <v-icon color="success" size="20" :opacity="0.7">mdi-bank-outline</v-icon>
@@ -151,7 +151,7 @@
           </v-expansion-panel-title>
 
           <v-expansion-panel-text>
-            <v-card variant="flat" rounded="lg" class="mx-2 mb-2">
+            <v-card variant="flat" rounded="sm" class="mx-2 mb-2">
               <div
                 class="d-flex align-center justify-space-between px-4 py-2 text-caption text-medium-emphasis"
               >
@@ -188,7 +188,7 @@
     </v-card>
 
     <!-- Debts by category -->
-    <v-card rounded elevation="2" class="mt-6">
+    <v-card rounded="sm" elevation="2" class="mt-6">
       <v-card-item class="pa-4 pb-0">
         <template #prepend>
           <v-icon color="error" size="20" :opacity="0.7">mdi-credit-card-outline</v-icon>
@@ -224,7 +224,7 @@
           </v-expansion-panel-title>
 
           <v-expansion-panel-text>
-            <v-card variant="flat" rounded="lg" class="mx-2 mb-2">
+            <v-card variant="flat" rounded="sm" class="mx-2 mb-2">
               <div
                 class="d-flex align-center justify-space-between px-4 py-2 text-caption text-medium-emphasis"
               >

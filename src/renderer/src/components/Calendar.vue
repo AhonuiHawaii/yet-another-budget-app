@@ -1,12 +1,12 @@
 <template>
-  <v-container fluid class="pa-6">
-    <v-sheet rounded elevation="2" class="pa-6">
+  <v-container fluid class="pa-4">
+    <v-sheet rounded="sm" elevation="2" class="pa-4">
       <!-- Navigation -->
       <div class="d-flex align-center gap-3 mb-6">
         <v-btn icon="mdi-chevron-left" variant="text" density="comfortable" @click="prevMonth" />
         <span class="text-h6 font-weight-bold calendar-title">{{ monthTitle }}</span>
         <v-btn icon="mdi-chevron-right" variant="text" density="comfortable" @click="nextMonth" />
-        <v-btn size="small" variant="tonal" rounded="sm" @click="goToday">Today</v-btn>
+        <v-btn size="small" variant="flat" rounded="sm" @click="goToday">Today</v-btn>
         <v-spacer />
         <div class="d-flex align-center gap-3">
           <v-chip color="warning" variant="flat" size="small" prepend-icon="mdi-calendar-month"

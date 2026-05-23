@@ -1,15 +1,15 @@
 <template>
-  <v-container fluid class="pa-6">
+  <v-container fluid class="pa-4">
     <div class="d-flex justify-center align-center mb-6">
-      <v-btn variant="tonal" density="comfortable" rounded="lg" @click="prevMonth">
+      <v-btn variant="flat" density="comfortable" rounded="sm" @click="prevMonth">
         <v-icon start size="16">mdi-chevron-left</v-icon>
         {{ prevMonthLabel }}
       </v-btn>
       <span class="text-subtitle-1 font-weight-bold mx-6">{{ monthLabel(selectedMonth) }}</span>
       <v-btn
-        variant="tonal"
+        variant="flat"
         density="comfortable"
-        rounded="lg"
+        rounded="sm"
         :disabled="isNextMonthFuture"
         @click="nextMonth"
       >
@@ -19,12 +19,7 @@
     </div>
 
     <div class="d-flex justify-end mb-4">
-      <v-btn
-        variant="tonal"
-        color="primary"
-        prepend-icon="mdi-download-outline"
-        @click="exportIncome"
-      >
+      <v-btn variant="flat" rounded="sm" prepend-icon="mdi-download-outline" @click="exportIncome">
         Export Income
       </v-btn>
     </div>
@@ -41,7 +36,7 @@
     <div style="display: grid; grid-template-columns: 1fr 300px; gap: 24px; align-items: start">
       <div>
         <section v-for="section in incomeSections" :key="section.value">
-          <v-card rounded elevation="2" class="mb-6">
+          <v-card rounded="sm" elevation="2" class="mb-6">
             <v-card-item class="pa-4 pb-0">
               <template #prepend>
                 <v-icon :color="section.color" size="20" :opacity="0.7">{{ section.icon }}</v-icon>
@@ -52,7 +47,6 @@
                   variant="text"
                   size="small"
                   prepend-icon="mdi-plus"
-                  color="primary"
                   density="compact"
                   @click="startAddingCategory(section.type)"
                 >
@@ -168,7 +162,7 @@
       </div>
 
       <!-- Summary panel -->
-      <v-card rounded elevation="2" style="position: sticky; top: 24px">
+      <v-card rounded="sm" elevation="2" style="position: sticky; top: 24px">
         <v-card-text class="pa-5">
           <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-4">
             Summary

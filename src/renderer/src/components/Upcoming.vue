@@ -1,6 +1,6 @@
 <template>
-  <v-container fluid class="pa-6">
-    <div>
+  <v-container fluid class="pa-4">
+    <v-sheet rounded="sm" elevation="2" class="pa-4">
       <div v-if="loading" class="d-flex justify-center pa-8">
         <v-progress-circular indeterminate color="primary" />
       </div>
@@ -9,7 +9,7 @@
         v-else-if="!soonItems.length && !laterItems.length"
         class="d-flex flex-column align-center text-medium-emphasis pa-8"
       >
-        <v-icon size="40" class="mb-3" style="opacity: 0.3" icon="mdi-calendar-check" />
+        <v-icon size="60" class="mb-3" style="opacity: 0.3" icon="mdi-calendar-check" />
         <div class="text-body-2">Nothing due in the next 30 days.</div>
       </div>
 
@@ -19,51 +19,44 @@
           <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-2 px-1">
             Next 7 Days
           </div>
-          <v-card rounded="lg" elevation="2" class="mb-4">
-            <v-list class="pa-2" density="compact">
-              <v-list-item
-                v-for="item in soonItems"
-                :key="item.name"
-                rounded="lg"
-                class="mb-1 px-3"
-              >
-                <template #prepend>
-                  <v-avatar
-                    :color="item.urgencyColor"
-                    variant="tonal"
-                    size="32"
-                    rounded="sm"
-                    class="mr-3"
+          <v-list class="pa-0 mb-4" density="compact">
+            <v-list-item v-for="item in soonItems" :key="item.name" rounded="sm" class="mb-1 px-3">
+              <template #prepend>
+                <v-avatar
+                  :color="item.urgencyColor"
+                  variant="tonal"
+                  size="32"
+                  rounded="sm"
+                  class="mr-3"
+                >
+                  <span class="text-caption font-weight-bold">{{ item.initials }}</span>
+                </v-avatar>
+              </template>
+
+              <template #title>
+                <span class="text-body-2 font-weight-medium">{{ item.name }}</span>
+              </template>
+              <template #subtitle>
+                <span class="text-caption text-medium-emphasis">
+                  {{ item.lastFour ? `••••${item.lastFour}` : item.frequency }}
+                </span>
+              </template>
+
+              <template #append>
+                <div class="d-flex align-center gap-3">
+                  <v-chip :color="item.urgencyColor" size="x-small" variant="flat" rounded="sm">
+                    {{ item.dueLabel }}
+                  </v-chip>
+                  <span
+                    class="text-body-2 font-weight-bold"
+                    style="min-width: 64px; text-align: right"
                   >
-                    <span class="text-caption font-weight-bold">{{ item.initials }}</span>
-                  </v-avatar>
-                </template>
-
-                <template #title>
-                  <span class="text-body-2 font-weight-medium">{{ item.name }}</span>
-                </template>
-                <template #subtitle>
-                  <span class="text-caption text-medium-emphasis">
-                    {{ item.lastFour ? `••••${item.lastFour}` : item.frequency }}
+                    {{ formatCurrency(item.typicalAmount) }}
                   </span>
-                </template>
-
-                <template #append>
-                  <div class="d-flex align-center gap-3">
-                    <v-chip :color="item.urgencyColor" size="x-small" variant="tonal">
-                      {{ item.dueLabel }}
-                    </v-chip>
-                    <span
-                      class="text-body-2 font-weight-bold"
-                      style="min-width: 64px; text-align: right"
-                    >
-                      {{ formatCurrency(item.typicalAmount) }}
-                    </span>
-                  </div>
-                </template>
-              </v-list-item>
-            </v-list>
-          </v-card>
+                </div>
+              </template>
+            </v-list-item>
+          </v-list>
         </template>
 
         <!-- Coming soon (8–30 days) -->
@@ -71,46 +64,39 @@
           <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-2 px-1">
             Coming Later
           </div>
-          <v-card rounded="lg" elevation="2">
-            <v-list class="pa-2" density="compact">
-              <v-list-item
-                v-for="item in laterItems"
-                :key="item.name"
-                rounded="lg"
-                class="mb-1 px-3"
-              >
-                <template #prepend>
-                  <v-avatar color="secondary" variant="tonal" size="32" rounded="sm" class="mr-3">
-                    <span class="text-caption font-weight-bold">{{ item.initials }}</span>
-                  </v-avatar>
-                </template>
+          <v-list class="pa-0" density="compact">
+            <v-list-item v-for="item in laterItems" :key="item.name" rounded="sm" class="mb-1 px-3">
+              <template #prepend>
+                <v-avatar color="secondary" variant="tonal" size="32" rounded="sm" class="mr-3">
+                  <span class="text-caption font-weight-bold">{{ item.initials }}</span>
+                </v-avatar>
+              </template>
 
-                <template #title>
-                  <span class="text-body-2 font-weight-medium">{{ item.name }}</span>
-                </template>
-                <template #subtitle>
-                  <span class="text-caption text-medium-emphasis">
-                    {{ item.lastFour ? `••••${item.lastFour}` : item.frequency }}
+              <template #title>
+                <span class="text-body-2 font-weight-medium">{{ item.name }}</span>
+              </template>
+              <template #subtitle>
+                <span class="text-caption text-medium-emphasis">
+                  {{ item.lastFour ? `••••${item.lastFour}` : item.frequency }}
+                </span>
+              </template>
+
+              <template #append>
+                <div class="d-flex align-center gap-3">
+                  <span class="text-caption text-medium-emphasis">{{ item.dueLabel }}</span>
+                  <span
+                    class="text-body-2 font-weight-medium"
+                    style="min-width: 64px; text-align: right"
+                  >
+                    {{ formatCurrency(item.typicalAmount) }}
                   </span>
-                </template>
-
-                <template #append>
-                  <div class="d-flex align-center gap-3">
-                    <span class="text-caption text-medium-emphasis">{{ item.dueLabel }}</span>
-                    <span
-                      class="text-body-2 font-weight-medium"
-                      style="min-width: 64px; text-align: right"
-                    >
-                      {{ formatCurrency(item.typicalAmount) }}
-                    </span>
-                  </div>
-                </template>
-              </v-list-item>
-            </v-list>
-          </v-card>
+                </div>
+              </template>
+            </v-list-item>
+          </v-list>
         </template>
       </template>
-    </div>
+    </v-sheet>
   </v-container>
 </template>
 

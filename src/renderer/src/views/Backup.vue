@@ -1,5 +1,5 @@
 <template>
-  <v-container fluid class="pa-3">
+  <v-container fluid class="pa-4">
     <v-alert
       v-if="error"
       type="error"
@@ -24,7 +24,7 @@
 
     <v-row>
       <v-col cols="12">
-        <v-card rounded elevation="2">
+        <v-card rounded="sm" elevation="2">
           <v-card-item class="pa-4 pb-0">
             <template #prepend>
               <v-icon color="primary" size="20" :opacity="0.7">mdi-shield-lock-outline</v-icon>
@@ -43,14 +43,15 @@
               v-model="passphrase"
               label="Encryption Passphrase"
               type="password"
-              variant="outlined"
+              variant="solo-filled"
               density="comfortable"
+              rounded="sm"
               hint="Must be at least 8 characters. Do not lose this passphrase."
               persistent-hint
               class="mb-4"
             />
 
-            <v-btn-group divided color="primary" variant="flat" density="comfortable">
+            <v-btn-group divided variant="flat" density="comfortable" rounded="sm">
               <v-btn
                 prepend-icon="mdi-export"
                 :disabled="!isValid"
@@ -73,7 +74,7 @@
       </v-col>
 
       <v-col cols="12">
-        <v-card rounded elevation="2">
+        <v-card rounded="sm" elevation="2">
           <v-card-item class="pa-4 pb-0">
             <template #prepend>
               <v-icon color="primary" size="20" :opacity="0.7">mdi-code-json</v-icon>
@@ -89,8 +90,8 @@
             </p>
 
             <v-btn
-              color="primary"
               variant="flat"
+              rounded="sm"
               prepend-icon="mdi-download-outline"
               :loading="isExportingJson"
               @click="handleExportJson"
@@ -110,7 +111,7 @@
         </v-card-text>
         <v-card-actions class="pa-6 pt-0">
           <v-spacer />
-          <v-btn variant="flat" rounded="sm" @click="showConfirmDialog = false">Cancel</v-btn>
+          <v-btn variant="text" @click="showConfirmDialog = false">Cancel</v-btn>
           <v-btn
             color="error"
             variant="flat"

@@ -1,34 +1,22 @@
 <template>
-  <v-container fluid class="pa-6">
+  <v-container fluid class="pa-4">
     <div class="d-flex justify-center mb-6">
-      <v-btn-group variant="tonal" density="comfortable" rounded="lg">
-        <v-btn
-          :color="activePeriod === 'last' ? 'primary' : undefined"
-          :variant="activePeriod === 'last' ? 'flat' : 'tonal'"
-          @click="selectMonth(lastMonthValue())"
-        >
+      <v-btn-group variant="flat" density="comfortable" rounded="sm">
+        <v-btn size="small" variant="flat" @click="selectMonth(lastMonthValue())">
           Last Month
         </v-btn>
-        <v-btn
-          :color="activePeriod === 'this' ? 'primary' : undefined"
-          :variant="activePeriod === 'this' ? 'flat' : 'tonal'"
-          @click="selectMonth(thisMonthValue())"
-        >
+        <v-btn size="small" variant="flat" @click="selectMonth(thisMonthValue())">
           This Month
         </v-btn>
         <v-menu v-model="customMenu" :close-on-content-click="false" location="bottom start">
           <template #activator="{ props }">
-            <v-btn
-              v-bind="props"
-              :color="activePeriod === 'custom' ? 'primary' : undefined"
-              :variant="activePeriod === 'custom' ? 'flat' : 'tonal'"
-            >
+            <v-btn v-bind="props" size="small" variant="flat">
               {{ activePeriod === 'custom' ? customLabel : 'Custom' }}
               <v-icon end size="16">mdi-chevron-down</v-icon>
             </v-btn>
           </template>
 
-          <v-card elevation="8" rounded="lg" min-width="220">
+          <v-card elevation="8" rounded="sm" min-width="220">
             <!-- Back header -->
             <div v-if="activeSubmenu" class="d-flex align-center px-2 pt-2">
               <v-btn
@@ -44,7 +32,7 @@
             <!-- Root list -->
             <v-list v-if="!activeSubmenu" density="compact" nav class="py-2">
               <v-list-item
-                rounded="lg"
+                rounded="sm"
                 :active="period.type === 'weekly'"
                 color="primary"
                 @click="activeSubmenu = 'weekly'"
@@ -55,7 +43,7 @@
                 </template>
               </v-list-item>
               <v-list-item
-                rounded="lg"
+                rounded="sm"
                 :active="period.type === 'monthly'"
                 color="primary"
                 @click="activeSubmenu = 'monthly'"
@@ -66,7 +54,7 @@
                 </template>
               </v-list-item>
               <v-list-item
-                rounded="lg"
+                rounded="sm"
                 :active="period.type === 'quarterly'"
                 color="primary"
                 @click="activeSubmenu = 'quarterly'"
@@ -77,7 +65,7 @@
                 </template>
               </v-list-item>
               <v-list-item
-                rounded="lg"
+                rounded="sm"
                 :active="period.type === 'yearly'"
                 color="primary"
                 @click="activeSubmenu = 'yearly'"
@@ -92,7 +80,7 @@
             <!-- Weekly list -->
             <v-list v-else-if="activeSubmenu === 'weekly'" density="compact" nav class="py-2">
               <v-list-item
-                rounded="lg"
+                rounded="sm"
                 :active="isThisWeek"
                 color="primary"
                 @click="selectWeek(thisWeekStart())"
@@ -100,7 +88,7 @@
                 <v-list-item-title>This week</v-list-item-title>
               </v-list-item>
               <v-list-item
-                rounded="lg"
+                rounded="sm"
                 :active="isLastWeek"
                 color="primary"
                 @click="selectWeek(lastWeekStart())"
@@ -110,7 +98,7 @@
               <v-list-item
                 v-for="week in recentWeeks"
                 :key="week.start.getTime()"
-                rounded="lg"
+                rounded="sm"
                 :active="
                   period.type === 'weekly' && period.weekStart?.getTime() === week.start.getTime()
                 "
@@ -126,7 +114,7 @@
               <v-list-item
                 v-for="opt in recentMonths"
                 :key="opt.value"
-                rounded="lg"
+                rounded="sm"
                 :active="period.type === 'monthly' && period.month === opt.value"
                 color="primary"
                 @click="selectMonth(opt.value)"
@@ -140,7 +128,7 @@
               <v-list-item
                 v-for="q in recentQuarters"
                 :key="`${q.year}-${q.quarter}`"
-                rounded="lg"
+                rounded="sm"
                 :active="
                   period.type === 'quarterly' &&
                   period.year === q.year &&
@@ -158,7 +146,7 @@
               <v-list-item
                 v-for="y in yearOptions"
                 :key="y"
-                rounded="lg"
+                rounded="sm"
                 :active="period.type === 'yearly' && period.year === y"
                 color="primary"
                 @click="selectYear(y)"
@@ -181,7 +169,7 @@
     <v-row align="start">
       <!-- Left: pie + by category -->
       <v-col cols="12" md="7">
-        <v-card rounded elevation="2">
+        <v-card rounded="sm" elevation="2">
           <!-- Doughnut -->
           <div class="pa-6 pb-4">
             <div style="position: relative; max-width: 460px; margin: 0 auto">
@@ -241,7 +229,7 @@
 
       <!-- Right: summary + frequent spend -->
       <v-col cols="12" md="5">
-        <v-card rounded elevation="2">
+        <v-card rounded="sm" elevation="2">
           <!-- Income -->
           <div
             class="d-flex align-center gap-4 pa-5"
@@ -287,7 +275,7 @@
         </v-card>
 
         <!-- Frequent Spend -->
-        <v-card rounded elevation="2" class="mt-4">
+        <v-card rounded="sm" elevation="2" class="mt-4">
           <div class="pa-5 pb-3">
             <div class="text-body-2 font-weight-bold mb-4">Frequent Spend</div>
 
@@ -340,7 +328,8 @@
           <!-- See more -->
           <div v-if="frequentMerchants.length > 3" class="pa-3 pt-0">
             <v-btn
-              variant="outlined"
+              variant="flat"
+              rounded="sm"
               block
               size="small"
               @click="showAllMerchants = !showAllMerchants"
@@ -350,7 +339,7 @@
           </div>
         </v-card>
         <!-- Largest Purchases -->
-        <v-card rounded elevation="2" class="mt-4">
+        <v-card rounded="sm" elevation="2" class="mt-4">
           <div class="pa-5 pb-3">
             <div class="text-body-2 font-weight-bold mb-4">Largest Purchases</div>
 
@@ -403,7 +392,8 @@
 
           <div v-if="largestPurchases.length > 3" class="pa-3 pt-0">
             <v-btn
-              variant="outlined"
+              variant="flat"
+              rounded="sm"
               block
               size="small"
               @click="showAllPurchases = !showAllPurchases"

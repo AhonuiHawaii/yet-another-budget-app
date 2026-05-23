@@ -1,10 +1,12 @@
 <template>
-  <v-container fluid class="pa-6">
+  <v-container fluid class="pa-4">
     <!-- Add Account Button -->
-    <div class="mb-8 d-flex align-center gap-2">
-      <v-btn-group variant="flat" color="primary" rounded="sm" divided class="text-white">
+    <div class="mb-8 d-flex justify-center align-center gap-2">
+      <v-btn-group variant="flat" density="comfortable" rounded="sm" divided>
         <v-btn prepend-icon="mdi-plus" @click="importDialog = true">Add Account</v-btn>
-        <v-btn prepend-icon="mdi-pencil-plus-outline" @click="manualDialog = true">Add Manual Loan</v-btn>
+        <v-btn prepend-icon="mdi-pencil-plus-outline" @click="manualDialog = true"
+          >Add Manual Loan</v-btn
+        >
       </v-btn-group>
 
       <v-slide-x-transition>
@@ -65,7 +67,6 @@
           <v-spacer />
           <v-btn variant="text" @click="importDialog = false">Cancel</v-btn>
           <v-btn
-            color="primary"
             variant="flat"
             rounded="sm"
             :loading="store.loading"
@@ -160,7 +161,7 @@
               v-model="manualForm.paymentFrequency"
               mandatory
               divided
-              variant="outlined"
+              variant="flat"
               density="compact"
               color="primary"
               class="mb-4"
@@ -286,7 +287,6 @@
           <v-spacer />
           <v-btn variant="text" @click="manualDialog = false">Cancel</v-btn>
           <v-btn
-            color="primary"
             variant="flat"
             rounded="sm"
             :loading="store.loading"
@@ -302,13 +302,13 @@
     <!-- Accounts List -->
     <div>
       <div class="d-flex align-center justify-space-between mb-4">
-        <h2 class="text-h6 font-weight-semibold">Linked Accounts</h2>
+        <div class="text-h6 font-weight-bold">Linked Accounts</div>
       </div>
 
       <!-- Empty State -->
-      <v-card v-if="store.accounts.length === 0" rounded="sm" elevation="3">
-        <v-card-text class="pa-10 text-center">
-          <v-icon size="56" color="primary" class="mb-4 text-disabled">mdi-bank-off-outline</v-icon>
+      <v-card v-if="store.accounts.length === 0" rounded="sm" elevation="2">
+        <v-card-text class="pa-12 text-center">
+          <v-icon size="60" class="mb-4 text-disabled">mdi-bank-off-outline</v-icon>
           <div class="text-h6 font-weight-medium mb-2">No accounts yet</div>
           <div class="text-body-2 text-medium-emphasis">
             Import an OFX or QFX file from your bank to get started.
@@ -336,7 +336,7 @@
             />
           </div>
 
-          <v-card>
+          <v-card rounded="sm" elevation="2">
             <v-list lines="two" class="pa-0">
               <template v-for="(account, i) in accounts" :key="account.ACCTID">
                 <v-list-item class="py-3">
@@ -646,13 +646,7 @@
           </v-alert>
           <v-spacer />
           <v-btn variant="text" @click="editNameDialog = false">Cancel</v-btn>
-          <v-btn
-            color="primary"
-            variant="flat"
-            rounded="sm"
-            :loading="store.loading"
-            @click="saveEditName"
-          >
+          <v-btn variant="flat" rounded="sm" :loading="store.loading" @click="saveEditName">
             Save
           </v-btn>
         </v-card-actions>
@@ -662,8 +656,8 @@
     <!-- Remove Confirmation Dialog -->
     <v-dialog v-model="removeDialog" max-width="400" rounded="sm">
       <v-card rounded="sm">
-        <v-card-title class="text-h6 pa-6 pb-2">Remove Account</v-card-title>
-        <v-card-text class="pa-6 pt-2 text-body-2 text-medium-emphasis">
+        <v-card-title class="text-h6 pa-6 pb-4">Remove Account</v-card-title>
+        <v-card-text class="pa-6 pt-0 text-body-2 text-medium-emphasis">
           Remove <strong>{{ pendingRemove?.ORG || 'this account' }}</strong> ending in
           <strong>{{ pendingRemove?.ACCTID }}</strong
           >? This only removes the account from this app — no bank data is affected.
@@ -671,7 +665,7 @@
         <v-card-actions class="pa-6 pt-0 gap-2">
           <v-spacer />
           <v-btn variant="text" @click="removeDialog = false">Cancel</v-btn>
-          <v-btn color="error" variant="tonal" @click="doRemove">Remove</v-btn>
+          <v-btn color="error" variant="flat" rounded="sm" @click="doRemove">Remove</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>

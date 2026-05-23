@@ -1,8 +1,8 @@
 <template>
-  <v-container fluid class="pa-3">
+  <v-container fluid class="pa-4">
     <v-row>
       <v-col cols="12">
-        <v-card rounded elevation="2" class="mb-3">
+        <v-card rounded="sm" elevation="2" class="mb-3">
           <v-card-item class="pa-4 pb-0">
             <template #prepend>
               <v-icon color="primary" size="20" :opacity="0.7">mdi-shield-lock-outline</v-icon>
@@ -49,8 +49,8 @@
 
             <p class="font-weight-bold text-body-1 mb-2">3. No Remote Servers or Cloud Services</p>
             <p class="mb-3">
-              The Application operates entirely offline on your local device. It does not connect to,
-              communicate with, or transmit data to any remote server, cloud infrastructure, or
+              The Application operates entirely offline on your local device. It does not connect
+              to, communicate with, or transmit data to any remote server, cloud infrastructure, or
               backend service operated by us or any third party. There are no APIs, webhooks,
               synchronization services, or network requests initiated by the Application.
             </p>
@@ -70,8 +70,8 @@
               All data you enter into the Application — including but not limited to transaction
               records, budgets, categories, and preferences — is stored exclusively on your local
               device in an encrypted database. You retain sole custody and control over your data at
-              all times. We have no ability to access, view, retrieve, or recover your data under any
-              circumstances.
+              all times. We have no ability to access, view, retrieve, or recover your data under
+              any circumstances.
             </p>
 
             <v-alert

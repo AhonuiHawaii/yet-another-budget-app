@@ -1,15 +1,15 @@
 <template>
-  <v-container fluid class="pa-6">
+  <v-container fluid class="pa-4">
     <div class="d-flex justify-center align-center mb-6">
-      <v-btn variant="tonal" density="comfortable" rounded="lg" @click="prevMonth">
+      <v-btn variant="flat" density="comfortable" rounded="sm" @click="prevMonth">
         <v-icon start size="16">mdi-chevron-left</v-icon>
         {{ prevMonthLabel }}
       </v-btn>
       <span class="text-subtitle-1 font-weight-bold mx-6">{{ monthLabel(selectedMonth) }}</span>
       <v-btn
-        variant="tonal"
+        variant="flat"
         density="comfortable"
-        rounded="lg"
+        rounded="sm"
         :disabled="isNextMonthFuture"
         @click="nextMonth"
       >
@@ -52,7 +52,7 @@
                 :model-value="debtsStore.strategy"
                 mandatory
                 divided
-                variant="outlined"
+                variant="flat"
                 density="compact"
                 color="primary"
                 @update:model-value="debtsStore.setStrategy"
@@ -149,7 +149,7 @@
     <v-row class="mb-6" align="stretch">
       <!-- Left: Debt List + How It Works -->
       <v-col cols="12" md="5" class="d-flex flex-column gap-4">
-        <v-card rounded elevation="2" class="h-100">
+        <v-card rounded="sm" elevation="2" class="h-100">
           <v-card-item class="pa-4 pb-2">
             <v-card-title class="text-subtitle-1 font-weight-bold">Payoff Order</v-card-title>
             <template #append>
@@ -241,7 +241,7 @@
 
       <!-- Right: Payoff Timeline -->
       <v-col cols="12" md="7">
-        <v-card rounded elevation="2" class="h-100 d-flex flex-column">
+        <v-card rounded="sm" elevation="2" class="h-100 d-flex flex-column">
           <v-card-item class="pa-4 pb-2">
             <v-card-title class="text-subtitle-1 font-weight-bold">Payoff Timeline</v-card-title>
             <template #append>
@@ -332,7 +332,7 @@
     <v-row class="mb-6">
       <!-- Payment Snowball Over Time -->
       <v-col cols="12" md="7">
-        <v-card rounded elevation="2" class="h-100">
+        <v-card rounded="sm" elevation="2" class="h-100">
           <v-card-item class="pa-4 pb-2">
             <v-card-title class="text-subtitle-1 font-weight-bold">
               Payment Snowball Over Time
@@ -351,7 +351,7 @@
 
       <!-- Avalanche vs Snowball Comparison -->
       <v-col cols="12" md="5">
-        <v-card rounded elevation="2" class="h-100">
+        <v-card rounded="sm" elevation="2" class="h-100">
           <v-card-item class="pa-4 pb-2">
             <v-card-title class="text-subtitle-1 font-weight-bold">
               Avalanche vs Snowball
@@ -459,7 +459,7 @@
     </v-row>
 
     <!-- Manage Debt Details (collapsible) -->
-    <v-card rounded elevation="2">
+    <v-card rounded="sm" elevation="2">
       <v-card-title
         class="pa-4 d-flex align-center justify-space-between cursor-pointer"
         @click="showDetails = !showDetails"

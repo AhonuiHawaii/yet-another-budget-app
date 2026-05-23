@@ -1,8 +1,8 @@
 <template>
-  <v-container fluid class="pa-3">
+  <v-container fluid class="pa-4">
     <!-- Import Transactions Dialog -->
     <v-dialog v-model="importDialog" max-width="500">
-      <v-card rounded>
+      <v-card rounded="sm">
         <v-card-title class="pa-6 pb-4">
           <div class="d-flex align-center justify-space-between">
             <div class="d-flex align-center gap-3">
@@ -31,9 +31,9 @@
             label="Choose OFX / QFX file"
             prepend-icon=""
             prepend-inner-icon="mdi-folder-open-outline"
-            variant="solo"
-            inset
+            variant="solo-filled"
             density="comfortable"
+            rounded="sm"
             hide-details="auto"
             :error-messages="store.error ? [store.error] : []"
             @update:model-value="store.clearError()"
@@ -44,7 +44,6 @@
           <v-spacer />
           <v-btn variant="text" @click="importDialog = false">Cancel</v-btn>
           <v-btn
-            color="primary"
             variant="flat"
             :loading="store.loading"
             :disabled="!selectedFile"
@@ -59,15 +58,15 @@
 
     <!-- Month navigator + Import -->
     <div class="d-flex justify-center align-center mb-6" style="position: relative">
-      <v-btn variant="tonal" density="comfortable" rounded="lg" @click="prevMonth">
+      <v-btn variant="flat" density="comfortable" rounded="sm" @click="prevMonth">
         <v-icon start size="16">mdi-chevron-left</v-icon>
         {{ prevMonthLabel }}
       </v-btn>
       <span class="text-subtitle-1 font-weight-bold mx-6">{{ monthLabel(selectedMonth) }}</span>
       <v-btn
-        variant="tonal"
+        variant="flat"
         density="comfortable"
-        rounded="lg"
+        rounded="sm"
         :disabled="isNextMonthFuture"
         @click="nextMonth"
       >
@@ -88,7 +87,6 @@
           </v-chip>
         </v-slide-x-transition>
         <v-btn
-          color="primary"
           variant="flat"
           size="small"
           prepend-icon="mdi-file-import-outline"
@@ -100,7 +98,7 @@
     </div>
 
     <!-- Toolbar -->
-    <v-card rounded elevation="2" class="mb-3">
+    <v-card rounded="sm" elevation="2" class="mb-3">
       <v-card-text class="pa-3">
         <div class="d-flex gap-2">
           <v-text-field
@@ -183,7 +181,7 @@
     <v-alert
       v-if="store.error"
       type="error"
-      variant="tonal"
+      variant="flat"
       closable
       class="mb-3"
       @click:close="store.clearError()"
@@ -192,7 +190,7 @@
     </v-alert>
 
     <!-- Empty State -->
-    <v-card v-if="!store.loading && store.transactions.length === 0" rounded elevation="2">
+    <v-card v-if="!store.loading && store.transactions.length === 0" rounded="sm" elevation="2">
       <v-card-text class="pa-12 text-center">
         <v-icon size="60" class="mb-4 text-disabled">mdi-receipt-text-outline</v-icon>
         <div class="text-h6 font-weight-medium mb-2">No transactions found</div>
@@ -203,7 +201,7 @@
     </v-card>
 
     <!-- Data Table -->
-    <v-card v-else rounded elevation="2">
+    <v-card v-else rounded="sm" elevation="2">
       <v-data-table
         v-model="selectedRows"
         v-model:expanded="expandedRows"
@@ -256,7 +254,8 @@
             :color="typeColor(item.transactionType)"
             :class="`text-on-${typeColor(item.transactionType)} font-weight-medium`"
             variant="flat"
-            size="small"
+            size="x-small"
+            rounded="sm"
           >
             {{ item.transactionType || item.TRNTYPE || '—' }}
           </v-chip>
@@ -269,7 +268,8 @@
               v-if="item.splitCategory1 || item.splitCategory2"
               color="info"
               variant="flat"
-              size="small"
+              size="x-small"
+              rounded="sm"
             >
               Split
             </v-chip>
@@ -277,7 +277,8 @@
               v-else-if="item.category"
               color="secondary"
               variant="flat"
-              size="small"
+              size="x-small"
+              rounded="sm"
               class="text-on-secondary font-weight-medium"
             >
               {{ categoryName(item.category) }}
@@ -358,7 +359,7 @@
                   <tbody>
                     <tr v-if="item.splitCategory1 || item.splitAmount1">
                       <td class="pl-0 text-body-2">
-                        <v-chip color="secondary" variant="tonal" size="x-small">
+                        <v-chip color="secondary" variant="flat" size="x-small" rounded="sm">
                           {{ categoryName(item.splitCategory1) || 'Uncategorized' }}
                         </v-chip>
                       </td>
@@ -368,7 +369,7 @@
                     </tr>
                     <tr v-if="item.splitCategory2 || item.splitAmount2">
                       <td class="pl-0 text-body-2">
-                        <v-chip color="secondary" variant="tonal" size="x-small">
+                        <v-chip color="secondary" variant="flat" size="x-small" rounded="sm">
                           {{ categoryName(item.splitCategory2) || 'Uncategorized' }}
                         </v-chip>
                       </td>
@@ -392,7 +393,7 @@
 
     <!-- Edit Category Dialog -->
     <v-dialog v-model="editCategoryDialog" max-width="420">
-      <v-card rounded>
+      <v-card rounded="sm">
         <v-card-title class="pa-6 pb-4">
           <div class="d-flex align-center justify-space-between">
             <div class="d-flex align-center gap-3">
@@ -440,7 +441,7 @@
 
     <!-- Edit Payee Dialog -->
     <v-dialog v-model="editPayeeDialog" max-width="420">
-      <v-card rounded>
+      <v-card rounded="sm">
         <v-card-title class="pa-6 pb-4">
           <div class="d-flex align-center justify-space-between">
             <div class="d-flex align-center gap-3">
@@ -487,7 +488,7 @@
 
     <!-- Split Transaction Dialog -->
     <v-dialog v-model="splitDialog" max-width="500" persistent>
-      <v-card rounded>
+      <v-card rounded="sm">
         <v-card-title class="pa-6 pb-4">
           <div class="d-flex align-center justify-space-between">
             <div class="d-flex align-center gap-3">
@@ -582,7 +583,6 @@
           <v-spacer />
           <v-btn variant="text" @click="splitDialog = false">Cancel</v-btn>
           <v-btn
-            color="primary"
             variant="flat"
             :loading="store.loading"
             :disabled="!isSplitValid"
@@ -596,7 +596,7 @@
 
     <!-- Notes Dialog -->
     <v-dialog v-model="notesDialog" max-width="460">
-      <v-card rounded>
+      <v-card rounded="sm">
         <v-card-title class="pa-6 pb-4">
           <div class="d-flex align-center justify-space-between">
             <div class="d-flex align-center gap-3">
@@ -637,7 +637,7 @@
 
     <!-- Bulk Category Dialog -->
     <v-dialog v-model="bulkCategoryDialog" max-width="420">
-      <v-card rounded>
+      <v-card rounded="sm">
         <v-card-title class="pa-6 pb-4">
           <div class="d-flex align-center justify-space-between">
             <div class="d-flex align-center gap-3">
@@ -689,7 +689,7 @@
 
     <!-- Bulk Payee Dialog -->
     <v-dialog v-model="bulkPayeeDialog" max-width="420">
-      <v-card rounded>
+      <v-card rounded="sm">
         <v-card-title class="pa-6 pb-4">
           <div class="d-flex align-center justify-space-between">
             <div class="d-flex align-center gap-3">
@@ -840,7 +840,6 @@
           <v-spacer />
           <v-btn variant="text" @click="ruleDialog = false">Cancel</v-btn>
           <v-btn
-            color="primary"
             variant="flat"
             rounded="sm"
             :loading="rulesStore.loading"
@@ -857,9 +856,9 @@
 
     <!-- Delete Confirmation Dialog -->
     <v-dialog v-model="deleteDialog" max-width="400">
-      <v-card rounded>
-        <v-card-title class="text-h6 pa-6 pb-2">Delete Transaction</v-card-title>
-        <v-card-text class="pa-6 pt-2 text-body-2 text-medium-emphasis">
+      <v-card rounded="sm">
+        <v-card-title class="text-h6 pa-6 pb-4">Delete Transaction</v-card-title>
+        <v-card-text class="pa-6 pt-0 text-body-2 text-medium-emphasis">
           Permanently delete
           <strong>{{ deleteTarget?.MEMO || deleteTarget?.NAME || deleteTarget?.FITID }}</strong
           >? This action cannot be undone.
@@ -867,7 +866,13 @@
         <v-card-actions class="pa-6 pt-0 gap-2">
           <v-spacer />
           <v-btn variant="text" @click="deleteDialog = false">Cancel</v-btn>
-          <v-btn color="error" variant="tonal" :loading="store.loading" @click="doDelete">
+          <v-btn
+            color="error"
+            variant="flat"
+            rounded="sm"
+            :loading="store.loading"
+            @click="doDelete"
+          >
             Delete
           </v-btn>
         </v-card-actions>

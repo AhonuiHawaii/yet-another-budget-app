@@ -1,15 +1,15 @@
 <template>
-  <v-container fluid class="pa-3">
+  <v-container fluid class="pa-4">
     <div class="d-flex justify-center align-center mb-3">
-      <v-btn variant="tonal" density="comfortable" rounded="lg" @click="prevMonth">
+      <v-btn variant="flat" density="comfortable" rounded="sm" @click="prevMonth">
         <v-icon start size="16">mdi-chevron-left</v-icon>
         {{ prevMonthLabel }}
       </v-btn>
       <span class="text-subtitle-1 font-weight-bold mx-6">{{ monthLabel(selectedMonth) }}</span>
       <v-btn
-        variant="tonal"
+        variant="flat"
         density="comfortable"
-        rounded="lg"
+        rounded="sm"
         :disabled="isNextMonthFuture"
         @click="nextMonth"
       >
@@ -26,15 +26,16 @@
     <v-row class="mb-3">
       <v-col cols="12" lg="6">
         <!-- Current Spend -->
-        <v-card rounded elevation="2" class="h-100">
+        <v-card rounded="sm" elevation="2" class="h-100">
           <v-card-item class="pa-4 pb-2">
             <v-card-title class="text-h6 font-weight-bold">Current Spend</v-card-title>
             <template #append>
               <div v-if="spendVsLastMonth" class="d-flex align-center gap-1">
-                <v-icon
-                  :color="spendVsLastMonth.less ? 'success' : 'error'"
-                  size="16"
-                >{{ spendVsLastMonth.less ? 'mdi-arrow-down-circle-outline' : 'mdi-arrow-up-circle-outline' }}</v-icon>
+                <v-icon :color="spendVsLastMonth.less ? 'success' : 'error'" size="16">{{
+                  spendVsLastMonth.less
+                    ? 'mdi-arrow-down-circle-outline'
+                    : 'mdi-arrow-up-circle-outline'
+                }}</v-icon>
                 <span
                   class="text-caption"
                   :class="spendVsLastMonth.less ? 'text-success' : 'text-error'"
@@ -57,7 +58,15 @@
               <span class="text-caption text-medium-emphasis">This Month</span>
             </div>
             <div class="d-flex align-center gap-2">
-              <div style="width: 20px; height: 2px; background: rgba(92,107,192,0.4); border-radius: 1px; border-top: 2px dashed rgba(92,107,192,0.4)"></div>
+              <div
+                style="
+                  width: 20px;
+                  height: 2px;
+                  background: rgba(92, 107, 192, 0.4);
+                  border-radius: 1px;
+                  border-top: 2px dashed rgba(92, 107, 192, 0.4);
+                "
+              ></div>
               <span class="text-caption text-medium-emphasis">Last Month</span>
             </div>
           </div>
@@ -66,14 +75,16 @@
 
       <!-- Upcoming -->
       <v-col cols="12" lg="6">
-        <v-card rounded elevation="2" class="h-100">
+        <v-card rounded="sm" elevation="2" class="h-100">
           <v-card-item class="pa-4 pb-2">
             <v-card-title class="text-h6 font-weight-bold">Upcoming</v-card-title>
           </v-card-item>
 
           <div class="px-4 pb-2 text-body-2 text-medium-emphasis">
             <template v-if="soonItems.length">
-              You have {{ soonItems.length }} recurring charge{{ soonItems.length !== 1 ? 's' : '' }}
+              You have {{ soonItems.length }} recurring charge{{
+                soonItems.length !== 1 ? 's' : ''
+              }}
               due within the next 7 days for {{ formatCurrencyCompact(soonTotal) }}.
             </template>
             <template v-else>No upcoming charges in the next 7 days.</template>
@@ -123,7 +134,7 @@
           </div>
 
           <div class="px-4 pb-4 pt-1">
-            <v-btn variant="outlined" size="small" rounded="lg" @click="emit('navigate', 'Recurring')">
+            <v-btn variant="flat" size="small" rounded="sm" @click="emit('navigate', 'Recurring')">
               See All Upcoming
             </v-btn>
           </div>
@@ -135,7 +146,7 @@
     <v-row>
       <v-col cols="12" lg="6">
         <!-- Recent Transactions -->
-        <v-card rounded elevation="2">
+        <v-card rounded="sm" elevation="2">
           <v-card-item class="pa-4 pb-0">
             <template #prepend>
               <v-icon color="primary" size="20" :opacity="0.7">mdi-receipt-text-outline</v-icon>
@@ -172,7 +183,7 @@
         </v-card>
 
         <!-- Accounts -->
-        <v-card rounded elevation="2" class="mt-3">
+        <v-card rounded="sm" elevation="2" class="mt-3">
           <v-card-item class="pa-4 pb-0">
             <v-card-title class="text-h6 font-weight-bold">Accounts</v-card-title>
             <template #append>
@@ -187,7 +198,10 @@
             </template>
           </v-card-item>
 
-          <div v-if="accountRows.length === 0" class="py-4 text-center text-medium-emphasis text-body-2">
+          <div
+            v-if="accountRows.length === 0"
+            class="py-4 text-center text-medium-emphasis text-body-2"
+          >
             No accounts yet.
           </div>
 
@@ -234,7 +248,7 @@
       <!-- Right column -->
       <v-col cols="12" lg="6">
         <!-- Budget -->
-        <v-card rounded elevation="2">
+        <v-card rounded="sm" elevation="2">
           <v-card-item class="pa-4 pb-2">
             <v-card-title class="text-h6 font-weight-bold">Budget</v-card-title>
           </v-card-item>
@@ -274,7 +288,7 @@
           </div>
 
           <div class="px-4 pb-4">
-            <v-btn variant="outlined" size="small" rounded="lg" @click="emit('navigate', 'Budgets')">
+            <v-btn variant="flat" size="small" rounded="sm" @click="emit('navigate', 'Budgets')">
               See All Categories
             </v-btn>
           </div>
@@ -296,7 +310,12 @@ import {
   Tooltip
 } from 'chart.js'
 import { Line } from 'vue-chartjs'
-import { useUserAccountsStore, accountTypeIcon, accountTypeColor, resolveIsAsset } from '../stores/userAccounts'
+import {
+  useUserAccountsStore,
+  accountTypeIcon,
+  accountTypeColor,
+  resolveIsAsset
+} from '../stores/userAccounts'
 import { useUserBudgetsStore } from '../stores/userBudgets'
 import { useUserCategoriesStore } from '../stores/userCategories'
 import { useUserTransactionsStore } from '../stores/userTransactions'
@@ -427,7 +446,10 @@ const currentSpendChartData = computed(() => {
   const today = isCurrentMonth ? new Date().getDate() : daysInMonth
 
   const thisData = buildDailyCumulative(currentTransactions.value, selectedMonth.value)
-  const lastData = buildDailyCumulative(lastMonthTransactions.value, offsetMonth(selectedMonth.value, -1))
+  const lastData = buildDailyCumulative(
+    lastMonthTransactions.value,
+    offsetMonth(selectedMonth.value, -1)
+  )
 
   const thisMonthData = thisData.map((v, i) => (i < today ? v : null))
   const lastMonthData = Array.from({ length: daysInMonth }, (_, i) => lastData[i] ?? null)
@@ -511,7 +533,10 @@ const spendVsLastMonth = computed(() => {
   if (selectedMonth.value !== currentMonthValue()) return null
   const today = new Date().getDate()
   const thisData = buildDailyCumulative(currentTransactions.value, selectedMonth.value)
-  const lastData = buildDailyCumulative(lastMonthTransactions.value, offsetMonth(selectedMonth.value, -1))
+  const lastData = buildDailyCumulative(
+    lastMonthTransactions.value,
+    offsetMonth(selectedMonth.value, -1)
+  )
   const thisTotal = thisData[today - 1] || 0
   const lastTotal = lastData[today - 1] || 0
   const diff = lastTotal - thisTotal
@@ -537,7 +562,12 @@ function sumActualByCategoryType(type) {
 const budgetSections = [
   { type: 'income', label: 'Earnings', icon: 'mdi-cash-plus', actualLabel: 'earned' },
   { type: 'variable', label: 'Spending', icon: 'mdi-credit-card-outline', actualLabel: 'spent' },
-  { type: 'bills', label: 'Bills & Utilities', icon: 'mdi-receipt-text-outline', actualLabel: 'paid' }
+  {
+    type: 'bills',
+    label: 'Bills & Utilities',
+    icon: 'mdi-receipt-text-outline',
+    actualLabel: 'paid'
+  }
 ]
 
 const budgetRows = computed(() =>
@@ -547,7 +577,12 @@ const budgetRows = computed(() =>
     const rawProgress = budget > 0 ? (actual / budget) * 100 : actual > 0 ? 100 : 0
     const diff = type === 'income' ? actual - budget : budget - actual
     return {
-      type, label, icon, actualLabel, budget, actual,
+      type,
+      label,
+      icon,
+      actualLabel,
+      budget,
+      actual,
       remaining: Math.abs(diff),
       progress: Math.min(rawProgress, 100),
       rawProgress,
@@ -637,9 +672,18 @@ const recurringAllItems = computed(() => {
         .slice(0, 2)
         .map((w) => w[0]?.toUpperCase() ?? '')
         .join('')
-      return { name: g.name, typicalAmount, typicalDay, days, urgencyColor: recurringUrgencyColor(days), initials }
+      return {
+        name: g.name,
+        typicalAmount,
+        typicalDay,
+        days,
+        urgencyColor: recurringUrgencyColor(days),
+        initials
+      }
     })
-    .filter((item) => item.typicalDay !== null && item.days !== null && item.days >= 0 && item.days <= 7)
+    .filter(
+      (item) => item.typicalDay !== null && item.days !== null && item.days >= 0 && item.days <= 7
+    )
     .sort((a, b) => a.days - b.days)
 })
 

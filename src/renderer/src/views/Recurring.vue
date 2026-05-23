@@ -1,16 +1,10 @@
 <template>
   <div>
     <div class="d-flex justify-center pt-4 pb-2">
-      <v-btn-toggle
-        v-model="activeTab"
-        mandatory
-        rounded="pill"
-        density="comfortable"
-        variant="outlined"
-      >
-        <v-btn value="upcoming">Upcoming</v-btn>
-        <v-btn value="all">All Recurring</v-btn>
-<v-btn value="calendar">Calendar</v-btn>
+      <v-btn-toggle v-model="activeTab" mandatory rounded="sm" density="comfortable" variant="flat">
+        <v-btn value="upcoming" size="small">Upcoming</v-btn>
+        <v-btn value="all" size="small">All Recurring</v-btn>
+        <v-btn value="calendar" size="small">Calendar</v-btn>
       </v-btn-toggle>
     </div>
 

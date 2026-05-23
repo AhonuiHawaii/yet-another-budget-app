@@ -2,7 +2,7 @@
   <v-container fluid class="pa-6">
     <v-row class="mb-6">
       <v-col cols="12" sm="6" lg="3">
-        <v-card class="h-100" rounded elevation="2">
+        <v-card class="h-100" rounded="sm" elevation="2">
           <v-card-text class="pa-4">
             <div class="d-flex align-start justify-space-between mb-3">
               <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis"
@@ -15,7 +15,7 @@
         </v-card>
       </v-col>
       <v-col cols="12" sm="6" lg="3">
-        <v-card class="h-100" rounded elevation="2">
+        <v-card class="h-100" rounded="sm" elevation="2">
           <v-card-text class="pa-4">
             <div class="d-flex align-start justify-space-between mb-3">
               <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis"
@@ -30,7 +30,7 @@
         </v-card>
       </v-col>
       <v-col cols="12" sm="6" lg="3">
-        <v-card class="h-100" rounded elevation="2">
+        <v-card class="h-100" rounded="sm" elevation="2">
           <v-card-text class="pa-4">
             <div class="d-flex align-start justify-space-between mb-3">
               <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis"
@@ -43,7 +43,7 @@
         </v-card>
       </v-col>
       <v-col cols="12" sm="6" lg="3">
-        <v-card class="h-100" rounded elevation="2">
+        <v-card class="h-100" rounded="sm" elevation="2">
           <v-card-text class="pa-4">
             <div class="d-flex align-start justify-space-between mb-3">
               <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis"
@@ -61,7 +61,7 @@
       {{ store.error }}
     </v-alert>
 
-    <v-card rounded elevation="2">
+    <v-card rounded="sm" elevation="2">
       <v-card-item class="pa-4 pb-0">
         <template #prepend>
           <v-icon color="primary" size="20" :opacity="0.7">mdi-flag-outline</v-icon>
@@ -170,47 +170,67 @@
 
     <v-dialog v-model="goalDialog" max-width="520">
       <v-card rounded="sm">
-        <v-card-title class="d-flex align-center justify-space-between pa-6">
-          <span class="text-h6 font-weight-bold">{{
-            editingGoalId ? 'Edit Goal' : 'Add Goal'
-          }}</span>
-          <v-btn icon="mdi-close" variant="text" density="compact" @click="closeGoalDialog" />
+        <v-card-title class="pa-6 pb-4">
+          <div class="d-flex align-center justify-space-between">
+            <span class="text-h6 font-weight-bold">{{
+              editingGoalId ? 'Edit Goal' : 'Add Goal'
+            }}</span>
+            <v-btn icon="mdi-close" variant="text" density="compact" @click="closeGoalDialog" />
+          </div>
         </v-card-title>
-        <v-card-text class="px-6 pt-0">
+        <v-divider />
+        <v-card-text class="pa-6">
           <v-text-field
             v-model="goalForm.name"
             label="Goal name"
-            variant="outlined"
+            variant="solo-filled"
             density="comfortable"
+            rounded="sm"
+            hide-details="auto"
+            class="mb-4"
           />
           <v-text-field
             v-model.number="goalForm.targetAmount"
             label="Target amount"
             type="number"
             prefix="$"
-            variant="outlined"
+            variant="solo-filled"
             density="comfortable"
+            rounded="sm"
+            hide-details="auto"
+            class="mb-4"
           />
           <v-text-field
             v-model.number="goalForm.currentAmount"
             label="Saved so far"
             type="number"
             prefix="$"
-            variant="outlined"
+            variant="solo-filled"
             density="comfortable"
+            rounded="sm"
+            hide-details="auto"
+            class="mb-4"
           />
           <v-text-field
             v-model="goalForm.targetDate"
             label="Target date"
             type="date"
-            variant="outlined"
+            variant="solo-filled"
             density="comfortable"
+            rounded="sm"
+            hide-details="auto"
           />
         </v-card-text>
         <v-card-actions class="pa-6 pt-0">
           <v-spacer />
           <v-btn variant="text" @click="closeGoalDialog">Cancel</v-btn>
-          <v-btn color="primary" variant="flat" :loading="store.loading" @click="saveGoal">
+          <v-btn
+            color="primary"
+            variant="flat"
+            rounded="sm"
+            :loading="store.loading"
+            @click="saveGoal"
+          >
             Save
           </v-btn>
         </v-card-actions>
