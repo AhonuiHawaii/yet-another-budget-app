@@ -182,10 +182,24 @@ export function setupBackupHandlers() {
       const protectedKey = dpapi.protectData(Buffer.from(rawKey), null, 'CurrentUser')
       fs.writeFileSync(KEY_PATH, protectedKey)
 
-      // 4. Return success (UI will prompt user to restart)
+      // 4. Relaunch — db.close() cannot be undone on the same process; a fresh
+      //    process is the only way to reinitialize the SQLite connection.
+      //    Delay long enough for the IPC response to reach the renderer first.
+      setTimeout(() => {
+        app.relaunch()
+        app.exit(0)
+      }, 500)
+
       return { success: true }
     } catch (err) {
       console.error('Import Backup Error:', err)
+      // Clean up any partially-written temp file left by a failed decryption
+      const DB_DIR = path.join(app.getPath('userData'), 'data')
+      try {
+        fs.readdirSync(DB_DIR)
+          .filter((f) => f.startsWith('budget_import_') && f.endsWith('.db'))
+          .forEach((f) => fs.unlinkSync(path.join(DB_DIR, f)))
+      } catch {}
       return { success: false, error: err.message }
     }
   })

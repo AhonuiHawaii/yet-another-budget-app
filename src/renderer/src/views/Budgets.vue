@@ -433,7 +433,7 @@ const summaryChartData = computed(() => {
 })
 
 function addActual(actuals, categoryName, rawAmount) {
-  if (!categoryName || !rawAmount) return
+  if (!categoryName || rawAmount >= 0) return
   actuals.set(categoryName, (actuals.get(categoryName) || 0) + Math.abs(rawAmount))
 }
 

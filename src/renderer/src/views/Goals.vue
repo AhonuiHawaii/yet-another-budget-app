@@ -313,7 +313,10 @@ async function onDrop(targetId) {
   rows.splice(toIndex, 0, movedGoal)
   draggedGoalId.value = null
 
-  await store.reorderGoals(rows.map((goal) => goal.id))
+  // Only pass active goal IDs — completed goals keep their existing priorities
+  // and should not be renumbered by a drag-and-drop among active goals.
+  const activeIds = rows.filter((goal) => goal.status !== 'completed').map((goal) => goal.id)
+  await store.reorderGoals(activeIds)
 }
 
 function formatCurrency(value) {

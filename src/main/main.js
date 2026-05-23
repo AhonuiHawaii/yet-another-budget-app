@@ -121,7 +121,6 @@ export const fetchTransactions = (filters) => {
 export const editTransaction = (fitid, updates) => {
   try {
     const changes = updateTransaction(fitid, updates)
-    if (!changes) return fail(new Error(`No transaction found with FITID: ${fitid}`))
     return ok({ fitid, changes })
   } catch (e) {
     return fail(e)
