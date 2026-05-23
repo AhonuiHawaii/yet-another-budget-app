@@ -10,10 +10,6 @@ export const useUserTransactionsStore = defineStore('userTransactions', () => {
   const monthsWithData = ref([]) // string[] of 'yyyymm'
   const activeMonth = ref(null) // currently selected 'yyyymm'
 
-  // Report state
-  const monthlySummary = ref([]) // [{ transactionType, total }]
-  const categoryTotals = ref([]) // [{ category, total }]
-  const uncategorized = ref([]) // Transaction[]
   const accountSummary = ref([]) // [{ ACCTID, count, total }]
   const monthlyTotals = ref([]) // [{ month, income, spending }]
   const netWorthHistory = ref([]) // [{ month, assets, liabilities, netWorth }]
@@ -174,33 +170,6 @@ export const useUserTransactionsStore = defineStore('userTransactions', () => {
   // ── Reports ───────────────────────────────────────────────────────────────
 
   /**
-   * Load all report data for a given month in parallel.
-   * @param {string} yyyymm - e.g. '202605'
-   */
-  async function fetchReports(yyyymm) {
-    loadingCount.value++
-    error.value = null
-    try {
-      const [summary, categories, uncat] = await Promise.all([
-        ipc.invoke('reports:monthlySummary', yyyymm),
-        ipc.invoke('reports:categoryTotals', yyyymm),
-        ipc.invoke('reports:uncategorized', yyyymm)
-      ])
-      if (!summary.success) throw new Error(summary.error)
-      if (!categories.success) throw new Error(categories.error)
-      if (!uncat.success) throw new Error(uncat.error)
-
-      monthlySummary.value = summary.data
-      categoryTotals.value = categories.data
-      uncategorized.value = uncat.data
-    } catch (err) {
-      setError(err)
-    } finally {
-      loadingCount.value--
-    }
-  }
-
-  /**
    * Load the account-level summary (count + total per account).
    */
   async function fetchAccountSummary() {
@@ -273,9 +242,6 @@ export const useUserTransactionsStore = defineStore('userTransactions', () => {
     transactions,
     monthsWithData,
     activeMonth,
-    monthlySummary,
-    categoryTotals,
-    uncategorized,
     accountSummary,
     monthlyTotals,
     netWorthHistory,
@@ -290,7 +256,6 @@ export const useUserTransactionsStore = defineStore('userTransactions', () => {
     removeTransaction,
     removeAccountTransactions,
     // Reports
-    fetchReports,
     fetchAccountSummary,
     fetchMonthsWithData,
     fetchMonthlyTotals,

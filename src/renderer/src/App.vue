@@ -31,7 +31,6 @@ const views = {
   Goals,
   Rules,
   Recurring,
-  AppFooter,
   Backup,
   Privacy
 }

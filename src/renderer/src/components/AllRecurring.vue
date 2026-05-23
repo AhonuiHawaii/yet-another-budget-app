@@ -102,26 +102,6 @@
                     {{ formatCurrency(group.typicalAmount) }}
                   </span>
                 </div>
-
-                <!-- Menu -->
-                <v-menu>
-                  <template #activator="{ props: menuProps }">
-                    <v-btn
-                      v-bind="menuProps"
-                      icon="mdi-dots-vertical"
-                      variant="text"
-                      density="compact"
-                      size="small"
-                      class="ml-1"
-                    />
-                  </template>
-                  <v-list density="compact">
-                    <v-list-item
-                      title="Mark as not recurring"
-                      prepend-icon="mdi-close-circle-outline"
-                    />
-                  </v-list>
-                </v-menu>
               </div>
             </template>
           </v-list-item>

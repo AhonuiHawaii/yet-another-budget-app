@@ -106,8 +106,6 @@ export const useUserAccountsStore = defineStore('userAccounts', () => {
   const loading = computed(() => loadingCount.value > 0)
   const error = ref(null)
 
-  const accountCount = computed(() => accounts.value.length)
-
   // ── Helpers ──────────────────────────────────────────────────────────────
 
   function setError(err) {
@@ -225,7 +223,6 @@ export const useUserAccountsStore = defineStore('userAccounts', () => {
     accounts,
     loading,
     error,
-    accountCount,
     fetchAccounts,
     importAccountFromOfx,
     createManualAccount,
