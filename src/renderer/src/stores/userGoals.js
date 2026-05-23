@@ -23,10 +23,7 @@ export const useUserGoalsStore = defineStore('userGoals', () => {
   function normalizeGoal(goal) {
     const targetAmount = Number(goal.targetAmount) || 0
     const currentAmount = Number(goal.currentAmount) || 0
-    // A goal with no target amount (0) should stay active until explicitly completed.
-    // Once a target is set, auto-complete when current >= target.
-    const status =
-      targetAmount > 0 && currentAmount >= targetAmount ? 'completed' : (goal.status ?? 'active')
+    const status = targetAmount > 0 && currentAmount >= targetAmount ? 'completed' : 'active'
     const priorityMap = { high: 1, medium: 2, low: 3 }
     const priority = priorityMap[goal.priority] || Number(goal.priority) || 999
 

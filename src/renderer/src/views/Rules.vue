@@ -4,7 +4,7 @@
     <div style="display: flex; justify-content: center;" class="mb-6">
       <v-btn-group divided variant="outlined" density="compact" color="secondary">
         <v-btn :active="!applyAll" size="small" @click="applyAll = false">Current Month</v-btn>
-        <v-btn size="small" prepend-icon="mdi-play-outline" :loading="store.loading" @click="applyRules">Apply</v-btn>
+        <v-btn size="small" prepend-icon="mdi-play-outline" :loading="store.loading" :disabled="store.rules.length === 0" @click="applyRules">Apply</v-btn>
         <v-btn :active="applyAll" size="small" @click="applyAll = true">All Transactions</v-btn>
       </v-btn-group>
     </div>
@@ -627,7 +627,7 @@ async function applyRules() {
     : await store.applyToMonth(currentMonth)
   if (result?.success) {
     applyResult.value = result.data
-    await transactionsStore.fetchTransactionsByMonth(currentMonth)
+    if (!applyAll.value) await transactionsStore.fetchTransactionsByMonth(currentMonth)
   }
 }
 

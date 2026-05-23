@@ -100,7 +100,7 @@
           <tr
             v-for="goal in goalRows"
             :key="goal.id"
-            draggable="true"
+            :draggable="goal.status !== 'completed'"
             @dragstart="onDragStart(goal.id)"
             @dragover.prevent
             @drop="onDrop(goal.id)"
