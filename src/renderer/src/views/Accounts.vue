@@ -2,18 +2,10 @@
   <v-container fluid class="pa-6">
     <!-- Add Account Button -->
     <div class="mb-8 d-flex align-center gap-2">
-      <v-btn color="primary" rounded="sm" prepend-icon="mdi-plus" @click="importDialog = true">
-        Add Account
-      </v-btn>
-      <v-btn
-        color="secondary"
-        variant="tonal"
-        rounded="sm"
-        prepend-icon="mdi-pencil-plus-outline"
-        @click="manualDialog = true"
-      >
-        Add Manual Loan
-      </v-btn>
+      <v-btn-group variant="tonal" rounded="sm" divided class="text-white">
+        <v-btn prepend-icon="mdi-plus" @click="importDialog = true">Add Account</v-btn>
+        <v-btn prepend-icon="mdi-pencil-plus-outline" @click="manualDialog = true">Add Manual Loan</v-btn>
+      </v-btn-group>
 
       <v-slide-x-transition>
         <v-chip

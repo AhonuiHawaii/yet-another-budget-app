@@ -26,7 +26,7 @@
     <v-row class="mb-3">
       <v-col cols="12" lg="6">
         <!-- Current Spend -->
-        <v-card rounded elevation="2" class="mb-3">
+        <v-card rounded elevation="2" class="h-100">
           <v-card-item class="pa-4 pb-2">
             <v-card-title class="text-h6 font-weight-bold">Current Spend</v-card-title>
             <template #append>
