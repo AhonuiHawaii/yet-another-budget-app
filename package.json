@@ -2,10 +2,10 @@
   "name": "YABA",
   "productName": "Yet Another Budget App",
   "version": "1.8.7",
-  "description": "An Electron application with Vue",
+  "description": "A personal finance management application built with Electron and Vue.js.",
   "main": "./out/main/index.js",
-  "author": "example.com",
-  "homepage": "https://electron-vite.org",
+  "author": "Aohonui Hawaii",
+  "homepage": "https://github.com/AhonuiHawaii/yet-another-budget-app",
   "scripts": {
     "format": "prettier --write .",
     "lint": "eslint --cache .",
