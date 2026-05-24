@@ -86,7 +86,10 @@ const theme = useTheme()
 const userSettings = useUserSettingsStore()
 
 const baseThemes = [
-  { title: 'Pastel', value: 'pastelPink' },
+  { title: 'Pastel Pink', value: 'pastelPink' },
+  { title: 'Pastel Blue', value: 'pastelBlue' },
+  { title: 'Pastel Green', value: 'pastelGreen' },
+  { title: 'Pastel Yellow', value: 'pastelYellow' },
   { title: 'Blue Grey', value: 'blueGrey' },
   { title: 'Black & White', value: 'blackWhite' }
 ]

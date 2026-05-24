@@ -346,6 +346,480 @@ export const pastelPinkLight = {
   variables: { ...stateVars, ...shape }
 }
 
+// ─── Pastel Blue Dark ──────────────────────────────────────────────────────────
+export const pastelBlueDark = {
+  dark: true,
+  colors: {
+    // Surface system
+    background: '#101418',
+    surface: '#101418',
+    'surface-dim': '#101418',
+    'surface-bright': '#363A44',
+    'surface-light': '#1A1E28',
+    'surface-variant': '#42485B',
+    'surface-container-lowest': '#0B0E14',
+    'surface-container-low': '#181C22',
+    'surface-container': '#1D2029',
+    'surface-container-high': '#272B34',
+    'surface-container-highest': '#32363F',
+
+    // Primary — airy pastel blue
+    // Normal: #ADC6FF | Hover: #ADC6FF + on-primary@8% | Active: #ADC6FF + on-primary@12%
+    primary: '#ADC6FF',
+    'on-primary': '#1A3461',
+    'primary-container': '#35507F',
+    'on-primary-container': '#D6E4FF',
+    'primary-darken-1': '#8AABF0',
+
+    // Secondary — soft steel blue-grey
+    // Normal: #BEC6DC | Hover: #BEC6DC + on-secondary@8% | Active: #BEC6DC + on-secondary@12%
+    secondary: '#BEC6DC',
+    'on-secondary': '#283141',
+    'secondary-container': '#3E4759',
+    'on-secondary-container': '#DAE2FA',
+    'secondary-darken-1': '#A5AEBF',
+
+    // Tertiary — pale lavender complement
+    // Normal: #D6BAFF | Hover: #D6BAFF + on-tertiary@8% | Active: #D6BAFF + on-tertiary@12%
+    tertiary: '#D6BAFF',
+    'on-tertiary': '#3D2563',
+    'tertiary-container': '#553E7A',
+    'on-tertiary-container': '#EBDEFF',
+
+    // Error
+    error: '#FFB4AB',
+    'on-error': '#690005',
+    'error-container': '#93000A',
+    'on-error-container': '#FFDAD6',
+
+    // Semantic status
+    info: '#A7C7F9',
+    'on-info': '#173050',
+    'info-container': '#1E4F86',
+    'on-info-container': '#D6E3FF',
+    success: '#A8DDB5',
+    'on-success': '#183823',
+    'success-container': '#1E5C2F',
+    'on-success-container': '#C8EDD5',
+    warning: '#F8D48B',
+    'on-warning': '#3E2D00',
+    'warning-container': '#5A4200',
+    'on-warning-container': '#FDEECB',
+
+    // On-colors
+    'on-background': '#E1E3F0',
+    'on-surface': '#E1E3F0',
+    'on-surface-variant': '#C3C7D9',
+
+    // Outline
+    outline: '#8D91A4',
+    'outline-variant': '#42485B',
+
+    // Special
+    shadow: '#000000',
+    scrim: '#000000',
+    'inverse-surface': '#E1E3F0',
+    'inverse-on-surface': '#2D3040',
+    'inverse-primary': '#4A6FA5'
+  },
+  variables: { ...stateVars, ...shape }
+}
+
+// ─── Pastel Blue Light ─────────────────────────────────────────────────────────
+export const pastelBlueLight = {
+  dark: false,
+  colors: {
+    // Surface system
+    background: '#F5F8FF',
+    surface: '#FAFCFF',
+    'surface-dim': '#D8DBE9',
+    'surface-bright': '#FAFCFF',
+    'surface-light': '#EEF1FF',
+    'surface-variant': '#DDE3F0',
+    'surface-container-lowest': '#FFFFFF',
+    'surface-container-low': '#F2F4FF',
+    'surface-container': '#ECEEFF',
+    'surface-container-high': '#E6E9F8',
+    'surface-container-highest': '#E0E3F1',
+
+    // Primary — medium blue
+    // Normal: #4A6FA5 | Hover: #4A6FA5 + on-primary@8% | Active: #4A6FA5 + on-primary@12%
+    primary: '#4A6FA5',
+    'on-primary': '#FFFFFF',
+    'primary-container': '#D6E4FF',
+    'on-primary-container': '#001C47',
+    'primary-darken-1': '#3A5C90',
+
+    // Secondary — blue-grey
+    // Normal: #565E74 | Hover: #565E74 + on-secondary@8% | Active: #565E74 + on-secondary@12%
+    secondary: '#565E74',
+    'on-secondary': '#FFFFFF',
+    'secondary-container': '#DAE2FA',
+    'on-secondary-container': '#131B2D',
+    'secondary-darken-1': '#444C60',
+
+    // Tertiary — soft lavender complement
+    // Normal: #6E5A8A | Hover: #6E5A8A + on-tertiary@8% | Active: #6E5A8A + on-tertiary@12%
+    tertiary: '#6E5A8A',
+    'on-tertiary': '#FFFFFF',
+    'tertiary-container': '#EBDEFF',
+    'on-tertiary-container': '#261444',
+
+    // Error
+    error: '#BA1A1A',
+    'on-error': '#FFFFFF',
+    'error-container': '#FFDAD6',
+    'on-error-container': '#410002',
+
+    // Semantic status
+    info: '#3865A8',
+    'on-info': '#FFFFFF',
+    'info-container': '#D6E3FF',
+    'on-info-container': '#0D1E40',
+    success: '#3D7A4E',
+    'on-success': '#FFFFFF',
+    'success-container': '#C8EDD5',
+    'on-success-container': '#0A2116',
+    warning: '#8A6500',
+    'on-warning': '#FFFFFF',
+    'warning-container': '#FDEECB',
+    'on-warning-container': '#2A1D00',
+
+    // On-colors
+    'on-background': '#191C22',
+    'on-surface': '#191C22',
+    'on-surface-variant': '#42485B',
+
+    // Outline
+    outline: '#73798B',
+    'outline-variant': '#C3C7D9',
+
+    // Special
+    shadow: '#000000',
+    scrim: '#000000',
+    'inverse-surface': '#2D3040',
+    'inverse-on-surface': '#E9EAFF',
+    'inverse-primary': '#ADC6FF'
+  },
+  variables: { ...stateVars, ...shape }
+}
+
+// ─── Pastel Green Dark ─────────────────────────────────────────────────────────
+export const pastelGreenDark = {
+  dark: true,
+  colors: {
+    // Surface system
+    background: '#0F1510',
+    surface: '#0F1510',
+    'surface-dim': '#0F1510',
+    'surface-bright': '#343A34',
+    'surface-light': '#181F18',
+    'surface-variant': '#3D4F3D',
+    'surface-container-lowest': '#0A100B',
+    'surface-container-low': '#171D17',
+    'surface-container': '#1B221C',
+    'surface-container-high': '#252C25',
+    'surface-container-highest': '#303730',
+
+    // Primary — airy pastel green
+    // Normal: #A0D4B4 | Hover: #A0D4B4 + on-primary@8% | Active: #A0D4B4 + on-primary@12%
+    primary: '#A0D4B4',
+    'on-primary': '#003824',
+    'primary-container': '#1F5438',
+    'on-primary-container': '#C0EDD1',
+    'primary-darken-1': '#7DBFA0',
+
+    // Secondary — soft sage
+    // Normal: #B8CCBA | Hover: #B8CCBA + on-secondary@8% | Active: #B8CCBA + on-secondary@12%
+    secondary: '#B8CCBA',
+    'on-secondary': '#243524',
+    'secondary-container': '#3A4D3A',
+    'on-secondary-container': '#D4EBD0',
+    'secondary-darken-1': '#9EB5A0',
+
+    // Tertiary — muted aqua complement
+    // Normal: #A4CDD4 | Hover: #A4CDD4 + on-tertiary@8% | Active: #A4CDD4 + on-tertiary@12%
+    tertiary: '#A4CDD4',
+    'on-tertiary': '#0A3740',
+    'tertiary-container': '#234E56',
+    'on-tertiary-container': '#C0EAF0',
+
+    // Error
+    error: '#FFB4AB',
+    'on-error': '#690005',
+    'error-container': '#93000A',
+    'on-error-container': '#FFDAD6',
+
+    // Semantic status
+    info: '#A7C7F9',
+    'on-info': '#173050',
+    'info-container': '#1E4F86',
+    'on-info-container': '#D6E3FF',
+    success: '#A8DDB5',
+    'on-success': '#183823',
+    'success-container': '#1E5C2F',
+    'on-success-container': '#C8EDD5',
+    warning: '#F8D48B',
+    'on-warning': '#3E2D00',
+    'warning-container': '#5A4200',
+    'on-warning-container': '#FDEECB',
+
+    // On-colors
+    'on-background': '#DDE5DD',
+    'on-surface': '#DDE5DD',
+    'on-surface-variant': '#BDC9BC',
+
+    // Outline
+    outline: '#879487',
+    'outline-variant': '#3D4F3D',
+
+    // Special
+    shadow: '#000000',
+    scrim: '#000000',
+    'inverse-surface': '#DDE5DD',
+    'inverse-on-surface': '#2C322C',
+    'inverse-primary': '#3A7A50'
+  },
+  variables: { ...stateVars, ...shape }
+}
+
+// ─── Pastel Green Light ────────────────────────────────────────────────────────
+export const pastelGreenLight = {
+  dark: false,
+  colors: {
+    // Surface system
+    background: '#F4FAF4',
+    surface: '#F9FCF9',
+    'surface-dim': '#D4DAD4',
+    'surface-bright': '#F9FCF9',
+    'surface-light': '#EBF3EB',
+    'surface-variant': '#D8E8D8',
+    'surface-container-lowest': '#FFFFFF',
+    'surface-container-low': '#EFF6EF',
+    'surface-container': '#E9F2E9',
+    'surface-container-high': '#E3ECE3',
+    'surface-container-highest': '#DCE6DC',
+
+    // Primary — medium green
+    // Normal: #3A7A50 | Hover: #3A7A50 + on-primary@8% | Active: #3A7A50 + on-primary@12%
+    primary: '#3A7A50',
+    'on-primary': '#FFFFFF',
+    'primary-container': '#C0EDD1',
+    'on-primary-container': '#002112',
+    'primary-darken-1': '#2A6840',
+
+    // Secondary — sage green-grey
+    // Normal: #526350 | Hover: #526350 + on-secondary@8% | Active: #526350 + on-secondary@12%
+    secondary: '#526350',
+    'on-secondary': '#FFFFFF',
+    'secondary-container': '#D4EBD0',
+    'on-secondary-container': '#101F10',
+    'secondary-darken-1': '#3F5040',
+
+    // Tertiary — muted teal complement
+    // Normal: #3C6B72 | Hover: #3C6B72 + on-tertiary@8% | Active: #3C6B72 + on-tertiary@12%
+    tertiary: '#3C6B72',
+    'on-tertiary': '#FFFFFF',
+    'tertiary-container': '#C0EAF0',
+    'on-tertiary-container': '#00232A',
+
+    // Error
+    error: '#BA1A1A',
+    'on-error': '#FFFFFF',
+    'error-container': '#FFDAD6',
+    'on-error-container': '#410002',
+
+    // Semantic status
+    info: '#3865A8',
+    'on-info': '#FFFFFF',
+    'info-container': '#D6E3FF',
+    'on-info-container': '#0D1E40',
+    success: '#3D7A4E',
+    'on-success': '#FFFFFF',
+    'success-container': '#C8EDD5',
+    'on-success-container': '#0A2116',
+    warning: '#8A6500',
+    'on-warning': '#FFFFFF',
+    'warning-container': '#FDEECB',
+    'on-warning-container': '#2A1D00',
+
+    // On-colors
+    'on-background': '#181D18',
+    'on-surface': '#181D18',
+    'on-surface-variant': '#3D4F3D',
+
+    // Outline
+    outline: '#6E7F6E',
+    'outline-variant': '#BDC9BC',
+
+    // Special
+    shadow: '#000000',
+    scrim: '#000000',
+    'inverse-surface': '#2C322C',
+    'inverse-on-surface': '#EDF3ED',
+    'inverse-primary': '#A0D4B4'
+  },
+  variables: { ...stateVars, ...shape }
+}
+
+// ─── Pastel Yellow Dark ────────────────────────────────────────────────────────
+export const pastelYellowDark = {
+  dark: true,
+  colors: {
+    // Surface system
+    background: '#161410',
+    surface: '#161410',
+    'surface-dim': '#161410',
+    'surface-bright': '#3D3929',
+    'surface-light': '#211E14',
+    'surface-variant': '#4C4733',
+    'surface-container-lowest': '#110F0B',
+    'surface-container-low': '#1E1B12',
+    'surface-container': '#232016',
+    'surface-container-high': '#2E2A1F',
+    'surface-container-highest': '#393529',
+
+    // Primary — warm amber-yellow
+    // Normal: #EDD77A | Hover: #EDD77A + on-primary@8% | Active: #EDD77A + on-primary@12%
+    primary: '#EDD77A',
+    'on-primary': '#3A2E00',
+    'primary-container': '#564500',
+    'on-primary-container': '#FDEEA5',
+    'primary-darken-1': '#D4BF5A',
+
+    // Secondary — warm olive-gold
+    // Normal: #CECA9A | Hover: #CECA9A + on-secondary@8% | Active: #CECA9A + on-secondary@12%
+    secondary: '#CECA9A',
+    'on-secondary': '#333111',
+    'secondary-container': '#4B4825',
+    'on-secondary-container': '#EBE6B5',
+    'secondary-darken-1': '#B5B280',
+
+    // Tertiary — warm amber-orange complement
+    // Normal: #F0BC82 | Hover: #F0BC82 + on-tertiary@8% | Active: #F0BC82 + on-tertiary@12%
+    tertiary: '#F0BC82',
+    'on-tertiary': '#422C00',
+    'tertiary-container': '#5E4000',
+    'on-tertiary-container': '#FFDEAf',
+
+    // Error
+    error: '#FFB4AB',
+    'on-error': '#690005',
+    'error-container': '#93000A',
+    'on-error-container': '#FFDAD6',
+
+    // Semantic status
+    info: '#A7C7F9',
+    'on-info': '#173050',
+    'info-container': '#1E4F86',
+    'on-info-container': '#D6E3FF',
+    success: '#A8DDB5',
+    'on-success': '#183823',
+    'success-container': '#1E5C2F',
+    'on-success-container': '#C8EDD5',
+    warning: '#F8D48B',
+    'on-warning': '#3E2D00',
+    'warning-container': '#5A4200',
+    'on-warning-container': '#FDEECB',
+
+    // On-colors
+    'on-background': '#EBE3CF',
+    'on-surface': '#EBE3CF',
+    'on-surface-variant': '#CFC9B0',
+
+    // Outline
+    outline: '#989370',
+    'outline-variant': '#4C4733',
+
+    // Special
+    shadow: '#000000',
+    scrim: '#000000',
+    'inverse-surface': '#EBE3CF',
+    'inverse-on-surface': '#332F1F',
+    'inverse-primary': '#6B5C00'
+  },
+  variables: { ...stateVars, ...shape }
+}
+
+// ─── Pastel Yellow Light ───────────────────────────────────────────────────────
+export const pastelYellowLight = {
+  dark: false,
+  colors: {
+    // Surface system
+    background: '#FDFBF0',
+    surface: '#FDFBF0',
+    'surface-dim': '#E0D9C4',
+    'surface-bright': '#FDFBF0',
+    'surface-light': '#F8F4E4',
+    'surface-variant': '#EDE8D2',
+    'surface-container-lowest': '#FFFFFF',
+    'surface-container-low': '#F8F5E2',
+    'surface-container': '#F3EFDA',
+    'surface-container-high': '#EDE9D3',
+    'surface-container-highest': '#E7E3CD',
+
+    // Primary — golden amber
+    // Normal: #6B5C00 | Hover: #6B5C00 + on-primary@8% | Active: #6B5C00 + on-primary@12%
+    primary: '#6B5C00',
+    'on-primary': '#FFFFFF',
+    'primary-container': '#FDEEA5',
+    'on-primary-container': '#211B00',
+    'primary-darken-1': '#564800',
+
+    // Secondary — warm olive
+    // Normal: #635D3E | Hover: #635D3E + on-secondary@8% | Active: #635D3E + on-secondary@12%
+    secondary: '#635D3E',
+    'on-secondary': '#FFFFFF',
+    'secondary-container': '#EBE6B5',
+    'on-secondary-container': '#1E1B03',
+    'secondary-darken-1': '#4F4A2C',
+
+    // Tertiary — warm amber-orange complement
+    // Normal: #7A5500 | Hover: #7A5500 + on-tertiary@8% | Active: #7A5500 + on-tertiary@12%
+    tertiary: '#7A5500',
+    'on-tertiary': '#FFFFFF',
+    'tertiary-container': '#FFDEAF',
+    'on-tertiary-container': '#271900',
+
+    // Error
+    error: '#BA1A1A',
+    'on-error': '#FFFFFF',
+    'error-container': '#FFDAD6',
+    'on-error-container': '#410002',
+
+    // Semantic status
+    info: '#3865A8',
+    'on-info': '#FFFFFF',
+    'info-container': '#D6E3FF',
+    'on-info-container': '#0D1E40',
+    success: '#3D7A4E',
+    'on-success': '#FFFFFF',
+    'success-container': '#C8EDD5',
+    'on-success-container': '#0A2116',
+    warning: '#8A6500',
+    'on-warning': '#FFFFFF',
+    'warning-container': '#FDEECB',
+    'on-warning-container': '#2A1D00',
+
+    // On-colors
+    'on-background': '#1E1C13',
+    'on-surface': '#1E1C13',
+    'on-surface-variant': '#4C4733',
+
+    // Outline
+    outline: '#7B7660',
+    'outline-variant': '#CFC9B0',
+
+    // Special
+    shadow: '#000000',
+    scrim: '#000000',
+    'inverse-surface': '#332F1F',
+    'inverse-on-surface': '#F7F3E0',
+    'inverse-primary': '#EDD77A'
+  },
+  variables: { ...stateVars, ...shape }
+}
+
 // ─── Black & White Dark ────────────────────────────────────────────────────────
 export const blackWhiteDark = {
   dark: true,
@@ -509,6 +983,12 @@ const themes = {
   blueGreyLight,
   pastelPinkDark,
   pastelPinkLight,
+  pastelBlueDark,
+  pastelBlueLight,
+  pastelGreenDark,
+  pastelGreenLight,
+  pastelYellowDark,
+  pastelYellowLight,
   blackWhiteDark,
   blackWhiteLight
 }
