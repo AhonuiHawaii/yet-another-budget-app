@@ -3,9 +3,9 @@
     <div class="d-flex justify-center align-center mb-6">
       <v-btn variant="flat" density="comfortable" rounded="sm" @click="prevMonth">
         <v-icon start size="16">mdi-chevron-left</v-icon>
-        {{ prevMonthLabel }}
+        Last Month
       </v-btn>
-      <span class="text-subtitle-1 font-weight-bold mx-6">{{ monthLabel(selectedMonth) }}</span>
+      <span class="text-subtitle-1 font-weight-bold mx-6">This Month</span>
       <v-btn
         variant="flat"
         density="comfortable"
@@ -13,7 +13,7 @@
         :disabled="isNextMonthFuture"
         @click="nextMonth"
       >
-        {{ nextMonthLabel }}
+        Next Month
         <v-icon end size="16">mdi-chevron-right</v-icon>
       </v-btn>
     </div>
@@ -248,27 +248,13 @@ function currentMonthValue() {
   return `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}`
 }
 
-function monthLabel(yyyymm) {
-  const year = Number(yyyymm.slice(0, 4))
-  const month = Number(yyyymm.slice(4)) - 1
-  return new Date(year, month, 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
-}
-
 function offsetMonth(yyyymm, delta) {
   const year = Number(yyyymm.slice(0, 4))
   const month = Number(yyyymm.slice(4)) - 1
   const d = new Date(year, month + delta, 1)
   return `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}`
 }
-function shortMonthLabel(yyyymm) {
-  const year = Number(yyyymm.slice(0, 4))
-  const month = Number(yyyymm.slice(4)) - 1
-  return new Date(year, month, 1).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
-}
-
 const selectedMonth = ref(currentMonthValue())
-const prevMonthLabel = computed(() => shortMonthLabel(offsetMonth(selectedMonth.value, -1)))
-const nextMonthLabel = computed(() => shortMonthLabel(offsetMonth(selectedMonth.value, 1)))
 const isNextMonthFuture = computed(() => offsetMonth(selectedMonth.value, 1) > currentMonthValue())
 function prevMonth() {
   selectedMonth.value = offsetMonth(selectedMonth.value, -1)
