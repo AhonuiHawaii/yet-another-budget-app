@@ -12,7 +12,7 @@ const navItems = [
   { title: 'Debts', value: 'Debts', icon: 'mdi-cash-remove' },
   { title: 'Recurring', value: 'Recurring', icon: 'mdi-calendar-sync' },
   { title: 'Budgets', value: 'Budgets', icon: 'mdi-calculator-variant-outline' },
-  { title: 'Income', value: 'Income', icon: 'mdi-cash-plus' },
+  { title: 'Earnings', value: 'Income', icon: 'mdi-cash-plus' },
   { title: 'Net Worth', value: 'NetWorth', icon: 'mdi-chart-bar' },
   { title: 'Transactions', value: 'Transactions', icon: 'mdi-magnify' },
   { title: 'Backup & Restore', value: 'Backup', icon: 'mdi-database-sync' },
