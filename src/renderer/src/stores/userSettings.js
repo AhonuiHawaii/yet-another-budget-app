@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 
 const CURRENCY_SYMBOLS = {
   USD: '$', EUR: '€', GBP: '£', JPY: '¥', CAD: '$', AUD: '$',
