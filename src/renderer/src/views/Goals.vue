@@ -242,8 +242,10 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
 import { useUserGoalsStore } from '../stores/userGoals'
+import { useUserSettingsStore } from '../stores/userSettings'
 
 const store = useUserGoalsStore()
+const { formatCurrency } = useUserSettingsStore()
 const goalDialog = ref(false)
 const editingGoalId = ref(null)
 const goalForm = ref(createEmptyGoal())
@@ -339,9 +341,6 @@ async function onDrop(targetId) {
   await store.reorderGoals(activeIds)
 }
 
-function formatCurrency(value) {
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value || 0)
-}
 
 function formatDate(value) {
   if (!value) return '-'

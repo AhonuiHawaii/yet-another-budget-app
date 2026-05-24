@@ -114,8 +114,10 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useUserAccountsStore } from '../stores/userAccounts'
+import { useUserSettingsStore } from '../stores/userSettings'
 
 const accountsStore = useUserAccountsStore()
+const { formatCurrency } = useUserSettingsStore()
 
 const recurringTransactions = ref([])
 const recurringLoading = ref(false)
@@ -133,13 +135,6 @@ async function rescan() {
   await fetchRecurring()
 }
 
-function formatCurrency(val) {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 0
-  }).format(val || 0)
-}
 
 function median(arr) {
   if (!arr.length) return 0

@@ -288,9 +288,11 @@ import { Doughnut } from 'vue-chartjs'
 ChartJS.register(ArcElement, Tooltip)
 import { useUserBudgetsStore } from '../stores/userBudgets'
 import { useUserCategoriesStore } from '../stores/userCategories'
+import { useUserSettingsStore } from '../stores/userSettings'
 
 const budgetsStore = useUserBudgetsStore()
 const categoriesStore = useUserCategoriesStore()
+const { formatCurrency } = useUserSettingsStore()
 
 const ipc = window.electron?.ipcRenderer
 const transactions = ref([])
@@ -431,9 +433,6 @@ function addActual(actuals, categoryName, rawAmount) {
   actuals.set(categoryName, (actuals.get(categoryName) || 0) + Math.abs(rawAmount))
 }
 
-function formatCurrency(value) {
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value || 0)
-}
 
 async function loadMonth() {
   loadError.value = null

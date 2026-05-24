@@ -649,11 +649,13 @@ import { useUserAccountsStore } from '../stores/userAccounts'
 import { useUserBudgetsStore } from '../stores/userBudgets'
 import { useUserDebtsStore } from '../stores/userDebts'
 import { useUserTransactionsStore } from '../stores/userTransactions'
+import { useUserSettingsStore } from '../stores/userSettings'
 
 const accountsStore = useUserAccountsStore()
 const budgetsStore = useUserBudgetsStore()
 const debtsStore = useUserDebtsStore()
 const transactionsStore = useUserTransactionsStore()
+const { formatCurrency } = useUserSettingsStore()
 
 function currentMonthValue() {
   const now = new Date()
@@ -1057,8 +1059,7 @@ const snowballChartOptions = {
     legend: { display: false },
     tooltip: {
       callbacks: {
-        label: (ctx) =>
-          ` ${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(ctx.parsed.y)}/month`
+        label: (ctx) => ` ${formatCurrency(ctx.parsed.y)}/month`
       }
     }
   },
@@ -1071,12 +1072,7 @@ const snowballChartOptions = {
       grid: { color: 'rgba(255,255,255,0.08)' },
       ticks: {
         color: 'rgba(255,255,255,0.6)',
-        callback: (v) =>
-          new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: 'USD',
-            notation: 'compact'
-          }).format(v)
+        callback: (v) => formatCurrency(v)
       }
     }
   }
@@ -1090,9 +1086,6 @@ function aprColor(rate) {
   return 'success'
 }
 
-function formatCurrency(val) {
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(val || 0)
-}
 
 function formatPercent(val) {
   return `${Number(val || 0).toFixed(2)}%`

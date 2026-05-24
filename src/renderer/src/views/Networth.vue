@@ -281,7 +281,6 @@ import {
   useUserAccountsStore,
   accountTypeColor,
   accountTypeIcon,
-  formatCurrency,
   resolveIsAsset,
   CATEGORY_MAP,
   CATEGORY_ORDER,
@@ -289,6 +288,7 @@ import {
 } from '../stores/userAccounts'
 import { useUserTransactionsStore } from '../stores/userTransactions'
 import { useUserDebtsStore } from '../stores/userDebts'
+import { useUserSettingsStore } from '../stores/userSettings'
 
 ChartJS.register(
   ArcElement,
@@ -305,6 +305,7 @@ ChartJS.register(
 const accountsStore = useUserAccountsStore()
 const transactionsStore = useUserTransactionsStore()
 const debtsStore = useUserDebtsStore()
+const { formatCurrency } = useUserSettingsStore()
 
 const reportError = ref(null)
 const openPanels = ref([])
@@ -448,12 +449,7 @@ const chartOptions = {
     x: { grid: { display: false } },
     y: {
       ticks: {
-        callback: (v) =>
-          new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: 'USD',
-            notation: 'compact'
-          }).format(v)
+        callback: (v) => formatCurrency(v)
       }
     }
   }

@@ -421,13 +421,14 @@ import {
 import { useUserCategoriesStore } from '../stores/userCategories'
 import { useUserBudgetsStore } from '../stores/userBudgets'
 import { useUserTransactionsStore } from '../stores/userTransactions'
+import { useUserSettingsStore } from '../stores/userSettings'
 
 ChartJS.register(ArcElement, Tooltip, BarElement, CategoryScale, LinearScale)
 
 const categoriesStore = useUserCategoriesStore()
 const budgetsStore = useUserBudgetsStore()
-
 const transactionsStore = useUserTransactionsStore()
+const { formatCurrency } = useUserSettingsStore()
 
 const chartColors = [
   '#3B82F6',
@@ -823,9 +824,7 @@ const centerPlugin = {
     ctx.textBaseline = 'middle'
     ctx.fillText('TOTAL SPEND', cx, cy - 20)
 
-    const amount = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(
-      totalActual.value || 0
-    )
+    const amount = formatCurrency(totalActual.value || 0)
     ctx.font = 'bold 26px sans-serif'
     ctx.fillStyle = 'rgba(255,255,255,0.95)'
     ctx.fillText(amount, cx, cy + 6)
@@ -866,9 +865,6 @@ const doughnutOptions = {
 }
 
 // ── Utilities ─────────────────────────────────────────────────────────────────
-function formatCurrency(val) {
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(val || 0)
-}
 
 function formatPercent(val, total) {
   if (!total) return '0%'

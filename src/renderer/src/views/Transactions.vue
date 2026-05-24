@@ -887,11 +887,13 @@ import { useUserTransactionsStore } from '../stores/userTransactions'
 import { useUserAccountsStore } from '../stores/userAccounts'
 import { useUserCategoriesStore } from '../stores/userCategories'
 import { useUserRulesStore } from '../stores/userRules'
+import { useUserSettingsStore } from '../stores/userSettings'
 
 const store = useUserTransactionsStore()
 const accountsStore = useUserAccountsStore()
 const categoriesStore = useUserCategoriesStore()
 const rulesStore = useUserRulesStore()
+const { formatCurrency, formatDate } = useUserSettingsStore()
 
 const categoryById = computed(() =>
   Object.fromEntries(categoriesStore.categories.map((c) => [c.id, c.name]))
@@ -1132,24 +1134,6 @@ const filteredTransactions = computed(() => {
 
 // ── Formatters ────────────────────────────────────────────────────────────────
 
-function formatDate(raw) {
-  if (!raw) return '—'
-  // raw may be '20260501120000' or '202605' or ISO string
-  const s = String(raw)
-  const year = s.slice(0, 4)
-  const month = s.slice(4, 6)
-  const day = s.slice(6, 8) || '01'
-  if (!year || !month) return raw
-  return new Date(`${year}-${month}-${day}`).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric'
-  })
-}
-
-function formatCurrency(amount) {
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount)
-}
 
 function typeColor(type) {
   return (

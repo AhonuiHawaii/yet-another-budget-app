@@ -677,13 +677,14 @@ import { ref, computed, onMounted } from 'vue'
 import {
   useUserAccountsStore,
   accountTypeColor,
-  accountTypeIcon,
-  formatCurrency
+  accountTypeIcon
 } from '../stores/userAccounts'
 import { useUserTransactionsStore } from '../stores/userTransactions'
+import { useUserSettingsStore } from '../stores/userSettings'
 
 const store = useUserAccountsStore()
 const txStore = useUserTransactionsStore()
+const { formatCurrency } = useUserSettingsStore()
 
 const isVariableDueDate = (account) => isLoanAccount(account)
 

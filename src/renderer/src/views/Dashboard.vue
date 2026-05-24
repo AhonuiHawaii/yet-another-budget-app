@@ -319,6 +319,7 @@ import {
 import { useUserBudgetsStore } from '../stores/userBudgets'
 import { useUserCategoriesStore } from '../stores/userCategories'
 import { useUserTransactionsStore } from '../stores/userTransactions'
+import { useUserSettingsStore } from '../stores/userSettings'
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Filler, Tooltip)
 
@@ -329,6 +330,7 @@ const accountsStore = useUserAccountsStore()
 const budgetsStore = useUserBudgetsStore()
 const categoriesStore = useUserCategoriesStore()
 const transactionsStore = useUserTransactionsStore()
+const { formatCurrency } = useUserSettingsStore()
 const dashboardError = ref(null)
 const lastMonthTransactions = ref([])
 const recurringTransactions = ref([])
@@ -706,16 +708,8 @@ const upcomingDays = computed(() => {
 })
 
 // ── Formatters ────────────────────────────────────────────────────────────────
-function formatCurrency(value) {
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value || 0)
-}
-
 function formatCurrencyCompact(value) {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    maximumFractionDigits: 0
-  }).format(value || 0)
+  return formatCurrency(value)
 }
 
 function formatTransactionDate(value) {

@@ -1,6 +1,14 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
+const CURRENCY_SYMBOLS = {
+  USD: '$', EUR: '€', GBP: '£', JPY: '¥', CAD: '$', AUD: '$',
+  CHF: 'Fr', CNY: '¥', INR: '₹', BRL: 'R$', MXN: '$', SGD: '$',
+  HKD: '$', NOK: 'kr', SEK: 'kr', DKK: 'kr', NZD: '$', ZAR: 'R',
+  KRW: '₩', TRY: '₺', RUB: '₽', PLN: 'zł', PHP: '₱', IDR: 'Rp',
+  MYR: 'RM', THB: '฿', AED: 'د.إ', SAR: '﷼'
+}
+
 const THEME_KEY = 'budget.theme'
 const DEFAULT_THEME = 'pastelLight'
 
@@ -62,12 +70,45 @@ export const useUserSettingsStore = defineStore('userSettings', () => {
     localStorage.setItem(DATE_FORMAT_KEY, format)
   }
 
+  function formatCurrency(value) {
+    const symbol = CURRENCY_SYMBOLS[currency.value] ?? currency.value
+    const places = parseInt(decimalPlaces.value) || 0
+    const num = value || 0
+    const isNegative = num < 0
+    const absFormatted = new Intl.NumberFormat('en-US', {
+      minimumFractionDigits: places,
+      maximumFractionDigits: places
+    }).format(Math.abs(num))
+    const sign = isNegative ? '-' : ''
+    return currencyPosition.value === 'after'
+      ? `${sign}${absFormatted}${symbol}`
+      : `${sign}${symbol}${absFormatted}`
+  }
+
+  function formatDate(raw) {
+    if (!raw) return '—'
+    const s = String(raw)
+    const year = s.slice(0, 4)
+    const month = s.slice(4, 6)
+    const day = (s.slice(6, 8) || '01').padStart(2, '0')
+    if (!year || !month) return String(raw)
+    const d = new Date(`${year}-${month}-${day}`)
+    const mmm = d.toLocaleString('en', { month: 'short' })
+    return dateFormat.value
+      .replace('MMM', mmm)
+      .replace('MM', month)
+      .replace('DD', day)
+      .replace('YYYY', year)
+  }
+
   return {
     theme, setTheme,
     currency, setCurrency,
     currencyPosition, setCurrencyPosition,
     weekStart, setWeekStart,
     decimalPlaces, setDecimalPlaces,
-    dateFormat, setDateFormat
+    dateFormat, setDateFormat,
+    formatCurrency,
+    formatDate
   }
 })

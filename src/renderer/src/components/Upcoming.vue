@@ -102,7 +102,9 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useUserSettingsStore } from '../stores/userSettings'
 
+const { formatCurrency } = useUserSettingsStore()
 const recurringTransactions = ref([])
 const loading = ref(false)
 
@@ -113,13 +115,6 @@ async function fetchRecurring() {
   loading.value = false
 }
 
-function formatCurrency(val) {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 0
-  }).format(val || 0)
-}
 
 function median(arr) {
   if (!arr.length) return 0

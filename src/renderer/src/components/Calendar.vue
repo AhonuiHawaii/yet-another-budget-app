@@ -207,11 +207,13 @@ import { useUserCategoriesStore } from '../stores/userCategories'
 import { useUserAccountsStore } from '../stores/userAccounts'
 import { useUserBudgetsStore } from '../stores/userBudgets'
 import { useUserDebtsStore } from '../stores/userDebts'
+import { useUserSettingsStore } from '../stores/userSettings'
 
 const categoriesStore = useUserCategoriesStore()
 const accountsStore = useUserAccountsStore()
 const budgetsStore = useUserBudgetsStore()
 const debtsStore = useUserDebtsStore()
+const { formatCurrency } = useUserSettingsStore()
 
 // ── Navigation ────────────────────────────────────────────────────────────────
 
@@ -285,14 +287,6 @@ const calendarDays = computed(() => {
 })
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-
-function formatCurrency(val) {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 0
-  }).format(val || 0)
-}
 
 function extractDayOfMonth(dueDate) {
   if (!dueDate) return null
