@@ -151,7 +151,7 @@
             rounded="sm"
             hide-details="auto"
             class="mb-4"
-            prefix="$"
+            :prefix="userSettings.currencySymbol"
           />
           <template v-if="isVariableDueDate({ ACCTTYPE: manualForm.ACCTTYPE })">
             <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis mb-2">
@@ -474,7 +474,7 @@
             rounded="sm"
             hide-details="auto"
             class="mb-4"
-            prefix="$"
+            :prefix="userSettings.currencySymbol"
             hint="Balance before any tracked transactions. Set this so the current balance is accurate."
             @keyup.enter="saveEditName"
           />
@@ -684,7 +684,8 @@ import { useUserSettingsStore } from '../stores/userSettings'
 
 const store = useUserAccountsStore()
 const txStore = useUserTransactionsStore()
-const { formatCurrency } = useUserSettingsStore()
+const userSettings = useUserSettingsStore()
+const { formatCurrency } = userSettings
 
 const isVariableDueDate = (account) => isLoanAccount(account)
 

@@ -70,6 +70,8 @@ export const useUserSettingsStore = defineStore('userSettings', () => {
     localStorage.setItem(DATE_FORMAT_KEY, format)
   }
 
+  const currencySymbol = computed(() => CURRENCY_SYMBOLS[currency.value] ?? currency.value)
+
   function formatCurrency(value) {
     const symbol = CURRENCY_SYMBOLS[currency.value] ?? currency.value
     const places = parseInt(decimalPlaces.value) || 0
@@ -108,6 +110,7 @@ export const useUserSettingsStore = defineStore('userSettings', () => {
     weekStart, setWeekStart,
     decimalPlaces, setDecimalPlaces,
     dateFormat, setDateFormat,
+    currencySymbol,
     formatCurrency,
     formatDate
   }

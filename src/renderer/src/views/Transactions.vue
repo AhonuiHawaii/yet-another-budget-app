@@ -549,7 +549,7 @@
               inset
               density="compact"
               hide-details
-              prefix="$"
+              :prefix="userSettings.currencySymbol"
             />
           </div>
 
@@ -574,7 +574,7 @@
               inset
               density="compact"
               hide-details
-              prefix="$"
+              :prefix="userSettings.currencySymbol"
             />
           </div>
         </v-card-text>
@@ -893,7 +893,8 @@ const store = useUserTransactionsStore()
 const accountsStore = useUserAccountsStore()
 const categoriesStore = useUserCategoriesStore()
 const rulesStore = useUserRulesStore()
-const { formatCurrency, formatDate } = useUserSettingsStore()
+const userSettings = useUserSettingsStore()
+const { formatCurrency, formatDate } = userSettings
 
 const categoryById = computed(() =>
   Object.fromEntries(categoriesStore.categories.map((c) => [c.id, c.name]))

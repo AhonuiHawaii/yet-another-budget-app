@@ -36,7 +36,7 @@
               <v-text-field
                 :model-value="debtsStore.extraPayment"
                 type="number"
-                prefix="$"
+                :prefix="userSettings.currencySymbol"
                 variant="outlined"
                 density="compact"
                 hide-details
@@ -519,7 +519,7 @@
                   <v-text-field
                     :model-value="debt.currentBalance"
                     type="number"
-                    prefix="$"
+                    :prefix="userSettings.currencySymbol"
                     variant="solo"
                     flat
                     density="compact"
@@ -566,7 +566,7 @@
                   <v-text-field
                     :model-value="debt.minimumPayment"
                     type="number"
-                    prefix="$"
+                    :prefix="userSettings.currencySymbol"
                     variant="solo"
                     flat
                     density="compact"
@@ -580,7 +580,7 @@
                   <v-text-field
                     :model-value="debt.projected"
                     type="number"
-                    prefix="$"
+                    :prefix="userSettings.currencySymbol"
                     variant="solo"
                     flat
                     density="compact"
@@ -592,7 +592,7 @@
                   <v-text-field
                     :model-value="debt.creditLimit"
                     type="number"
-                    prefix="$"
+                    :prefix="userSettings.currencySymbol"
                     variant="solo"
                     flat
                     density="compact"
@@ -655,7 +655,8 @@ const accountsStore = useUserAccountsStore()
 const budgetsStore = useUserBudgetsStore()
 const debtsStore = useUserDebtsStore()
 const transactionsStore = useUserTransactionsStore()
-const { formatCurrency } = useUserSettingsStore()
+const userSettings = useUserSettingsStore()
+const { formatCurrency } = userSettings
 
 function currentMonthValue() {
   const now = new Date()

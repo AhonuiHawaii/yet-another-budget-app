@@ -115,7 +115,7 @@
               <v-text-field
                 :model-value="goal.currentAmount"
                 type="number"
-                prefix="$"
+                :prefix="userSettings.currencySymbol"
                 variant="solo"
                 flat
                 density="compact"
@@ -193,7 +193,7 @@
             v-model.number="goalForm.targetAmount"
             label="Target amount"
             type="number"
-            prefix="$"
+            :prefix="userSettings.currencySymbol"
             variant="solo-filled"
             density="comfortable"
             rounded="sm"
@@ -204,7 +204,7 @@
             v-model.number="goalForm.currentAmount"
             label="Saved so far"
             type="number"
-            prefix="$"
+            :prefix="userSettings.currencySymbol"
             variant="solo-filled"
             density="comfortable"
             rounded="sm"
@@ -245,7 +245,8 @@ import { useUserGoalsStore } from '../stores/userGoals'
 import { useUserSettingsStore } from '../stores/userSettings'
 
 const store = useUserGoalsStore()
-const { formatCurrency } = useUserSettingsStore()
+const userSettings = useUserSettingsStore()
+const { formatCurrency } = userSettings
 const goalDialog = ref(false)
 const editingGoalId = ref(null)
 const goalForm = ref(createEmptyGoal())

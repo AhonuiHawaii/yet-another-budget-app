@@ -167,7 +167,7 @@
                     <v-text-field
                       :model-value="row.planned"
                       type="number"
-                      prefix="$"
+                      :prefix="userSettings.currencySymbol"
                       variant="solo"
                       flat
                       density="compact"
@@ -292,7 +292,8 @@ import { useUserSettingsStore } from '../stores/userSettings'
 
 const budgetsStore = useUserBudgetsStore()
 const categoriesStore = useUserCategoriesStore()
-const { formatCurrency } = useUserSettingsStore()
+const userSettings = useUserSettingsStore()
+const { formatCurrency } = userSettings
 
 const ipc = window.electron?.ipcRenderer
 const transactions = ref([])
