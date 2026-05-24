@@ -1075,7 +1075,6 @@ function aprColor(rate) {
   return 'success'
 }
 
-
 function formatPercent(val) {
   return `${Number(val || 0).toFixed(2)}%`
 }

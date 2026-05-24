@@ -2,11 +2,34 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 
 const CURRENCY_SYMBOLS = {
-  USD: '$', EUR: '€', GBP: '£', JPY: '¥', CAD: '$', AUD: '$',
-  CHF: 'Fr', CNY: '¥', INR: '₹', BRL: 'R$', MXN: '$', SGD: '$',
-  HKD: '$', NOK: 'kr', SEK: 'kr', DKK: 'kr', NZD: '$', ZAR: 'R',
-  KRW: '₩', TRY: '₺', RUB: '₽', PLN: 'zł', PHP: '₱', IDR: 'Rp',
-  MYR: 'RM', THB: '฿', AED: 'د.إ', SAR: '﷼'
+  USD: '$',
+  EUR: '€',
+  GBP: '£',
+  JPY: '¥',
+  CAD: '$',
+  AUD: '$',
+  CHF: 'Fr',
+  CNY: '¥',
+  INR: '₹',
+  BRL: 'R$',
+  MXN: '$',
+  SGD: '$',
+  HKD: '$',
+  NOK: 'kr',
+  SEK: 'kr',
+  DKK: 'kr',
+  NZD: '$',
+  ZAR: 'R',
+  KRW: '₩',
+  TRY: '₺',
+  RUB: '₽',
+  PLN: 'zł',
+  PHP: '₱',
+  IDR: 'Rp',
+  MYR: 'RM',
+  THB: '฿',
+  AED: 'د.إ',
+  SAR: '﷼'
 }
 
 const THEME_KEY = 'budget.theme'
@@ -29,7 +52,9 @@ const DEFAULT_DATE_FORMAT = 'MM/DD/YYYY'
 export const useUserSettingsStore = defineStore('userSettings', () => {
   const theme = ref(localStorage.getItem(THEME_KEY) || DEFAULT_THEME)
   const currency = ref(localStorage.getItem(CURRENCY_KEY) || DEFAULT_CURRENCY)
-  const currencyPosition = ref(localStorage.getItem(CURRENCY_POSITION_KEY) || DEFAULT_CURRENCY_POSITION)
+  const currencyPosition = ref(
+    localStorage.getItem(CURRENCY_POSITION_KEY) || DEFAULT_CURRENCY_POSITION
+  )
   const weekStart = ref(localStorage.getItem(WEEK_START_KEY) || DEFAULT_WEEK_START)
   const decimalPlaces = ref(localStorage.getItem(DECIMAL_PLACES_KEY) || DEFAULT_DECIMAL_PLACES)
   const dateFormat = ref(localStorage.getItem(DATE_FORMAT_KEY) || DEFAULT_DATE_FORMAT)
@@ -104,12 +129,18 @@ export const useUserSettingsStore = defineStore('userSettings', () => {
   }
 
   return {
-    theme, setTheme,
-    currency, setCurrency,
-    currencyPosition, setCurrencyPosition,
-    weekStart, setWeekStart,
-    decimalPlaces, setDecimalPlaces,
-    dateFormat, setDateFormat,
+    theme,
+    setTheme,
+    currency,
+    setCurrency,
+    currencyPosition,
+    setCurrencyPosition,
+    weekStart,
+    setWeekStart,
+    decimalPlaces,
+    setDecimalPlaces,
+    dateFormat,
+    setDateFormat,
     currencySymbol,
     formatCurrency,
     formatDate

@@ -89,7 +89,9 @@
             <v-row align="center">
               <v-col cols="12">
                 <div class="d-flex align-center">
-                  <span class="text-caption text-medium-emphasis text-no-wrap setting-label">Currency</span>
+                  <span class="text-caption text-medium-emphasis text-no-wrap setting-label"
+                    >Currency</span
+                  >
                   <v-autocomplete
                     :model-value="selectedCurrency"
                     :items="currencies"
@@ -105,7 +107,9 @@
 
               <v-col cols="12">
                 <div class="d-flex align-center">
-                  <span class="text-caption text-medium-emphasis text-no-wrap setting-label">Symbol Position</span>
+                  <span class="text-caption text-medium-emphasis text-no-wrap setting-label"
+                    >Symbol Position</span
+                  >
                   <v-btn-toggle
                     :model-value="selectedCurrencyPosition"
                     mandatory
@@ -122,7 +126,9 @@
 
               <v-col cols="12">
                 <div class="d-flex align-center">
-                  <span class="text-caption text-medium-emphasis text-no-wrap setting-label">Date Format</span>
+                  <span class="text-caption text-medium-emphasis text-no-wrap setting-label"
+                    >Date Format</span
+                  >
                   <v-btn-toggle
                     :model-value="selectedDateFormat"
                     mandatory
@@ -131,7 +137,12 @@
                     variant="outlined"
                     @update:model-value="updateDateFormat"
                   >
-                    <v-btn v-for="fmt in dateFormats" :key="fmt.value" :value="fmt.value" size="small">
+                    <v-btn
+                      v-for="fmt in dateFormats"
+                      :key="fmt.value"
+                      :value="fmt.value"
+                      size="small"
+                    >
                       {{ fmt.example }}
                     </v-btn>
                   </v-btn-toggle>
@@ -140,7 +151,9 @@
 
               <v-col cols="12">
                 <div class="d-flex align-center">
-                  <span class="text-caption text-medium-emphasis text-no-wrap setting-label">Week Starts</span>
+                  <span class="text-caption text-medium-emphasis text-no-wrap setting-label"
+                    >Week Starts</span
+                  >
                   <v-btn-toggle
                     :model-value="selectedWeekStart"
                     mandatory
@@ -157,7 +170,9 @@
 
               <v-col cols="12">
                 <div class="d-flex align-center">
-                  <span class="text-caption text-medium-emphasis text-no-wrap setting-label">Decimal Places</span>
+                  <span class="text-caption text-medium-emphasis text-no-wrap setting-label"
+                    >Decimal Places</span
+                  >
                   <v-btn-toggle
                     :model-value="selectedDecimalPlaces"
                     mandatory
@@ -268,34 +283,174 @@ const currencies = [
 ]
 
 const CURRENCY_REGIONAL_DEFAULTS = {
-  USD: { currencyPosition: 'before', dateFormat: 'MM/DD/YYYY', weekStart: 'sunday',  decimalPlaces: '2' },
-  EUR: { currencyPosition: 'after',  dateFormat: 'DD/MM/YYYY', weekStart: 'monday',  decimalPlaces: '2' },
-  GBP: { currencyPosition: 'before', dateFormat: 'DD/MM/YYYY', weekStart: 'monday',  decimalPlaces: '2' },
-  JPY: { currencyPosition: 'before', dateFormat: 'YYYY-MM-DD', weekStart: 'sunday',  decimalPlaces: '0' },
-  CAD: { currencyPosition: 'before', dateFormat: 'MM/DD/YYYY', weekStart: 'sunday',  decimalPlaces: '2' },
-  AUD: { currencyPosition: 'before', dateFormat: 'DD/MM/YYYY', weekStart: 'monday',  decimalPlaces: '2' },
-  CHF: { currencyPosition: 'before', dateFormat: 'DD.MM.YYYY', weekStart: 'monday',  decimalPlaces: '2' },
-  CNY: { currencyPosition: 'before', dateFormat: 'YYYY-MM-DD', weekStart: 'monday',  decimalPlaces: '2' },
-  INR: { currencyPosition: 'before', dateFormat: 'DD/MM/YYYY', weekStart: 'sunday',  decimalPlaces: '2' },
-  BRL: { currencyPosition: 'before', dateFormat: 'DD/MM/YYYY', weekStart: 'sunday',  decimalPlaces: '2' },
-  MXN: { currencyPosition: 'before', dateFormat: 'DD/MM/YYYY', weekStart: 'sunday',  decimalPlaces: '2' },
-  SGD: { currencyPosition: 'before', dateFormat: 'DD/MM/YYYY', weekStart: 'sunday',  decimalPlaces: '2' },
-  HKD: { currencyPosition: 'before', dateFormat: 'DD/MM/YYYY', weekStart: 'sunday',  decimalPlaces: '2' },
-  NOK: { currencyPosition: 'after',  dateFormat: 'DD.MM.YYYY', weekStart: 'monday',  decimalPlaces: '2' },
-  SEK: { currencyPosition: 'after',  dateFormat: 'YYYY-MM-DD', weekStart: 'monday',  decimalPlaces: '2' },
-  DKK: { currencyPosition: 'after',  dateFormat: 'DD.MM.YYYY', weekStart: 'monday',  decimalPlaces: '2' },
-  NZD: { currencyPosition: 'before', dateFormat: 'DD/MM/YYYY', weekStart: 'monday',  decimalPlaces: '2' },
-  ZAR: { currencyPosition: 'before', dateFormat: 'YYYY-MM-DD', weekStart: 'sunday',  decimalPlaces: '2' },
-  KRW: { currencyPosition: 'before', dateFormat: 'YYYY-MM-DD', weekStart: 'sunday',  decimalPlaces: '0' },
-  TRY: { currencyPosition: 'after',  dateFormat: 'DD.MM.YYYY', weekStart: 'monday',  decimalPlaces: '2' },
-  RUB: { currencyPosition: 'after',  dateFormat: 'DD.MM.YYYY', weekStart: 'monday',  decimalPlaces: '2' },
-  PLN: { currencyPosition: 'after',  dateFormat: 'DD.MM.YYYY', weekStart: 'monday',  decimalPlaces: '2' },
-  PHP: { currencyPosition: 'before', dateFormat: 'MM/DD/YYYY', weekStart: 'sunday',  decimalPlaces: '2' },
-  IDR: { currencyPosition: 'before', dateFormat: 'DD/MM/YYYY', weekStart: 'monday',  decimalPlaces: '0' },
-  MYR: { currencyPosition: 'before', dateFormat: 'DD/MM/YYYY', weekStart: 'monday',  decimalPlaces: '2' },
-  THB: { currencyPosition: 'before', dateFormat: 'DD/MM/YYYY', weekStart: 'sunday',  decimalPlaces: '2' },
-  AED: { currencyPosition: 'before', dateFormat: 'DD/MM/YYYY', weekStart: 'monday',  decimalPlaces: '2' },
-  SAR: { currencyPosition: 'before', dateFormat: 'DD/MM/YYYY', weekStart: 'sunday',  decimalPlaces: '2' },
+  USD: {
+    currencyPosition: 'before',
+    dateFormat: 'MM/DD/YYYY',
+    weekStart: 'sunday',
+    decimalPlaces: '2'
+  },
+  EUR: {
+    currencyPosition: 'after',
+    dateFormat: 'DD/MM/YYYY',
+    weekStart: 'monday',
+    decimalPlaces: '2'
+  },
+  GBP: {
+    currencyPosition: 'before',
+    dateFormat: 'DD/MM/YYYY',
+    weekStart: 'monday',
+    decimalPlaces: '2'
+  },
+  JPY: {
+    currencyPosition: 'before',
+    dateFormat: 'YYYY-MM-DD',
+    weekStart: 'sunday',
+    decimalPlaces: '0'
+  },
+  CAD: {
+    currencyPosition: 'before',
+    dateFormat: 'MM/DD/YYYY',
+    weekStart: 'sunday',
+    decimalPlaces: '2'
+  },
+  AUD: {
+    currencyPosition: 'before',
+    dateFormat: 'DD/MM/YYYY',
+    weekStart: 'monday',
+    decimalPlaces: '2'
+  },
+  CHF: {
+    currencyPosition: 'before',
+    dateFormat: 'DD.MM.YYYY',
+    weekStart: 'monday',
+    decimalPlaces: '2'
+  },
+  CNY: {
+    currencyPosition: 'before',
+    dateFormat: 'YYYY-MM-DD',
+    weekStart: 'monday',
+    decimalPlaces: '2'
+  },
+  INR: {
+    currencyPosition: 'before',
+    dateFormat: 'DD/MM/YYYY',
+    weekStart: 'sunday',
+    decimalPlaces: '2'
+  },
+  BRL: {
+    currencyPosition: 'before',
+    dateFormat: 'DD/MM/YYYY',
+    weekStart: 'sunday',
+    decimalPlaces: '2'
+  },
+  MXN: {
+    currencyPosition: 'before',
+    dateFormat: 'DD/MM/YYYY',
+    weekStart: 'sunday',
+    decimalPlaces: '2'
+  },
+  SGD: {
+    currencyPosition: 'before',
+    dateFormat: 'DD/MM/YYYY',
+    weekStart: 'sunday',
+    decimalPlaces: '2'
+  },
+  HKD: {
+    currencyPosition: 'before',
+    dateFormat: 'DD/MM/YYYY',
+    weekStart: 'sunday',
+    decimalPlaces: '2'
+  },
+  NOK: {
+    currencyPosition: 'after',
+    dateFormat: 'DD.MM.YYYY',
+    weekStart: 'monday',
+    decimalPlaces: '2'
+  },
+  SEK: {
+    currencyPosition: 'after',
+    dateFormat: 'YYYY-MM-DD',
+    weekStart: 'monday',
+    decimalPlaces: '2'
+  },
+  DKK: {
+    currencyPosition: 'after',
+    dateFormat: 'DD.MM.YYYY',
+    weekStart: 'monday',
+    decimalPlaces: '2'
+  },
+  NZD: {
+    currencyPosition: 'before',
+    dateFormat: 'DD/MM/YYYY',
+    weekStart: 'monday',
+    decimalPlaces: '2'
+  },
+  ZAR: {
+    currencyPosition: 'before',
+    dateFormat: 'YYYY-MM-DD',
+    weekStart: 'sunday',
+    decimalPlaces: '2'
+  },
+  KRW: {
+    currencyPosition: 'before',
+    dateFormat: 'YYYY-MM-DD',
+    weekStart: 'sunday',
+    decimalPlaces: '0'
+  },
+  TRY: {
+    currencyPosition: 'after',
+    dateFormat: 'DD.MM.YYYY',
+    weekStart: 'monday',
+    decimalPlaces: '2'
+  },
+  RUB: {
+    currencyPosition: 'after',
+    dateFormat: 'DD.MM.YYYY',
+    weekStart: 'monday',
+    decimalPlaces: '2'
+  },
+  PLN: {
+    currencyPosition: 'after',
+    dateFormat: 'DD.MM.YYYY',
+    weekStart: 'monday',
+    decimalPlaces: '2'
+  },
+  PHP: {
+    currencyPosition: 'before',
+    dateFormat: 'MM/DD/YYYY',
+    weekStart: 'sunday',
+    decimalPlaces: '2'
+  },
+  IDR: {
+    currencyPosition: 'before',
+    dateFormat: 'DD/MM/YYYY',
+    weekStart: 'monday',
+    decimalPlaces: '0'
+  },
+  MYR: {
+    currencyPosition: 'before',
+    dateFormat: 'DD/MM/YYYY',
+    weekStart: 'monday',
+    decimalPlaces: '2'
+  },
+  THB: {
+    currencyPosition: 'before',
+    dateFormat: 'DD/MM/YYYY',
+    weekStart: 'sunday',
+    decimalPlaces: '2'
+  },
+  AED: {
+    currencyPosition: 'before',
+    dateFormat: 'DD/MM/YYYY',
+    weekStart: 'monday',
+    decimalPlaces: '2'
+  },
+  SAR: {
+    currencyPosition: 'before',
+    dateFormat: 'DD/MM/YYYY',
+    weekStart: 'sunday',
+    decimalPlaces: '2'
+  }
 }
 
 const selectedCurrency = ref(userSettings.currency)

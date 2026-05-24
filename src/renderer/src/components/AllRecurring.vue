@@ -135,7 +135,6 @@ async function rescan() {
   await fetchRecurring()
 }
 
-
 function median(arr) {
   if (!arr.length) return 0
   const sorted = [...arr].sort((a, b) => a - b)

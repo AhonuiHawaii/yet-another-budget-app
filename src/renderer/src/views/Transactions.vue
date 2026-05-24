@@ -1121,7 +1121,6 @@ const filteredTransactions = computed(() => {
 
 // ── Formatters ────────────────────────────────────────────────────────────────
 
-
 function typeColor(type) {
   return (
     {

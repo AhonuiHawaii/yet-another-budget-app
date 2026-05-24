@@ -342,7 +342,6 @@ async function onDrop(targetId) {
   await store.reorderGoals(activeIds)
 }
 
-
 function formatDate(value) {
   if (!value) return '-'
   return new Date(`${value}T00:00:00`).toLocaleDateString('en-US', {

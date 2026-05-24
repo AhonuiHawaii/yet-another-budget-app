@@ -674,11 +674,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import {
-  useUserAccountsStore,
-  accountTypeColor,
-  accountTypeIcon
-} from '../stores/userAccounts'
+import { useUserAccountsStore, accountTypeColor, accountTypeIcon } from '../stores/userAccounts'
 import { useUserTransactionsStore } from '../stores/userTransactions'
 import { useUserSettingsStore } from '../stores/userSettings'
 

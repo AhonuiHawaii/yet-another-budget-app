@@ -420,7 +420,6 @@ function addActual(actuals, categoryName, rawAmount) {
   actuals.set(categoryName, (actuals.get(categoryName) || 0) + Math.abs(rawAmount))
 }
 
-
 async function loadMonth() {
   loadError.value = null
   try {
