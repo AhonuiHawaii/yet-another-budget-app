@@ -86,13 +86,13 @@ const theme = useTheme()
 const userSettings = useUserSettingsStore()
 
 const baseThemes = [
-  { title: 'Pastel', value: 'pastel' },
+  { title: 'Pastel', value: 'pastelPink' },
   { title: 'Blue Grey', value: 'blueGrey' },
   { title: 'Black & White', value: 'blackWhite' }
 ]
 
 const currentThemeName = theme.global.name.value
-let initialBase = 'pastel'
+let initialBase = 'pastelPink'
 let initialDark = false
 
 if (currentThemeName.includes('Dark')) {

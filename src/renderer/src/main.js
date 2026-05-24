@@ -17,7 +17,7 @@ const app = createApp(App)
 app.use(pinia)
 
 const userSettings = useUserSettingsStore()
-const defaultTheme = themes[userSettings.theme] ? userSettings.theme : 'pastelLight'
+const defaultTheme = themes[userSettings.theme] ? userSettings.theme : 'pastelPinkLight'
 
 const vuetify = createVuetify({
   theme: {
