@@ -267,6 +267,37 @@ const currencies = [
   { code: 'SAR', symbol: '﷼', label: 'SAR - Saudi Riyal (﷼)' }
 ]
 
+const CURRENCY_REGIONAL_DEFAULTS = {
+  USD: { currencyPosition: 'before', dateFormat: 'MM/DD/YYYY', weekStart: 'sunday',  decimalPlaces: '2' },
+  EUR: { currencyPosition: 'after',  dateFormat: 'DD/MM/YYYY', weekStart: 'monday',  decimalPlaces: '2' },
+  GBP: { currencyPosition: 'before', dateFormat: 'DD/MM/YYYY', weekStart: 'monday',  decimalPlaces: '2' },
+  JPY: { currencyPosition: 'before', dateFormat: 'YYYY-MM-DD', weekStart: 'sunday',  decimalPlaces: '0' },
+  CAD: { currencyPosition: 'before', dateFormat: 'MM/DD/YYYY', weekStart: 'sunday',  decimalPlaces: '2' },
+  AUD: { currencyPosition: 'before', dateFormat: 'DD/MM/YYYY', weekStart: 'monday',  decimalPlaces: '2' },
+  CHF: { currencyPosition: 'before', dateFormat: 'DD.MM.YYYY', weekStart: 'monday',  decimalPlaces: '2' },
+  CNY: { currencyPosition: 'before', dateFormat: 'YYYY-MM-DD', weekStart: 'monday',  decimalPlaces: '2' },
+  INR: { currencyPosition: 'before', dateFormat: 'DD/MM/YYYY', weekStart: 'sunday',  decimalPlaces: '2' },
+  BRL: { currencyPosition: 'before', dateFormat: 'DD/MM/YYYY', weekStart: 'sunday',  decimalPlaces: '2' },
+  MXN: { currencyPosition: 'before', dateFormat: 'DD/MM/YYYY', weekStart: 'sunday',  decimalPlaces: '2' },
+  SGD: { currencyPosition: 'before', dateFormat: 'DD/MM/YYYY', weekStart: 'sunday',  decimalPlaces: '2' },
+  HKD: { currencyPosition: 'before', dateFormat: 'DD/MM/YYYY', weekStart: 'sunday',  decimalPlaces: '2' },
+  NOK: { currencyPosition: 'after',  dateFormat: 'DD.MM.YYYY', weekStart: 'monday',  decimalPlaces: '2' },
+  SEK: { currencyPosition: 'after',  dateFormat: 'YYYY-MM-DD', weekStart: 'monday',  decimalPlaces: '2' },
+  DKK: { currencyPosition: 'after',  dateFormat: 'DD.MM.YYYY', weekStart: 'monday',  decimalPlaces: '2' },
+  NZD: { currencyPosition: 'before', dateFormat: 'DD/MM/YYYY', weekStart: 'monday',  decimalPlaces: '2' },
+  ZAR: { currencyPosition: 'before', dateFormat: 'YYYY-MM-DD', weekStart: 'sunday',  decimalPlaces: '2' },
+  KRW: { currencyPosition: 'before', dateFormat: 'YYYY-MM-DD', weekStart: 'sunday',  decimalPlaces: '0' },
+  TRY: { currencyPosition: 'after',  dateFormat: 'DD.MM.YYYY', weekStart: 'monday',  decimalPlaces: '2' },
+  RUB: { currencyPosition: 'after',  dateFormat: 'DD.MM.YYYY', weekStart: 'monday',  decimalPlaces: '2' },
+  PLN: { currencyPosition: 'after',  dateFormat: 'DD.MM.YYYY', weekStart: 'monday',  decimalPlaces: '2' },
+  PHP: { currencyPosition: 'before', dateFormat: 'MM/DD/YYYY', weekStart: 'sunday',  decimalPlaces: '2' },
+  IDR: { currencyPosition: 'before', dateFormat: 'DD/MM/YYYY', weekStart: 'monday',  decimalPlaces: '0' },
+  MYR: { currencyPosition: 'before', dateFormat: 'DD/MM/YYYY', weekStart: 'monday',  decimalPlaces: '2' },
+  THB: { currencyPosition: 'before', dateFormat: 'DD/MM/YYYY', weekStart: 'sunday',  decimalPlaces: '2' },
+  AED: { currencyPosition: 'before', dateFormat: 'DD/MM/YYYY', weekStart: 'monday',  decimalPlaces: '2' },
+  SAR: { currencyPosition: 'before', dateFormat: 'DD/MM/YYYY', weekStart: 'sunday',  decimalPlaces: '2' },
+}
+
 const selectedCurrency = ref(userSettings.currency)
 const selectedCurrencyPosition = ref(userSettings.currencyPosition)
 
@@ -277,6 +308,17 @@ const currencyPreviewSymbol = computed(
 const updateCurrency = (code) => {
   selectedCurrency.value = code
   userSettings.setCurrency(code)
+  const defaults = CURRENCY_REGIONAL_DEFAULTS[code]
+  if (defaults) {
+    selectedCurrencyPosition.value = defaults.currencyPosition
+    selectedDateFormat.value = defaults.dateFormat
+    selectedWeekStart.value = defaults.weekStart
+    selectedDecimalPlaces.value = defaults.decimalPlaces
+    userSettings.setCurrencyPosition(defaults.currencyPosition)
+    userSettings.setDateFormat(defaults.dateFormat)
+    userSettings.setWeekStart(defaults.weekStart)
+    userSettings.setDecimalPlaces(defaults.decimalPlaces)
+  }
 }
 
 const updateCurrencyPosition = (position) => {
