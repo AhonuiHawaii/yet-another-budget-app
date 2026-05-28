@@ -3,6 +3,7 @@
   "productName": "Yet Another Budget App",
   "version": "1.8.7",
   "description": "A personal finance management application built with Electron and Vue.js.",
+  "license": "BSD-2-Clause",
   "main": "./out/main/index.js",
   "author": "Aohonui Hawaii",
   "homepage": "https://github.com/AhonuiHawaii/yet-another-budget-app",

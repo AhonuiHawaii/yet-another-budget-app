@@ -161,7 +161,10 @@ Do not attach OFX, QFX, database, backup, or JSON export files unless you have r
 
 ## License
 
-Released under the [MIT License](LICENSE).
+Released under the [BSD 2-Clause License](LICENSE).
+
+This license permits commercial use, including distributing paid binary builds
+and offering a separate pro version, as long as the license terms are followed.
 
 ## Security
 
